@@ -76,8 +76,8 @@ seriesApp.get('/', async (c) => {
           </form>
         </div>
 
-        <div class="series-tree">
-          <div class="stree-root" id="series-tree-root">
+        <div class="series-tree-wrap">
+          <div class="stree-block" id="series-tree-root">
             {tree.length === 0 ? <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text3)', fontSize: '13px' }}>还没有创建任何系列，点击右上角新建一个吧！</div> : null}
             {tree.map(node => SeriesNode({ node, depth: 0 }))}
           </div>

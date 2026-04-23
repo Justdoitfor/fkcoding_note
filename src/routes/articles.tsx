@@ -112,8 +112,8 @@ articlesApp.get('/new', async (c) => {
 
   return c.html(
     <Layout title="编辑器" current="editor">
-      <div id="page-editor" class="page" style={{ height: 'calc(100vh - var(--topbar-h))', padding: '0' }}>
-        <div class="editor-shell" style={{ height: '100%' }}>
+      <div id="page-editor" class="page" style={{ height: 'calc(100vh - var(--th))', padding: '0' }}>
+        <div class="editor-wrap" style={{ height: '100%' }}>
           {/* Left tree */}
           <div class="etree">
             <div class="etree-head">
@@ -206,23 +206,23 @@ articlesApp.get('/new', async (c) => {
 
           {/* Meta panel */}
           <div class="meta-pane">
-            <div class="meta-sec">
-              <div class="meta-lbl">状态</div>
-              <div class="meta-val" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><div class="status-dot"></div>草稿</div>
+            <div class="meta-s">
+              <div class="meta-l">状态</div>
+              <div class="meta-v" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><div class="status-dot"></div>草稿</div>
             </div>
-            <div class="meta-sec">
-              <div class="meta-lbl">标签</div>
+            <div class="meta-s">
+              <div class="meta-l">标签</div>
               <div class="meta-tag-wrap" id="article-tags-wrap">
                 {/* 动态渲染文章标签（新建时为空） */}
-                <span class="meta-tag meta-add" onclick="const t=prompt('输入新标签名称 (逗号分隔多个)'); if(t) { htmx.ajax('POST', `/articles/${newArticleId}/tags`, {values:{tags:t}, target:'#article-tags-wrap', swap:'innerHTML'}); }">+ 添加</span>
+                <span class="meta-tag meta-add-tag" onclick="const t=prompt('输入新标签名称 (逗号分隔多个)'); if(t) { htmx.ajax('POST', `/articles/${newArticleId}/tags`, {values:{tags:t}, target:'#article-tags-wrap', swap:'innerHTML'}); }">+ 添加</span>
               </div>
             </div>
-            <div class="meta-sec">
-              <div class="meta-lbl">字数</div>
+            <div class="meta-s">
+              <div class="meta-l">字数</div>
               <div class="meta-num" id="meta-word-count">0</div>
             </div>
-            <div class="meta-sec">
-              <div class="meta-lbl">阅读时间</div>
+            <div class="meta-s">
+              <div class="meta-l">阅读时间</div>
               <div class="meta-num" id="meta-read-time">约 0 分钟</div>
             </div>
           </div>
@@ -250,8 +250,8 @@ articlesApp.get('/edit/:id', async (c) => {
 
   return c.html(
     <Layout title="编辑文章" current="editor">
-      <div id="page-editor" class="page" style={{ height: 'calc(100vh - var(--topbar-h))', padding: '0' }}>
-        <div class="editor-shell" style={{ height: '100%' }}>
+      <div id="page-editor" class="page" style={{ height: 'calc(100vh - var(--th))', padding: '0' }}>
+        <div class="editor-wrap" style={{ height: '100%' }}>
           {/* Left tree */}
           <div class="etree">
             <div class="etree-head">
@@ -337,36 +337,36 @@ articlesApp.get('/edit/:id', async (c) => {
 
           {/* Meta panel */}
           <div class="meta-pane">
-            <div class="meta-sec">
-              <div class="meta-lbl">状态</div>
-              <div class="meta-val" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div class="meta-s">
+              <div class="meta-l">状态</div>
+              <div class="meta-v" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <div class="status-dot" style={article.status === 'published' ? 'background:var(--green)' : ''}></div>
                 {article.status === 'published' ? '已发布' : '草稿'}
               </div>
             </div>
-            <div class="meta-sec">
-              <div class="meta-lbl">标签</div>
+            <div class="meta-s">
+              <div class="meta-l">标签</div>
               <div class="meta-tag-wrap" id="article-tags-wrap">
                 {/* 动态渲染文章标签（新建时为空） */}
-                <span class="meta-tag meta-add" onclick={`const t=prompt('输入新标签名称 (逗号分隔多个)'); if(t) { htmx.ajax('POST', '/articles/${articleId}/tags', {values:{tags:t}, target:'#article-tags-wrap', swap:'innerHTML'}); }`}>+ 添加</span>
+                <span class="meta-tag meta-add-tag" onclick={`const t=prompt('输入新标签名称 (逗号分隔多个)'); if(t) { htmx.ajax('POST', '/articles/${articleId}/tags', {values:{tags:t}, target:'#article-tags-wrap', swap:'innerHTML'}); }`}>+ 添加</span>
               </div>
             </div>
-            <div class="meta-sec">
-              <div class="meta-lbl">字数</div>
+            <div class="meta-s">
+              <div class="meta-l">字数</div>
               <div class="meta-num" id="meta-word-count">{article.wordCount}</div>
             </div>
-            <div class="meta-sec">
-              <div class="meta-lbl">阅读时间</div>
+            <div class="meta-s">
+              <div class="meta-l">阅读时间</div>
               <div class="meta-num" id="meta-read-time">约 {Math.max(1, Math.ceil((article.wordCount || 0) / 300))} 分钟</div>
             </div>
-            <div class="meta-sec">
-              <div class="meta-lbl">修改时间</div>
-              <div class="meta-val" style={{ fontSize: '11px', fontFamily: 'var(--font-mono)' }}>
+            <div class="meta-s">
+              <div class="meta-l">修改时间</div>
+              <div class="meta-v" style={{ fontSize: '11px', fontFamily: 'var(--font-mono)' }}>
                 {new Date(article.updatedAt).toLocaleString('zh-CN')}
               </div>
             </div>
-            <div class="meta-sec">
-              <div class="meta-lbl">操作</div>
+            <div class="meta-s">
+              <div class="meta-l">操作</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                 <button class="btn btn-sm btn-ghost" style={{ justifyContent: 'flex-start', fontSize: '11px' }} onclick="openModal('moveModal')">📦 移动文章…</button>
                 <button class="btn btn-sm btn-ghost" style={{ justifyContent: 'flex-start', fontSize: '11px' }} onclick="toast('链接已复制','success')">🔗 复制链接</button>
@@ -539,7 +539,7 @@ articlesApp.post('/:id/tags', async (c) => {
         ${t.name} &times;
       </span>
     `)}
-    <span class="meta-tag meta-add" onclick="const t=prompt('输入新标签名称 (逗号分隔多个)'); if(t) { htmx.ajax('POST', \`/articles/${articleId}/tags\`, {values:{tags:t}, target:'#article-tags-wrap', swap:'innerHTML'}); }">+ 添加</span>
+    <span class="meta-tag meta-add-tag" onclick="const t=prompt('输入新标签名称 (逗号分隔多个)'); if(t) { htmx.ajax('POST', \`/articles/${articleId}/tags\`, {values:{tags:t}, target:'#article-tags-wrap', swap:'innerHTML'}); }">+ 添加</span>
   `);
 });
 
@@ -566,7 +566,7 @@ articlesApp.delete('/:id/tags/:tagId', async (c) => {
         ${t.name} &times;
       </span>
     `)}
-    <span class="meta-tag meta-add" onclick="const t=prompt('输入新标签名称 (逗号分隔多个)'); if(t) { htmx.ajax('POST', \`/articles/${articleId}/tags\`, {values:{tags:t}, target:'#article-tags-wrap', swap:'innerHTML'}); }">+ 添加</span>
+    <span class="meta-tag meta-add-tag" onclick="const t=prompt('输入新标签名称 (逗号分隔多个)'); if(t) { htmx.ajax('POST', \`/articles/${articleId}/tags\`, {values:{tags:t}, target:'#article-tags-wrap', swap:'innerHTML'}); }">+ 添加</span>
   `);
 });
 

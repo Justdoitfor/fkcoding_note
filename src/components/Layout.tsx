@@ -22,25 +22,28 @@ export const Layout = (props: { children: any; title?: string; current?: string 
     ${<Sidebar current={props.current} />}
     <div class="main">
       <header class="topbar">
-        <div class="topbar-breadcrumb">
+        <div class="topbar-bc">
           <span>fkcoding-note</span>
           <span class="bc-sep">/</span>
-          <span class="bc-cur" id="topbar-cur">${props.title || '总览'}</span>
+          <span class="bc-cur" id="topbarCur">${props.title || '总览'}</span>
         </div>
-        <div class="search-bar" onclick="openModal('searchOverlay')">
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="5" cy="5" r="3.5" stroke="currentColor" stroke-width="1.2"/><path d="M8 8l2.5 2.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
-          搜索教程、笔记…
+        <div class="search-trigger" onclick="openModal('searchOverlay')" style="min-width:180px">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="5.5" cy="5.5" r="3.8" stroke="currentColor" stroke-width="1.2"/><path d="M8.5 8.5l2.5 2.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          搜索…
           <span class="search-kbd">⌘K</span>
         </div>
-        <button class="btn btn-ghost" onclick="openModal('quickNoteModal')">
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="4" r="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M3 11c0-1.66 1.34-3 3-3s3 1.34 3 3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
-        </button>
-        <button class="btn btn-primary" id="topbar-new-btn" onclick="openModal('newArticleModal')">
-          <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M6 1v10M1 6h10" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
-          新建文章
+        <div class="tooltip-wrap">
+          <button class="btn btn-icon" onclick="openModal('quickNoteModal')">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v6M4 4h6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><rect x="1.5" y="5.5" width="11" height="7" rx="1.5" stroke="currentColor" stroke-width="1.2"/></svg>
+          </button>
+          <div class="tooltip">快速笔记</div>
+        </div>
+        <button class="btn btn-primary btn-sm" id="topNewBtn" onclick="openModal('newArticleModal')">
+          <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M5.5 1v9M1 5.5h9" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
+          新建
         </button>
       </header>
-      <div class="content-scroll">
+      <div class="page-body">
         ${props.children}
       </div>
     </div>

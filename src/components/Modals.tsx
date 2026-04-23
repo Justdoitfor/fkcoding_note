@@ -11,7 +11,7 @@ export const Modals = () => html`
   <div class="ctx-item" onclick="toast('链接已复制','success');closeCtx()">🔗 复制链接</div>
   <div class="ctx-item" onclick="openModal('moveModal');closeCtx()">📦 移动到…</div>
   <div class="ctx-sep"></div>
-  <div class="ctx-item" onclick="openModal('dupModal');closeCtx()">📋 复制文章</div>
+  <div class="ctx-item" onclick="toast('开发中','info');closeCtx()">📋 复制文章</div>
   <div class="ctx-item danger" onclick="openModal('deleteModal');closeCtx()">🗑 删除</div>
 </div>
 
@@ -25,7 +25,7 @@ export const Modals = () => html`
     </div>
     <div class="search-results" id="searchResults">
       <div class="search-section">快捷操作</div>
-      <div class="search-item" onclick="showPage('editor');closeOverlay('searchOverlay')">
+      <div class="search-item" onclick="window.location.href='/articles/new';closeOverlay('searchOverlay')">
         <div class="search-item-icon" style="background:var(--abg)">✏️</div>
         <div style="flex:1"><div class="search-item-title">新建文章</div><div class="search-item-meta">创建新 Markdown 文章</div></div>
       </div>
@@ -234,9 +234,11 @@ export const Modals = () => html`
   </div>
   <div style="padding:4px">
     <div class="dd-item" onclick="toast('前往设置…','info');closePopover()">⚙️ &nbsp;账户设置</div>
+    <div class="dd-item" onclick="toast('已复制邀请链接','success');closePopover()">🔗 &nbsp;分享知识库</div>
+    <div class="dd-item" onclick="toast('导出中…','info');closePopover()">📦 &nbsp;导出所有内容</div>
     <div class="dd-sep"></div>
-    <form action="/logout" method="post">
-      <button type="submit" class="dd-item danger" style="width:100%;text-align:left;border:none;background:none;cursor:pointer">🚪 &nbsp;退出登录</button>
+    <form action="/logout" method="post" style="margin:0">
+      <button type="submit" class="dd-item danger" style="width:100%;text-align:left;border:none;background:none;font-family:inherit" onclick="closePopover()">🚪 &nbsp;退出登录</button>
     </form>
   </div>
 </div>

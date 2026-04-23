@@ -274,7 +274,7 @@ window.handleSearch = function(val) {
   } else {
     document.getElementById('searchResults').innerHTML = `
       <div class="search-section">快捷操作</div>
-      <div class="search-item" onclick="showPage('editor');closeOverlay('searchOverlay')">
+      <div class="search-item" onclick="window.location.href='/articles/new';closeOverlay('searchOverlay')">
         <div class="search-item-icon" style="background:var(--abg)">✏️</div>
         <div style="flex:1"><div class="search-item-title">新建文章</div><div class="search-item-meta">创建新 Markdown 文章</div></div>
       </div>
