@@ -67,9 +67,9 @@ articlesApp.get('/new', async (c) => {
               <div class="etree-series-name">全部内容</div>
             </div>
             <div class="etree-body">
-              ${EditorTree({ allSeries, allArticles, parentId: null, depth: 0, activeArticleId: newArticleId })}
+              {EditorTree({ allSeries, allArticles, parentId: null, depth: 0, activeArticleId: newArticleId })}
               
-              <div class="et-item et-ch" style="margin-top:10px">
+              <div class="et-item et-ch" style={{marginTop:'10px'}}>
                 <svg class="et-icon" viewBox="0 0 10 10" fill="none"><path d="M2 4l3 3 3-3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
                 未分类草稿
               </div>
@@ -78,14 +78,14 @@ articlesApp.get('/new', async (c) => {
                   <div class="et-dot"></div>
                   新文章
                 </div>
-                ${draftArticles.map(a => html`
-                  <a href="/articles/edit/${a.id}" style="text-decoration:none">
+                {draftArticles.map(a => (
+                  <a href={`/articles/edit/${a.id}`} style={{textDecoration:'none'}}>
                     <div class="et-item et-gc">
                       <div class="et-dot"></div>
-                      ${a.title}
+                      {a.title}
                     </div>
                   </a>
-                `)}
+                ))}
               </div>
             </div>
           </div>
@@ -203,21 +203,21 @@ articlesApp.get('/edit/:id', async (c) => {
               <div class="etree-series-name">全部内容</div>
             </div>
             <div class="etree-body">
-              ${EditorTree({ allSeries, allArticles, parentId: null, depth: 0, activeArticleId: articleId })}
+              {EditorTree({ allSeries, allArticles, parentId: null, depth: 0, activeArticleId: articleId })}
               
-              <div class="et-item et-ch" style="margin-top:10px">
+              <div class="et-item et-ch" style={{marginTop:'10px'}}>
                 <svg class="et-icon" viewBox="0 0 10 10" fill="none"><path d="M2 4l3 3 3-3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
                 未分类草稿
               </div>
               <div>
-                ${draftArticles.map(a => html`
-                  <a href="/articles/edit/${a.id}" style="text-decoration:none">
-                    <div class="et-item et-gc ${a.id === articleId ? 'active' : ''}">
+                {draftArticles.map(a => (
+                  <a href={`/articles/edit/${a.id}`} style={{textDecoration:'none'}}>
+                    <div class={`et-item et-gc ${a.id === articleId ? 'active' : ''}`}>
                       <div class="et-dot"></div>
-                      ${a.title}
+                      {a.title}
                     </div>
                   </a>
-                `)}
+                ))}
               </div>
             </div>
           </div>
