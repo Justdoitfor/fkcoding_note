@@ -201,3 +201,48 @@ window.insertMarkdown = function(prefix, suffix = '') {
   textarea.focus();
   textarea.setSelectionRange(newCursorPos, newCursorPos);
 };
+
+// ─── Editor Tab Key Handler ───
+document.addEventListener('keydown', function(e) {
+  const textarea = document.getElementById('md-input');
+  if (!textarea || document.activeElement !== textarea) return;
+
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const text = textarea.value;
+    
+    // Check if multi-line selection
+    if (start !== end && text.substring(start, end).includes('\n')) {
+      const selectedLines = text.substring(start, end).split('\n');
+      let replacement = '';
+      
+      if (e.shiftKey) {
+        // Shift+Tab: Unindent
+        replacement = selectedLines.map(line => line.startsWith('  ') ? line.substring(2) : (line.startsWith('\t') ? line.substring(1) : line)).join('\n');
+      } else {
+        // Tab: Indent
+        replacement = selectedLines.map(line => '  ' + line).join('\n');
+      }
+      
+      textarea.value = text.substring(0, start) + replacement + text.substring(end);
+      textarea.selectionStart = start;
+      textarea.selectionEnd = start + replacement.length;
+    } else {
+      // Single line tab (insert 2 spaces)
+      if (!e.shiftKey) {
+        textarea.value = text.substring(0, start) + '  ' + text.substring(end);
+        textarea.selectionStart = textarea.selectionEnd = start + 2;
+      }
+    }
+    
+    // Trigger update
+    const alpineData = textarea.__x;
+    if (alpineData && alpineData.$data) {
+      alpineData.$data.content = textarea.value;
+    }
+    textarea.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+});

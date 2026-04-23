@@ -2,9 +2,9 @@ import { Hono } from 'hono';
 import { Layout } from '../components/Layout';
 import { html } from 'hono/html';
 import { drizzle } from 'drizzle-orm/d1';
-import { articles, series } from '../db/schema';
+import { articles, series, tags, articleTags } from '../db/schema';
 import { nanoid } from 'nanoid';
-import { eq } from 'drizzle-orm';
+import { eq, inArray } from 'drizzle-orm';
 
 const articlesApp = new Hono<{ Bindings: { DB: D1Database }; Variables: { userId: string } }>();
 
@@ -47,6 +47,14 @@ articlesApp.get('/new', async (c) => {
   const allSeries = await db.select().from(series).where(eq(series.userId, userId));
   const allArticles = await db.select().from(articles).where(eq(articles.userId, userId));
   const draftArticles = allArticles.filter(a => !a.seriesId);
+  const allTags = await db.select().from(tags).where(eq(tags.userId, userId));
+
+  // Fetch attached tags for existing article
+  const attachedTagsRecords = await db.select().from(articleTags).where(eq(articleTags.articleId, articleId));
+  const attachedTagIds = attachedTagsRecords.map(t => t.tagId).filter(Boolean) as string[];
+  const attachedTags = attachedTagIds.length > 0 
+    ? await db.select().from(tags).where(inArray(tags.id, attachedTagIds))
+    : [];
 
   return c.html(
     <Layout title="编辑器" current="editor">
@@ -148,8 +156,9 @@ articlesApp.get('/new', async (c) => {
             </div>
             <div class="meta-sec">
               <div class="meta-lbl">标签</div>
-              <div class="meta-tag-wrap">
-                <span class="meta-tag meta-add">+ 添加</span>
+              <div class="meta-tag-wrap" id="article-tags-wrap">
+                {/* 动态渲染文章标签（新建时为空） */}
+                <span class="meta-tag meta-add" onclick="const t=prompt('输入新标签名称 (逗号分隔多个)'); if(t) { htmx.ajax('POST', `/articles/${newArticleId}/tags`, {values:{tags:t}, target:'#article-tags-wrap', swap:'innerHTML'}); }">+ 添加</span>
               </div>
             </div>
             <div class="meta-sec">
@@ -279,8 +288,13 @@ articlesApp.get('/edit/:id', async (c) => {
             </div>
             <div class="meta-sec">
               <div class="meta-lbl">标签</div>
-              <div class="meta-tag-wrap">
-                <span class="meta-tag meta-add">+ 添加</span>
+              <div class="meta-tag-wrap" id="article-tags-wrap">
+                {attachedTags.map((t: any) => html`
+                  <span class="meta-tag" onclick="if(confirm('删除标签?')) { htmx.ajax('DELETE', \`/articles/${articleId}/tags/${t.id}\`, {target:'#article-tags-wrap', swap:'innerHTML'}); }">
+                    ${t.name} &times;
+                  </span>
+                `)}
+                <span class="meta-tag meta-add" onclick={`const t=prompt('输入新标签名称 (逗号分隔多个)'); if(t) { htmx.ajax('POST', '/articles/${articleId}/tags', {values:{tags:t}, target:'#article-tags-wrap', swap:'innerHTML'}); }`}>+ 添加</span>
               </div>
             </div>
             <div class="meta-sec">
@@ -351,6 +365,81 @@ articlesApp.post('/:id/publish', async (c) => {
     .where(eq(articles.id, articleId));
     
   return c.text('Published');
+});
+
+// htmx 接口：处理标签
+articlesApp.post('/:id/tags', async (c) => {
+  const db = drizzle(c.env.DB);
+  const userId = c.get('userId');
+  const articleId = c.req.param('id');
+  const body = await c.req.parseBody();
+  const rawTags = (body.tags as string) || '';
+  
+  const tagNames = rawTags.split(',').map(t => t.trim()).filter(Boolean);
+  
+  if (tagNames.length > 0) {
+    for (const name of tagNames) {
+      // 查找或创建 tag
+      let tagRecord = await db.select().from(tags).where(eq(tags.name, name)).get();
+      if (!tagRecord) {
+        tagRecord = { id: nanoid(), userId, name, color: 'gray' };
+        await db.insert(tags).values(tagRecord);
+      }
+      
+      // 绑定关系
+      const existingLink = await db.select().from(articleTags)
+        .where(eq(articleTags.articleId, articleId))
+        .where(eq(articleTags.tagId, tagRecord.id))
+        .get();
+        
+      if (!existingLink) {
+        await db.insert(articleTags).values({ articleId, tagId: tagRecord.id });
+      }
+    }
+  }
+
+  // 重新获取绑定的标签渲染返回
+  const attachedTagsRecords = await db.select().from(articleTags).where(eq(articleTags.articleId, articleId));
+  const attachedTagIds = attachedTagsRecords.map(t => t.tagId).filter(Boolean) as string[];
+  const attachedTags = attachedTagIds.length > 0 
+    ? await db.select().from(tags).where(inArray(tags.id, attachedTagIds))
+    : [];
+
+  return c.html(html`
+    ${attachedTags.map((t: any) => html`
+      <span class="meta-tag" onclick="if(confirm('删除标签?')) { htmx.ajax('DELETE', \`/articles/${articleId}/tags/${t.id}\`, {target:'#article-tags-wrap', swap:'innerHTML'}); }">
+        ${t.name} &times;
+      </span>
+    `)}
+    <span class="meta-tag meta-add" onclick="const t=prompt('输入新标签名称 (逗号分隔多个)'); if(t) { htmx.ajax('POST', \`/articles/${articleId}/tags\`, {values:{tags:t}, target:'#article-tags-wrap', swap:'innerHTML'}); }">+ 添加</span>
+  `);
+});
+
+articlesApp.delete('/:id/tags/:tagId', async (c) => {
+  const db = drizzle(c.env.DB);
+  const articleId = c.req.param('id');
+  const tagId = c.req.param('tagId');
+
+  // 删除绑定关系
+  await db.delete(articleTags)
+    .where(eq(articleTags.articleId, articleId))
+    .where(eq(articleTags.tagId, tagId));
+
+  // 重新获取绑定的标签渲染返回
+  const attachedTagsRecords = await db.select().from(articleTags).where(eq(articleTags.articleId, articleId));
+  const attachedTagIds = attachedTagsRecords.map(t => t.tagId).filter(Boolean) as string[];
+  const attachedTags = attachedTagIds.length > 0 
+    ? await db.select().from(tags).where(inArray(tags.id, attachedTagIds))
+    : [];
+
+  return c.html(html`
+    ${attachedTags.map((t: any) => html`
+      <span class="meta-tag" onclick="if(confirm('删除标签?')) { htmx.ajax('DELETE', \`/articles/${articleId}/tags/${t.id}\`, {target:'#article-tags-wrap', swap:'innerHTML'}); }">
+        ${t.name} &times;
+      </span>
+    `)}
+    <span class="meta-tag meta-add" onclick="const t=prompt('输入新标签名称 (逗号分隔多个)'); if(t) { htmx.ajax('POST', \`/articles/${articleId}/tags\`, {values:{tags:t}, target:'#article-tags-wrap', swap:'innerHTML'}); }">+ 添加</span>
+  `);
 });
 
 export default articlesApp;
