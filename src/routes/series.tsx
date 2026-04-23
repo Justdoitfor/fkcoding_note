@@ -48,7 +48,7 @@ series.get('/', async (c) => {
               </div>
             </div>
             
-            <a class="stree-row stree-indent-2" href="/articles/new" style={{ textDecoration: 'none', color: 'inherit' }}>
+            <a class="stree-row stree-indent-2" href="/articles/1" style={{ textDecoration: 'none', color: 'inherit' }}>
               <span class="stree-emoji" style={{ fontSize: '12px' }}>📄</span>
               <div class="stree-title">原型链与继承机制详解</div>
               <span class="stree-status st-pub">已发布</span>
