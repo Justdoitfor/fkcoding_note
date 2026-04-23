@@ -5,12 +5,12 @@ compatibility_flags = ["nodejs_compat"]
 
 [[d1_databases]]
 binding = "DB"
-database_name = "fkcoding-note-db"
-database_id = "your-d1-database-id"
+database_name = "fkcoding-note"
+database_id = "bfbd97c7-4156-49ff-a409-e19ac1eb5a56"
 
 [[kv_namespaces]]
 binding = "KV"
-id = "your-kv-namespace-id"
+id = "3776ebc917cc438ba8db215fcc2782fe"
 
 [assets]
 directory = "./src/assets"
