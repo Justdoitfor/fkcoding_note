@@ -338,9 +338,15 @@ articlesApp.get('/edit/:id', async (c) => {
           {/* Meta panel */}
           <div class="meta-pane">
             <div class="meta-s">
+              <div class="meta-l">目录</div>
+              <div id="toc-container" style="max-height: 300px; overflow-y: auto;">
+                <div style="color:var(--t3);font-size:11px;padding:4px 0">暂无目录</div>
+              </div>
+            </div>
+            <div class="meta-s">
               <div class="meta-l">状态</div>
               <div class="meta-v" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <div class="status-dot" style={article.status === 'published' ? 'background:var(--green)' : ''}></div>
+                <div class="status-dot" style={{ background: article.status === 'published' ? 'var(--green)' : 'var(--amber)' }}></div>
                 {article.status === 'published' ? '已发布' : '草稿'}
               </div>
             </div>

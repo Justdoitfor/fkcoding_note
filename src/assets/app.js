@@ -215,8 +215,38 @@ window.restoreHistory = function(historyId) {
 window.updatePreview = function(content) {
   const previewEl = document.getElementById('preview-content');
   if (previewEl && window.marked) {
+    // Generate TOC and add IDs to headings
+    const renderer = new marked.Renderer();
+    const toc = [];
+    
+    renderer.heading = function(token) {
+      const text = token.text;
+      const level = token.depth;
+      // generate a simple id
+      const id = 'h-' + text.toLowerCase().replace(/[\s]+/g, '-').replace(/[^\w-]/g, '');
+      toc.push({ level, text, id });
+      return `<h${level} id="${id}">${text}</h${level}>\n`;
+    };
+    
+    marked.setOptions({ renderer });
     previewEl.innerHTML = marked.parse(content);
+    
+    // Update TOC UI
+    const tocContainer = document.getElementById('toc-container');
+    if (tocContainer) {
+      if (toc.length === 0) {
+        tocContainer.innerHTML = '<div style="color:var(--t3);font-size:11px;padding:4px 0">暂无目录</div>';
+      } else {
+        tocContainer.innerHTML = toc.map(item => {
+          let cls = 'toc-i';
+          if (item.level === 2) cls += ' toc-h2';
+          if (item.level >= 3) cls += ' toc-h3';
+          return `<span class="${cls}" onclick="document.getElementById('${item.id}').scrollIntoView({behavior:'smooth'})">${item.text}</span>`;
+        }).join('');
+      }
+    }
   }
+  
   const wordCount = content.replace(/\s+/g, '').length;
   const readTime = Math.max(1, Math.ceil(wordCount / 300));
   
