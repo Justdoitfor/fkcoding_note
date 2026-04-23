@@ -1,8 +1,8 @@
 import { Hono } from 'hono';
 import { Layout } from '../components/Layout';
-import { html } from 'hono/html';
+import { html, raw } from 'hono/html';
 import { drizzle } from 'drizzle-orm/d1';
-import { articles, series, tags, articleTags, writingLogs } from '../db/schema';
+import { articles, series, tags, articleTags, writingLogs, articleHistory } from '../db/schema';
 import { nanoid } from 'nanoid';
 import { and, eq, inArray } from 'drizzle-orm';
 
@@ -36,6 +36,59 @@ const EditorTree: (props: { allSeries: any[]; allArticles: any[]; parentId: stri
     `)}
   `;
 };
+
+// 创建新文章 (来自弹窗)
+articlesApp.post('/', async (c) => {
+  const db = drizzle(c.env.DB);
+  const userId = c.get('userId');
+  const body = await c.req.parseBody();
+  const title = (body.title as string) || '无标题文章';
+  
+  const articleId = nanoid();
+  const now = Date.now();
+  
+  await db.insert(articles).values({
+    id: articleId,
+    userId,
+    title,
+    content: `# ${title}\n\n开始你的创作...`,
+    wordCount: title.length,
+    createdAt: now,
+    updatedAt: now
+  });
+  
+  c.header('HX-Redirect', `/articles/edit/${articleId}`);
+  return c.text('Created');
+});
+
+// htmx 接口：搜索
+articlesApp.get('/search', async (c) => {
+  const db = drizzle(c.env.DB);
+  const userId = c.get('userId');
+  const q = c.req.query('q') || '';
+  
+  if (!q.trim()) return c.text('');
+  
+  const results = await db.select().from(articles).where(and(eq(articles.userId, userId))).limit(10);
+  const filtered = results.filter(a => a.title.toLowerCase().includes(q.toLowerCase()));
+  
+  if (filtered.length === 0) {
+    return c.html(`<div class="search-section">没有找到结果</div>`);
+  }
+  
+  let htmlStr = `<div class="search-section">搜索结果</div>`;
+  for (const a of filtered) {
+    htmlStr += `
+      <div class="search-item" onclick="window.location.href='/articles/edit/${a.id}';closeOverlay('searchOverlay')">
+        <div class="search-item-icon" style="background:var(--ambg)">📄</div>
+        <div style="flex:1"><div class="search-item-title">${a.title}</div></div>
+        <span class="search-item-type">文章</span>
+      </div>
+    `;
+  }
+  
+  return c.html(html`${raw(htmlStr)}`);
+});
 
 articlesApp.get('/new', async (c) => {
   const db = drizzle(c.env.DB);
@@ -91,17 +144,19 @@ articlesApp.get('/new', async (c) => {
           </div>
 
           {/* Editor main */}
-          <div class="editor-main">
-            <div class="editor-topbar">
-              <div class="editor-doc-name" x-data="{ title: '新文章' }" x-text="document.getElementById('md-input') ? (document.getElementById('md-input').value.match(/^#\\s+(.*)/m) ? document.getElementById('md-input').value.match(/^#\\s+(.*)/m)[1] : '新文章') : '新文章'">新文章</div>
-              <div class="status-saved" id="save-status"><div class="status-dot"></div>尚未保存</div>
-              <button class="btn btn-primary" style={{ fontSize: '11px', padding: '4px 10px' }} hx-post={`/articles/${newArticleId}/publish`} hx-swap="none">发布</button>
+          <div class="ed-main">
+            <div class="ed-topbar">
+              <div class="ed-title" x-data="{ title: '新文章' }" x-text="document.getElementById('md-input') ? (document.getElementById('md-input').value.match(/^#\\s+(.*)/m) ? document.getElementById('md-input').value.match(/^#\\s+(.*)/m)[1] : '新文章') : '新文章'">新文章</div>
+              <div class="saved-state" id="save-status"><div class="saved-dot"></div>尚未保存</div>
+              <button class="btn btn-sm" onclick="toast('新文章没有历史版本', 'info')">历史版本</button>
+              <button class="btn btn-sm" onclick="document.getElementById('page-editor').requestFullscreen()">全屏</button>
+              <button class="btn btn-sm btn-primary" onclick="openModal('publishModal')">发布</button>
             </div>
 
-            <div class="editor-tabs">
-              <div class="etab active" onclick="switchEditorMode('edit',this)">编辑</div>
-              <div class="etab" onclick="switchEditorMode('preview',this)">预览</div>
-              <div class="etab" onclick="switchEditorMode('split',this)">双栏</div>
+            <div class="ed-tabs">
+              <div class="etab active" id="etab-edit" onclick="switchEdMode('edit')">编辑</div>
+              <div class="etab" id="etab-prev" onclick="switchEdMode('prev')">预览</div>
+              <div class="etab" id="etab-split" onclick="switchEdMode('split')">双栏</div>
             </div>
 
             <div class="toolbar">
@@ -112,35 +167,35 @@ articlesApp.get('/new', async (c) => {
                 <option value="### ">标题 3</option>
               </select>
               <div class="tb-sep"></div>
-              <button class="tb" title="加粗" onclick="insertMarkdown('**', '**')"><b>B</b></button>
+              <button class="tb on" title="加粗" onclick="insertMarkdown('**', '**')"><b>B</b></button>
               <button class="tb" title="斜体" onclick="insertMarkdown('*', '*')"><i>I</i></button>
               <button class="tb" title="删除线" onclick="insertMarkdown('~~', '~~')"><s>S</s></button>
-              <button class="tb" title="行内代码" style={{ fontFamily: 'var(--font-mono)', fontSize: '11px' }} onclick="insertMarkdown('`', '`')">`</button>
+              <button class="tb" title="行内代码" style={{ fontFamily: 'var(--fm)', fontSize: '11px' }} onclick="insertMarkdown('`', '`')">`</button>
               <div class="tb-sep"></div>
               <button class="tb" title="链接" onclick="insertMarkdown('[', '](url)')">
-                <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M5 8.5l3-3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M3.5 6l-1 1a2.5 2.5 0 003.5 3.5l1-1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M6.5 7l1-1a2.5 2.5 0 00-3.5-3.5l-1 1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+                <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M4.5 8.5l4-4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M3 7l-1 1a2.5 2.5 0 003.5 3.5l1-1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M7 3l1-1a2.5 2.5 0 00-3.5-3.5l-1 1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
               </button>
               <button class="tb" title="图片" onclick="insertMarkdown('![', '](image-url)')">
                 <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="1.5" y="2.5" width="10" height="8" rx="1.5" stroke="currentColor" stroke-width="1.2"/><circle cx="4.5" cy="5.5" r="1" fill="currentColor"/><path d="M1.5 8.5l3-3 2.5 2.5 2-1.5 2 2.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></svg>
               </button>
               <div class="tb-sep"></div>
               <button class="tb" title="无序列表" onclick="insertMarkdown('- ')">
-                <svg width="13" height="13" viewBox="0 0 13 13" fill="currentColor"><circle cx="2.5" cy="4" r="1"/><circle cx="2.5" cy="7" r="1"/><circle cx="2.5" cy="10" r="1"/><rect x="5" y="3.25" width="6.5" height="1.5" rx="0.75"/><rect x="5" y="6.25" width="5" height="1.5" rx="0.75"/><rect x="5" y="9.25" width="6" height="1.5" rx="0.75"/></svg>
+                <svg width="13" height="13" viewBox="0 0 13 13" fill="currentColor"><circle cx="2.5" cy="4.2" r="1"/><circle cx="2.5" cy="7" r="1"/><circle cx="2.5" cy="9.8" r="1"/><rect x="4.5" y="3.5" width="7" height="1.4" rx=".7"/><rect x="4.5" y="6.3" width="5" height="1.4" rx=".7"/><rect x="4.5" y="9.1" width="6" height="1.4" rx=".7"/></svg>
               </button>
-              <button class="tb" title="代码块" style={{ fontSize: '10px', fontFamily: 'var(--font-mono)' }} onclick="insertMarkdown('\n```\n', '\n```\n')">&lt;/&gt;</button>
+              <button class="tb" title="代码块" style={{ fontSize: '10px', fontFamily: 'var(--fm)' }} onclick="insertMarkdown('\n```\n', '\n```\n')">&lt;/&gt;</button>
               <button class="tb" title="引用" onclick="insertMarkdown('> ')">
                 <svg width="13" height="13" viewBox="0 0 13 13" fill="currentColor"><rect x="1.5" y="2.5" width="2" height="8" rx="1"/><rect x="4.5" y="4" width="7.5" height="1.4" rx="0.7"/><rect x="4.5" y="6.8" width="6" height="1.4" rx="0.7"/></svg>
               </button>
             </div>
 
             {/* Split editor */}
-            <div class="editor-split" id="editor-area">
-              <div class="ed-pane" id="ed-write" style={{ flex: '1' }}>
-                <div class="pane-label">Markdown</div>
+            <div class="ed-split" id="editor-area">
+              <div class="ed-write" id="edWrite">
+                <div class="pane-lbl">Markdown 源码</div>
                 <textarea class="ed-textarea" spellcheck={false} id="md-input" name="content" x-data="{ content: '# 新文章\\n\\n开始你的创作...' }" x-model="content" hx-put={`/articles/${newArticleId}`} hx-trigger="keyup changed delay:1500ms" hx-target="#save-status" hx-swap="innerHTML" oninput="updatePreview(this.value)"></textarea>
               </div>
-              <div class="prev-pane" id="ed-preview" style={{ flex: '0', display: 'none' }}>
-                <div class="pane-label">预览</div>
+              <div class="ed-prev" id="edPrev" style={{ display: 'none' }}>
+                <div class="pane-lbl">渲染预览</div>
                 <div class="prev-body" id="preview-content">
                   <h1>新文章</h1>
                   <p>开始你的创作...</p>
@@ -223,17 +278,19 @@ articlesApp.get('/edit/:id', async (c) => {
           </div>
 
           {/* Editor main */}
-          <div class="editor-main">
-            <div class="editor-topbar">
-              <div class="editor-doc-name" x-data={`{ title: '${article.title.replace(/'/g, "\\'")}' }`} x-text="document.getElementById('md-input') ? (document.getElementById('md-input').value.match(/^#\\s+(.*)/m) ? document.getElementById('md-input').value.match(/^#\\s+(.*)/m)[1] : title) : title">{article.title}</div>
-              <div class="status-saved" id="save-status"><div class="status-dot"></div>已保存</div>
-              <button class="btn btn-primary" style={{ fontSize: '11px', padding: '4px 10px' }} hx-post={`/articles/${articleId}/publish`} hx-swap="none">发布</button>
+          <div class="ed-main">
+            <div class="ed-topbar">
+              <div class="ed-title" x-data={`{ title: '${article.title.replace(/'/g, "\\'")}' }`} x-text="document.getElementById('md-input') ? (document.getElementById('md-input').value.match(/^#\\s+(.*)/m) ? document.getElementById('md-input').value.match(/^#\\s+(.*)/m)[1] : title) : title">{article.title}</div>
+              <div class="saved-state" id="save-status"><div class="saved-dot"></div>已保存</div>
+              <button class="btn btn-sm" onclick={`openHistoryModal('${article.id}')`}>历史版本</button>
+              <button class="btn btn-sm" onclick="document.getElementById('page-editor').requestFullscreen()">全屏</button>
+              <button class="btn btn-sm btn-primary" onclick="openModal('publishModal')">发布</button>
             </div>
 
-            <div class="editor-tabs">
-              <div class="etab active" onclick="switchEditorMode('edit',this)">编辑</div>
-              <div class="etab" onclick="switchEditorMode('preview',this)">预览</div>
-              <div class="etab" onclick="switchEditorMode('split',this)">双栏</div>
+            <div class="ed-tabs">
+              <div class="etab active" id="etab-edit" onclick="switchEdMode('edit')">编辑</div>
+              <div class="etab" id="etab-prev" onclick="switchEdMode('prev')">预览</div>
+              <div class="etab" id="etab-split" onclick="switchEdMode('split')">双栏</div>
             </div>
 
             <div class="toolbar">
@@ -244,35 +301,35 @@ articlesApp.get('/edit/:id', async (c) => {
                 <option value="### ">标题 3</option>
               </select>
               <div class="tb-sep"></div>
-              <button class="tb" title="加粗" onclick="insertMarkdown('**', '**')"><b>B</b></button>
+              <button class="tb on" title="加粗" onclick="insertMarkdown('**', '**')"><b>B</b></button>
               <button class="tb" title="斜体" onclick="insertMarkdown('*', '*')"><i>I</i></button>
               <button class="tb" title="删除线" onclick="insertMarkdown('~~', '~~')"><s>S</s></button>
-              <button class="tb" title="行内代码" style={{ fontFamily: 'var(--font-mono)', fontSize: '11px' }} onclick="insertMarkdown('`', '`')">`</button>
+              <button class="tb" title="行内代码" style={{ fontFamily: 'var(--fm)', fontSize: '11px' }} onclick="insertMarkdown('`', '`')">`</button>
               <div class="tb-sep"></div>
               <button class="tb" title="链接" onclick="insertMarkdown('[', '](url)')">
-                <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M5 8.5l3-3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M3.5 6l-1 1a2.5 2.5 0 003.5 3.5l1-1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M6.5 7l1-1a2.5 2.5 0 00-3.5-3.5l-1 1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+                <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M4.5 8.5l4-4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M3 7l-1 1a2.5 2.5 0 003.5 3.5l1-1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M7 3l1-1a2.5 2.5 0 00-3.5-3.5l-1 1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
               </button>
               <button class="tb" title="图片" onclick="insertMarkdown('![', '](image-url)')">
                 <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="1.5" y="2.5" width="10" height="8" rx="1.5" stroke="currentColor" stroke-width="1.2"/><circle cx="4.5" cy="5.5" r="1" fill="currentColor"/><path d="M1.5 8.5l3-3 2.5 2.5 2-1.5 2 2.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></svg>
               </button>
               <div class="tb-sep"></div>
               <button class="tb" title="无序列表" onclick="insertMarkdown('- ')">
-                <svg width="13" height="13" viewBox="0 0 13 13" fill="currentColor"><circle cx="2.5" cy="4" r="1"/><circle cx="2.5" cy="7" r="1"/><circle cx="2.5" cy="10" r="1"/><rect x="5" y="3.25" width="6.5" height="1.5" rx="0.75"/><rect x="5" y="6.25" width="5" height="1.5" rx="0.75"/><rect x="5" y="9.25" width="6" height="1.5" rx="0.75"/></svg>
+                <svg width="13" height="13" viewBox="0 0 13 13" fill="currentColor"><circle cx="2.5" cy="4.2" r="1"/><circle cx="2.5" cy="7" r="1"/><circle cx="2.5" cy="9.8" r="1"/><rect x="4.5" y="3.5" width="7" height="1.4" rx=".7"/><rect x="4.5" y="6.3" width="5" height="1.4" rx=".7"/><rect x="4.5" y="9.1" width="6" height="1.4" rx=".7"/></svg>
               </button>
-              <button class="tb" title="代码块" style={{ fontSize: '10px', fontFamily: 'var(--font-mono)' }} onclick="insertMarkdown('\n```\n', '\n```\n')">&lt;/&gt;</button>
+              <button class="tb" title="代码块" style={{ fontSize: '10px', fontFamily: 'var(--fm)' }} onclick="insertMarkdown('\n```\n', '\n```\n')">&lt;/&gt;</button>
               <button class="tb" title="引用" onclick="insertMarkdown('> ')">
                 <svg width="13" height="13" viewBox="0 0 13 13" fill="currentColor"><rect x="1.5" y="2.5" width="2" height="8" rx="1"/><rect x="4.5" y="4" width="7.5" height="1.4" rx="0.7"/><rect x="4.5" y="6.8" width="6" height="1.4" rx="0.7"/></svg>
               </button>
             </div>
 
             {/* Split editor */}
-            <div class="editor-split" id="editor-area">
-              <div class="ed-pane" id="ed-write" style={{ flex: '1' }}>
-                <div class="pane-label">Markdown</div>
+            <div class="ed-split" id="editor-area">
+              <div class="ed-write" id="edWrite">
+                <div class="pane-lbl">Markdown 源码</div>
                 <textarea class="ed-textarea" spellcheck={false} id="md-input" name="content" x-data={`{ content: \`${article.content.replace(/`/g, '\\`')}\` }`} x-model="content" hx-put={`/articles/${article.id}`} hx-trigger="keyup changed delay:1500ms" hx-target="#save-status" hx-swap="innerHTML" oninput="updatePreview(this.value)"></textarea>
               </div>
-              <div class="prev-pane" id="ed-preview" style={{ flex: '0', display: 'none' }}>
-                <div class="pane-label">预览</div>
+              <div class="ed-prev" id="edPrev" style={{ display: 'none' }}>
+                <div class="pane-lbl">渲染预览</div>
                 <div class="prev-body" id="preview-content"></div>
               </div>
             </div>
@@ -308,6 +365,14 @@ articlesApp.get('/edit/:id', async (c) => {
                 {new Date(article.updatedAt).toLocaleString('zh-CN')}
               </div>
             </div>
+            <div class="meta-sec">
+              <div class="meta-lbl">操作</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <button class="btn btn-sm btn-ghost" style={{ justifyContent: 'flex-start', fontSize: '11px' }} onclick="openModal('moveModal')">📦 移动文章…</button>
+                <button class="btn btn-sm btn-ghost" style={{ justifyContent: 'flex-start', fontSize: '11px' }} onclick="toast('链接已复制','success')">🔗 复制链接</button>
+                <button class="btn btn-sm btn-ghost" style={{ justifyContent: 'flex-start', fontSize: '11px', color: 'var(--red)' }} onclick="openModal('deleteModal')">🗑 删除文章</button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -340,6 +405,14 @@ articlesApp.put('/:id', async (c) => {
     await db.update(articles)
       .set({ content, title, wordCount, updatedAt: now })
       .where(eq(articles.id, articleId));
+      
+    // 保存到历史记录 (简单实现，每次修改都保存，真实应用中应限制频率或版本数)
+    await db.insert(articleHistory).values({
+      id: nanoid(),
+      articleId,
+      content,
+      savedAt: now
+    });
   } else {
     // 插入新文章
     await db.insert(articles).values({
@@ -394,6 +467,31 @@ articlesApp.post('/:id/publish', async (c) => {
     .where(eq(articles.id, articleId));
     
   return c.text('Published');
+});
+
+// htmx 接口：移动文章
+articlesApp.post('/:id/move', async (c) => {
+  const db = drizzle(c.env.DB);
+  const articleId = c.req.param('id');
+  const body = await c.req.parseBody();
+  const seriesId = body.seriesId as string || null;
+  
+  await db.update(articles)
+    .set({ seriesId })
+    .where(eq(articles.id, articleId));
+    
+  return c.text('Moved');
+});
+
+// htmx 接口：删除文章
+articlesApp.delete('/:id', async (c) => {
+  const db = drizzle(c.env.DB);
+  const articleId = c.req.param('id');
+  
+  await db.delete(articleTags).where(eq(articleTags.articleId, articleId));
+  await db.delete(articles).where(eq(articles.id, articleId));
+    
+  return c.text('Deleted');
 });
 
 // htmx 接口：处理标签
@@ -470,6 +568,57 @@ articlesApp.delete('/:id/tags/:tagId', async (c) => {
     `)}
     <span class="meta-tag meta-add" onclick="const t=prompt('输入新标签名称 (逗号分隔多个)'); if(t) { htmx.ajax('POST', \`/articles/${articleId}/tags\`, {values:{tags:t}, target:'#article-tags-wrap', swap:'innerHTML'}); }">+ 添加</span>
   `);
+});
+
+// htmx 接口：获取文章历史记录
+articlesApp.get('/:id/history', async (c) => {
+  const db = drizzle(c.env.DB);
+  const articleId = c.req.param('id');
+  const history = await db.select().from(articleHistory).where(eq(articleHistory.articleId, articleId)).orderBy(articleHistory.savedAt).limit(20);
+  
+  // 倒序排列
+  history.reverse();
+  
+  if (history.length === 0) {
+    return c.html(`<div style="padding:10px;text-align:center;color:var(--t3)">暂无历史记录</div>`);
+  }
+  
+  const renderItem = (item: any, isCurrent: boolean) => html`
+    <div class="stree-row" style="padding:10px 12px;border-bottom:1px solid var(--border)" onclick="restoreHistory('${item.id}')">
+      <div style="flex:1">
+        <div style="font-size:12px;font-weight:500">${new Date(item.savedAt).toLocaleString('zh-CN')}</div>
+        <div style="font-size:10px;color:var(--t3);margin-top:2px">${item.content.length.toLocaleString()} 字符</div>
+      </div>
+      ${isCurrent ? html`<span class="strow-status st-pub">当前版本</span>` : html`<button class="btn btn-sm btn-ghost" style="font-size:10px">恢复</button>`}
+    </div>
+  `;
+  
+  let listHtml = '';
+  for (let i = 0; i < history.length; i++) {
+    listHtml += renderItem(history[i], i === 0);
+  }
+  
+  return c.html(html`${raw(listHtml)}`);
+});
+
+// htmx 接口：恢复文章历史记录
+articlesApp.post('/:id/restore/:historyId', async (c) => {
+  const db = drizzle(c.env.DB);
+  const articleId = c.req.param('id');
+  const historyId = c.req.param('historyId');
+  
+  const historyItem = await db.select().from(articleHistory).where(eq(articleHistory.id, historyId)).get();
+  if (historyItem) {
+    const titleMatch = historyItem.content.match(/^#\s+(.*)/m);
+    const title = titleMatch ? titleMatch[1].trim() : '无标题文章';
+    const wordCount = historyItem.content.replace(/\s+/g, '').length;
+    
+    await db.update(articles)
+      .set({ content: historyItem.content, title, wordCount, updatedAt: Date.now() })
+      .where(eq(articles.id, articleId));
+  }
+  
+  return c.text('Restored');
 });
 
 export default articlesApp;

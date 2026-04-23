@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import { Layout } from '../components/Layout';
-import { html } from 'hono/html';
+import { html, raw } from 'hono/html';
 import { drizzle } from 'drizzle-orm/d1';
 import { series } from '../db/schema';
 import { eq, isNull } from 'drizzle-orm';
@@ -12,23 +12,27 @@ const seriesApp = new Hono<{ Bindings: { DB: D1Database }; Variables: { userId: 
 const SeriesNode = (props: { node: any; depth: number }) => {
   const { node, depth } = props;
   const isFolder = node.children && node.children.length > 0;
-  const icon = node.icon || (isFolder ? '📁' : '⚡');
+  const icon = node.icon || (isFolder ? '📁' : '📄');
+  const indentClass = depth === 0 ? 'root-row' : `ind${depth}`;
+  const rowId = `s-${node.id}`;
   
   return html`
-    <div class="stree-row ${depth === 0 ? 'is-series' : `stree-indent-${depth}`}">
-      ${isFolder ? html`<svg class="stree-chevron open" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>` : ''}
-      <span class="stree-emoji" style="${depth > 0 ? 'font-size: 12px;' : ''}">${icon}</span>
+    <div class="stree-row ${indentClass}" onclick="toggleStree('${rowId}')" oncontextmenu="showCtx(event)">
+      ${depth > 0 ? html`<span class="drag-handle">⠿</span>` : ''}
+      ${isFolder || depth === 0 ? html`<svg class="strow-chev open" id="${rowId}-chev" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>` : ''}
+      <span class="strow-emoji" style="${depth > 0 ? 'font-size: 13px;' : ''}">${icon}</span>
       <div style="flex: 1">
-        <div class="stree-title">${node.title}</div>
-        ${node.description && depth === 0 ? html`<div style="font-size: 10px; color: var(--text3); margin-top: 2px;">${node.description}</div>` : ''}
+        <div class="strow-title">${node.title}</div>
+        ${node.description && depth === 0 ? html`<div class="strow-desc">${node.description}</div>` : ''}
       </div>
-      <div class="stree-actions">
-        <button class="stree-act" title="新建子章节" hx-post="/series/${node.id}/child" hx-prompt="请输入子章节名称" hx-target="closest .stree-row" hx-swap="afterend">+</button>
-        <button class="stree-act" title="编辑">✎</button>
-        <button class="stree-act" title="删除">✕</button>
+      <span class="strow-count">${isFolder ? node.children.length + ' 篇' : ''}</span>
+      <div class="strow-acts">
+        <button class="strow-act" title="新建子章节" onclick="event.stopPropagation();" hx-post="/series/${node.id}/child" hx-prompt="请输入子章节名称" hx-target="closest .stree-row" hx-swap="afterend">+</button>
+        <button class="strow-act" title="编辑" onclick="event.stopPropagation();toast('编辑功能开发中','info')">✎</button>
+        <button class="strow-act danger" title="删除" onclick="event.stopPropagation();openModal('deleteModal')">✕</button>
       </div>
     </div>
-    ${isFolder ? node.children.map((child: any) => SeriesNode({ node: child, depth: depth + 1 })) : ''}
+    ${isFolder ? html`<div id="${rowId}">${node.children.map((child: any) => SeriesNode({ node: child, depth: depth + 1 }))}</div>` : ''}
   `;
 };
 
@@ -81,6 +85,47 @@ seriesApp.get('/', async (c) => {
       </div>
     </Layout>
   );
+});
+
+// htmx 接口：获取 Modal 里的系列列表
+seriesApp.get('/modal-list', async (c) => {
+  const db = drizzle(c.env.DB);
+  const userId = c.get('userId');
+  const allSeries = await db.select().from(series).where(eq(series.userId, userId));
+  const tree = buildTree(allSeries, null);
+
+  const renderModalNode = (node: any, depth: number): string => {
+    const indent = depth === 0 ? '' : ` ind${depth}`;
+    const paddingLeft = depth === 0 ? '12px' : `${12 + depth * 14}px`;
+    const icon = node.icon || (node.children && node.children.length > 0 ? '📁' : '📄');
+    
+    let htmlStr = `<div class="stree-row${indent}" style="padding:9px 12px 9px ${paddingLeft};cursor:pointer" onclick="moveArticle('${node.id}')">`;
+    if (depth === 0) {
+      htmlStr += `<span style="font-size:14px;margin-right:6px">${icon}</span> ${node.title}</div>`;
+    } else {
+      htmlStr += `${icon} ${node.title}</div>`;
+    }
+
+    if (node.children) {
+      for (const child of node.children) {
+        htmlStr += renderModalNode(child, depth + 1);
+      }
+    }
+    return htmlStr;
+  };
+
+  let listHtml = '';
+  for (const node of tree) {
+    listHtml += renderModalNode(node, 0);
+  }
+
+  return c.html(html`
+    <div style="padding:0 10px 6px;font-size:11px;color:var(--t3)">选择目标系列/章节</div>
+    <div style="border:1px solid var(--border);border-radius:7px;overflow:hidden;margin:0 6px">
+      <div class="stree-row" style="padding:10px 12px;cursor:pointer" onclick="moveArticle('')">取消分类 (移出系列)</div>
+      ${raw(listHtml)}
+    </div>
+  `);
 });
 
 // htmx 接口：创建顶级系列

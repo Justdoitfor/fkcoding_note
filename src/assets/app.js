@@ -1,136 +1,171 @@
-// ─── Page switcher ───
-const pages = ['dashboard', 'editor', 'series', 'stats'];
-const navMap = { dashboard:'nav-dashboard', series:'nav-series', editor:'nav-editor', stats:'nav-stats' };
-const topbarCur = { dashboard:'总览', editor:'编辑器', series:'教程系列', stats:'统计分析' };
-
+// ─── PAGE ROUTING ───
 function showPage(name) {
-  pages.forEach(p => {
-    const el = document.getElementById('page-' + p);
-    if (!el) return;
-    if (p === name) {
-      el.classList.remove('hidden');
-      el.style.display = '';
-    } else {
-      el.classList.add('hidden');
-      el.style.display = 'none';
-    }
-  });
-
-  // Nav active state
-  Object.values(navMap).forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.classList.remove('active');
-  });
-  if (navMap[name]) {
-    const el = document.getElementById(navMap[name]);
-    if (el) el.classList.add('active');
-  }
-
-  // Breadcrumb
-  document.getElementById('topbar-cur').textContent = topbarCur[name] || name;
-
-  // Switcher buttons
-  document.querySelectorAll('.ds-btn').forEach(b => b.classList.remove('active'));
-  const btns = document.querySelectorAll('.ds-btn');
-  const idx = pages.indexOf(name);
-  if (btns[idx]) btns[idx].classList.add('active');
-}
-
-// ─── Activity bars ───
-const actData = [8,22,35,28,45,32,20,40,17,38,25,48,14,30];
-const actMax = Math.max(...actData);
-const actContainer = document.getElementById('act-bars');
-if (actContainer) {
-  actData.forEach((v, i) => {
-    const bar = document.createElement('div');
-    bar.className = 'act-bar';
-    bar.style.height = Math.round((v / actMax) * 100) + '%';
-    if (i === actData.length - 1) { bar.classList.add('hi'); }
-    else if (v > actMax * 0.6) { bar.classList.add('md'); }
-    actContainer.appendChild(bar);
-  });
-}
-
-// ─── Heatmap ───
-const hmGrid = document.getElementById('hm-grid');
-if (hmGrid) {
-  const levels = ['hm0','hm1','hm2','hm3','hm4'];
-  for (let i = 0; i < 371; i++) {
-    const cell = document.createElement('div');
-    const r = Math.random();
-    let cls = 'hm-cell ';
-    if (r > 0.88) cls += 'hm4';
-    else if (r > 0.74) cls += 'hm3';
-    else if (r > 0.58) cls += 'hm2';
-    else if (r > 0.42) cls += 'hm1';
-    else cls += 'hm0';
-    cell.className = cls;
-    hmGrid.appendChild(cell);
+  const urlMap = { dashboard: '/dashboard', series: '/series', editor: '/articles/new', stats: '/stats' };
+  if (urlMap[name] && window.location.pathname !== urlMap[name]) {
+    window.location.href = urlMap[name];
   }
 }
 
-// ─── Tree toggle ───
-function toggleTree(el) {
-  const icon = el.querySelector('svg');
-  const nextSiblings = [];
-  let sib = el.nextElementSibling;
-  while (sib && !sib.classList.contains('depth-1')) {
-    nextSiblings.push(sib);
-    sib = sib.nextElementSibling;
-  }
-  const hidden = nextSiblings.length > 0 && nextSiblings[0].style.display === 'none';
-  nextSiblings.forEach(s => s.style.display = hidden ? '' : 'none');
-  if (icon) icon.style.transform = hidden ? 'rotate(90deg)' : '';
+// ─── MODALS ───
+function openModal(id) {
+  closeCtx();
+  const el = document.getElementById(id);
+  if (el) { el.classList.add('show'); }
 }
-
-// ─── Tag pills ───
-document.querySelectorAll('.tag-pill').forEach(pill => {
-  pill.addEventListener('click', function() {
-    this.classList.toggle('sel');
-  });
+function closeOverlay(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.remove('show');
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.overlay.show').forEach(o => o.classList.remove('show'));
+    closeCtx();
+    closePopover();
+  }
+  if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); openModal('searchOverlay'); }
 });
 
-// ─── Editor tabs ───
-function switchEditorMode(mode, el) {
-  document.querySelectorAll('.etab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  const write = document.getElementById('ed-write');
-  const preview = document.getElementById('ed-preview');
-  if (!write || !preview) return;
-  if (mode === 'edit') {
-    write.style.flex = '1'; preview.style.flex = '0'; preview.style.display = 'none';
-  } else if (mode === 'preview') {
-    write.style.flex = '0'; write.style.display = 'none'; preview.style.flex = '1'; preview.style.display = 'flex';
-  } else {
-    write.style.flex = '1'; write.style.display = 'flex'; preview.style.flex = '1'; preview.style.display = 'flex';
+// ─── TOAST ───
+function toast(msg, type = 'default') {
+  const area = document.getElementById('toastArea');
+  if (!area) return;
+  const t = document.createElement('div');
+  t.className = 'toast ' + (type !== 'default' ? type : '');
+  const icons = {success:'✓', error:'✕', info:'ℹ'};
+  t.innerHTML = `<span style="opacity:.7">${icons[type] || '•'}</span> ${msg}`;
+  area.appendChild(t);
+  setTimeout(() => { t.classList.add('toast-fade'); setTimeout(() => t.remove(), 300); }, 2200);
+}
+
+// ─── CONTEXT MENU ───
+function showCtx(e) {
+  e.preventDefault();
+  const m = document.getElementById('ctxMenu');
+  if (!m) return;
+  m.style.left = Math.min(e.clientX, window.innerWidth - 180) + 'px';
+  m.style.top = Math.min(e.clientY, window.innerHeight - 200) + 'px';
+  m.classList.add('show');
+}
+function closeCtx() { 
+  const m = document.getElementById('ctxMenu');
+  if (m) m.classList.remove('show'); 
+}
+document.addEventListener('click', e => { if (!e.target.closest('#ctxMenu')) closeCtx(); });
+
+// ─── USER POPOVER ───
+function togglePopover() {
+  const p = document.getElementById('userPopover');
+  if (p) p.classList.toggle('show');
+}
+function closePopover() { 
+  const p = document.getElementById('userPopover');
+  if (p) p.classList.remove('show'); 
+}
+document.addEventListener('click', e => { if (!e.target.closest('.sidebar-bottom')) closePopover(); });
+
+// ─── TREE TOGGLE ───
+function toggleTree(id) {
+  const el = document.getElementById(id);
+  const chev = document.getElementById(id + '-chev');
+  if (!el) return;
+  const collapsed = el.classList.contains('collapsed') || el.style.display === 'none';
+  el.classList.toggle('collapsed', !collapsed);
+  el.style.display = '';
+  if (chev) chev.classList.toggle('open', collapsed);
+}
+
+function toggleETree(id) {
+  const el = document.getElementById(id);
+  const icon = document.getElementById(id + '-i');
+  if (!el) return;
+  const hidden = el.style.display === 'none';
+  el.style.display = hidden ? '' : 'none';
+  if (icon) icon.classList.toggle('open', hidden);
+}
+
+function toggleStree(id) {
+  const el = document.getElementById(id);
+  const chev = document.getElementById(id + '-chev');
+  if (!el) return;
+  const hidden = el.style.display === 'none' || !el.style.display;
+  el.style.display = hidden ? 'block' : 'none';
+  if (chev) chev.classList.toggle('open', hidden);
+}
+
+// ─── EDITOR MODE ───
+function switchEdMode(mode) {
+  ['edit','prev','split'].forEach(m => {
+    const t = document.getElementById('etab-' + m);
+    if (t) t.classList.toggle('active', m === mode);
+  });
+  const w = document.getElementById('edWrite');
+  const p = document.getElementById('edPrev');
+  if (!w || !p) return;
+  if (mode === 'edit')  { w.style.display = 'flex'; p.style.display = 'none'; }
+  if (mode === 'prev')  { w.style.display = 'none'; p.style.display = 'flex'; }
+  if (mode === 'split') { w.style.display = 'flex'; p.style.display = 'flex'; }
+}
+
+// ─── FILTER BY TAG ───
+function filterByTag(el) {
+  const active = el.classList.contains('active');
+  toast(active ? `已按「${el.textContent}」筛选` : '已取消筛选', 'info');
+}
+
+// ─── EDITOR ACTIONS ───
+window.publishArticle = function() {
+  const id = window.location.pathname.split('/').pop();
+  htmx.ajax('POST', `/articles/${id}/publish`, {swap:'none'}).then(() => {
+    closeOverlay('publishModal');
+    toast('文章已成功发布 🎉', 'success');
+    setTimeout(() => window.location.reload(), 500);
+  });
+};
+
+window.deleteArticle = function() {
+  const id = window.location.pathname.split('/').pop();
+  htmx.ajax('DELETE', `/articles/${id}`, {swap:'none'}).then(() => {
+    closeOverlay('deleteModal');
+    toast('文章已删除', 'success');
+    setTimeout(() => window.location.href = '/dashboard', 500);
+  });
+};
+
+window.moveArticle = function(seriesId) {
+  const id = window.location.pathname.split('/').pop();
+  htmx.ajax('POST', `/articles/${id}/move`, {values: {seriesId}, swap:'none'}).then(() => {
+    closeOverlay('moveModal');
+    toast('文章已移动', 'success');
+    setTimeout(() => window.location.reload(), 500);
+  });
+};
+
+window.openHistoryModal = function(articleId) {
+  const list = document.getElementById('historyList');
+  if (list) {
+    list.innerHTML = '<div style="padding:10px;text-align:center;color:var(--t3)">加载中...</div>';
+    htmx.ajax('GET', `/articles/${articleId}/history`, {target: '#historyList', swap: 'innerHTML'});
   }
-}
+  openModal('historyModal');
+};
 
-// Show initial page (based on url)
-const pathname = window.location.pathname;
-if (pathname === '/dashboard' || pathname === '/') {
-  showPage('dashboard');
-} else if (pathname === '/series') {
-  showPage('series');
-} else if (pathname.startsWith('/articles')) {
-  showPage('editor');
-} else if (pathname === '/stats') {
-  showPage('stats');
-}
-
-// Open JS tree by default
-const jsTree = document.getElementById('tree-js');
-if (jsTree) jsTree.style.display = '';
+window.restoreHistory = function(historyId) {
+  if (confirm('确定恢复到该历史版本？')) {
+    const articleId = window.location.pathname.split('/').pop();
+    htmx.ajax('POST', `/articles/${articleId}/restore/${historyId}`, {swap:'none'}).then(() => {
+      closeOverlay('historyModal');
+      toast('文章已恢复', 'success');
+      setTimeout(() => window.location.reload(), 500);
+    });
+  }
+};
 
 // ─── Editor Preview & Meta Update ───
 window.updatePreview = function(content) {
-  // Update Preview Content using marked.js
   const previewEl = document.getElementById('preview-content');
   if (previewEl && window.marked) {
     previewEl.innerHTML = marked.parse(content);
   }
-
-  // Update Meta Info
   const wordCount = content.replace(/\s+/g, '').length;
   const readTime = Math.max(1, Math.ceil(wordCount / 300));
   
@@ -160,23 +195,17 @@ window.insertMarkdown = function(prefix, suffix = '') {
   let replacement = '';
   let newCursorPos = 0;
 
-  // Handle prefix/suffix (like **bold**)
   if (suffix) {
     if (selectedText.startsWith(prefix) && selectedText.endsWith(suffix)) {
-      // Toggle off if already applied
       replacement = selectedText.substring(prefix.length, selectedText.length - suffix.length);
       newCursorPos = start + replacement.length;
     } else {
-      // Apply
       replacement = prefix + selectedText + suffix;
       newCursorPos = start + prefix.length + selectedText.length;
     }
   } else {
-    // Handle prefix only (like blockquotes or lists)
     const isLineStart = start === 0 || text[start - 1] === '\n';
     const lines = selectedText.split('\n');
-    
-    // Toggle block prefix
     if (lines.every(line => line.startsWith(prefix))) {
       replacement = lines.map(line => line.substring(prefix.length)).join('\n');
     } else {
@@ -185,19 +214,13 @@ window.insertMarkdown = function(prefix, suffix = '') {
     newCursorPos = start + replacement.length;
   }
 
-  // Update textarea value using standard methods so Alpine/HTMX can pick it up
   textarea.value = text.substring(0, start) + replacement + text.substring(end);
   
-  // Update Alpine state if exists
   const alpineData = textarea.__x;
   if (alpineData && alpineData.$data) {
     alpineData.$data.content = textarea.value;
   }
-  
-  // Dispatch input event to trigger HTMX and Preview
   textarea.dispatchEvent(new Event('input', { bubbles: true }));
-  
-  // Restore selection
   textarea.focus();
   textarea.setSelectionRange(newCursorPos, newCursorPos);
 };
@@ -209,36 +232,27 @@ document.addEventListener('keydown', function(e) {
 
   if (e.key === 'Tab') {
     e.preventDefault();
-    
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
     const text = textarea.value;
     
-    // Check if multi-line selection
     if (start !== end && text.substring(start, end).includes('\n')) {
       const selectedLines = text.substring(start, end).split('\n');
       let replacement = '';
-      
       if (e.shiftKey) {
-        // Shift+Tab: Unindent
         replacement = selectedLines.map(line => line.startsWith('  ') ? line.substring(2) : (line.startsWith('\t') ? line.substring(1) : line)).join('\n');
       } else {
-        // Tab: Indent
         replacement = selectedLines.map(line => '  ' + line).join('\n');
       }
-      
       textarea.value = text.substring(0, start) + replacement + text.substring(end);
       textarea.selectionStart = start;
       textarea.selectionEnd = start + replacement.length;
     } else {
-      // Single line tab (insert 2 spaces)
       if (!e.shiftKey) {
         textarea.value = text.substring(0, start) + '  ' + text.substring(end);
         textarea.selectionStart = textarea.selectionEnd = start + 2;
       }
     }
-    
-    // Trigger update
     const alpineData = textarea.__x;
     if (alpineData && alpineData.$data) {
       alpineData.$data.content = textarea.value;
@@ -246,3 +260,22 @@ document.addEventListener('keydown', function(e) {
     textarea.dispatchEvent(new Event('input', { bubbles: true }));
   }
 });
+
+// ─── SEARCH HANDLER ───
+window.handleSearch = function(val) {
+  if (val.trim()) {
+    htmx.ajax('GET', `/articles/search?q=${encodeURIComponent(val)}`, {target: '#searchResults', swap: 'innerHTML'});
+  } else {
+    document.getElementById('searchResults').innerHTML = `
+      <div class="search-section">快捷操作</div>
+      <div class="search-item" onclick="showPage('editor');closeOverlay('searchOverlay')">
+        <div class="search-item-icon" style="background:var(--abg)">✏️</div>
+        <div style="flex:1"><div class="search-item-title">新建文章</div><div class="search-item-meta">创建新 Markdown 文章</div></div>
+      </div>
+      <div class="search-item" onclick="openModal('newSeriesModal');closeOverlay('searchOverlay')">
+        <div class="search-item-icon" style="background:var(--gbg)">📂</div>
+        <div style="flex:1"><div class="search-item-title">新建系列</div><div class="search-item-meta">创建教程系列</div></div>
+      </div>
+    `;
+  }
+};

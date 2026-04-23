@@ -45,51 +45,163 @@ dashboard.get('/', async (c) => {
       <Layout title="总览" current="dashboard">
         <div id="page-dashboard" class="page">
           <div class="page-head">
-            <div class="page-title">👋 早上好，fkcoding</div>
-            <div class="page-sub">今天是 {new Date().toLocaleDateString('zh-CN')} · 距上次创作 0 天</div>
+            <div>
+              <div class="page-title">👋 早上好，fkcoding</div>
+              <div class="page-sub">{new Date().toLocaleDateString('zh-CN')} · 连续创作第 {currentStreak} 天 🔥</div>
+            </div>
+            <button class="btn btn-sm" onclick="openModal('newSeriesModal')">+ 新建系列</button>
           </div>
 
-          <div class="stats-row">
-            <div class="stat-card">
-              <div class="stat-lbl">教程系列</div>
-              <div class="stat-num">{totalSeries}</div>
-              <div class="stat-meta"><span class="chip chip-green">↑ 全部系列</span></div>
+          {/* Stats */}
+          <div class="stat-grid">
+            <div class="stat-card" onclick="window.location.href='/series';toast('查看教程系列','info')" style="cursor:pointer">
+              <div class="stat-label">教程系列</div>
+              <div class="stat-val">{totalSeries}</div>
+              <div class="stat-meta"><span class="chip chip-g">↑ 全部系列</span></div>
             </div>
-            <div class="stat-card">
-              <div class="stat-lbl">文章总数</div>
-              <div class="stat-num">{totalArticles}</div>
-              <div class="stat-meta"><span class="chip chip-blue">全部文章</span></div>
+            <div class="stat-card" onclick="window.location.href='/series';toast('查看所有文章','info')" style="cursor:pointer">
+              <div class="stat-label">文章总数</div>
+              <div class="stat-val">{totalArticles}</div>
+              <div class="stat-meta"><span class="chip chip-b">全部文章</span></div>
             </div>
-            <div class="stat-card">
-              <div class="stat-lbl">累计字数</div>
-              <div class="stat-num">{totalWordsK}</div>
-              <div class="stat-meta"><span class="chip chip-amber">写作里程碑</span></div>
+            <div class="stat-card" onclick="openModal('quickNoteModal')" style="cursor:pointer">
+              <div class="stat-label">快速笔记</div>
+              <div class="stat-val">34</div>
+              <div class="stat-meta" style="color:var(--t3)">点击新建笔记</div>
             </div>
-            <div class="stat-card">
-              <div class="stat-lbl">连续创作</div>
-              <div class="stat-num">{currentStreak}</div>
-              <div class="stat-meta" style="color:var(--text3);font-size:11px">🔥 天</div>
+            <div class="stat-card" onclick="window.location.href='/stats'" style="cursor:pointer">
+              <div class="stat-label">累计字数</div>
+              <div class="stat-val">{totalWordsK}</div>
+              <div class="stat-meta"><span class="chip chip-a">写作里程碑</span></div>
             </div>
           </div>
 
+          {/* Quick Actions */}
           <div class="qa-grid">
-            <a class="qa-card" href="/articles/new" style="text-decoration:none;color:inherit">
-              <div class="qa-icon" style="background:var(--accent-bg)">📝</div>
-              <div><div class="qa-lbl">新建教程文章</div><div class="qa-sub">Markdown 编辑器</div></div>
-            </a>
-            <a class="qa-card" href="/series" style="text-decoration:none;color:inherit">
-              <div class="qa-icon" style="background:var(--green-bg)">📂</div>
-              <div><div class="qa-lbl">新建教程系列</div><div class="qa-sub">树状层级结构</div></div>
-            </a>
-            <a class="qa-card" href="/notes" style="text-decoration:none;color:inherit">
-              <div class="qa-icon" style="background:var(--amber-bg)">⚡</div>
-              <div><div class="qa-lbl">快速笔记</div><div class="qa-sub">即时记录想法</div></div>
-            </a>
-            <a class="qa-card" href="/stats" style="text-decoration:none;color:inherit">
-              <div class="qa-icon" style="background:var(--purple-bg)">📊</div>
-              <div><div class="qa-lbl">查看统计</div><div class="qa-sub">学习数据可视化</div></div>
-            </a>
+            <div class="qa-card" onclick="openModal('newArticleModal')">
+              <div class="qa-ico" style="background:var(--abg)">📝</div>
+              <div><div class="qa-label">新建教程文章</div><div class="qa-desc">Markdown 编辑器</div></div>
+            </div>
+            <div class="qa-card" onclick="openModal('newSeriesModal')">
+              <div class="qa-ico" style="background:var(--gbg)">📂</div>
+              <div><div class="qa-label">新建教程系列</div><div class="qa-desc">树状层级结构</div></div>
+            </div>
+            <div class="qa-card" onclick="openModal('quickNoteModal')">
+              <div class="qa-ico" style="background:var(--ambg)">⚡</div>
+              <div><div class="qa-label">快速笔记</div><div class="qa-desc">即时记录想法</div></div>
+            </div>
+            <div class="qa-card" onclick="window.location.href='/stats'">
+              <div class="qa-ico" style="background:var(--pbg)">📊</div>
+              <div><div class="qa-label">学习统计</div><div class="qa-desc">数据可视化分析</div></div>
+            </div>
           </div>
+
+          <div class="g2">
+            <div class="panel">
+              <div class="panel-title">近期教程系列 <span class="panel-link" onclick="window.location.href='/series'">查看全部 →</span></div>
+              <div class="series-item" onclick="window.location.href='/series'">
+                <div class="series-emoji">⚡</div>
+                <div style={{flex:1}}><div class="series-name">JavaScript 全栈开发指南</div>
+                <div class="series-meta2"><span class="mtag mtag-js">JS</span> · 23 篇 · 今天更新</div></div>
+                <svg width="11" height="11" viewBox="0 0 11 11" fill="none" style={{opacity:'.25'}}><path d="M3 2l4 3.5-4 3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+              </div>
+              <div class="series-item" onclick="window.location.href='/series'">
+                <div class="series-emoji">🐹</div>
+                <div style={{flex:1}}><div class="series-name">Go 并发编程实战</div>
+                <div class="series-meta2"><span class="mtag mtag-go">Go</span> · 15 篇 · 3 天前</div></div>
+                <svg width="11" height="11" viewBox="0 0 11 11" fill="none" style={{opacity:'.25'}}><path d="M3 2l4 3.5-4 3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+              </div>
+              <div class="series-item" onclick="window.location.href='/series'">
+                <div class="series-emoji">🐍</div>
+                <div style={{flex:1}}><div class="series-name">Python 数据处理系列</div>
+                <div class="series-meta2"><span class="mtag mtag-py">Python</span> · 18 篇 · 1 周前</div></div>
+                <svg width="11" height="11" viewBox="0 0 11 11" fill="none" style={{opacity:'.25'}}><path d="M3 2l4 3.5-4 3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+              </div>
+              <div class="series-item" onclick="window.location.href='/series'">
+                <div class="series-emoji">🏗️</div>
+                <div style={{flex:1}}><div class="series-name">系统设计精讲</div>
+                <div class="series-meta2"><span class="mtag mtag-arch">架构</span> · 11 篇 · 2 周前</div></div>
+                <svg width="11" height="11" viewBox="0 0 11 11" fill="none" style={{opacity:'.25'}}><path d="M3 2l4 3.5-4 3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-title">活跃度 <span style={{color:'var(--t3)', fontSize:'10px'}}>近 14 天</span></div>
+              <div class="act-bars" id="actBars"></div>
+              <div class="act-days"><span>4/10</span><span>11</span><span>12</span><span>13</span><span>14</span><span>15</span><span>16</span><span>17</span><span>18</span><span>19</span><span>20</span><span>21</span><span>22</span><span>今</span></div>
+              <div style={{height:'1px', background:'var(--border)', margin:'13px 0'}}></div>
+              <div class="panel-title">系列进度</div>
+              <div class="prog"><div class="prog-lbl">JS 全栈 <span class="prog-pct">78%</span></div><div class="prog-track"><div class="prog-fill" style={{width:'78%', background:'var(--accent)'}}></div></div></div>
+              <div class="prog"><div class="prog-lbl">Go 并发 <span class="prog-pct">55%</span></div><div class="prog-track"><div class="prog-fill" style={{width:'55%', background:'var(--green)'}}></div></div></div>
+              <div class="prog"><div class="prog-lbl">算法 <span class="prog-pct">32%</span></div><div class="prog-track"><div class="prog-fill" style={{width:'32%', background:'var(--amber)'}}></div></div></div>
+              <div class="prog"><div class="prog-lbl">系统设计 <span class="prog-pct">85%</span></div><div class="prog-track"><div class="prog-fill" style={{width:'85%', background:'var(--purple)'}}></div></div></div>
+            </div>
+          </div>
+
+          <div class="g22">
+            <div class="panel">
+              <div class="panel-title">最近编辑</div>
+              <div class="edit-item" onclick="window.location.href='/articles/new'">
+                <div class="edit-dot" style={{background:'var(--accent)'}}></div>
+                <div class="edit-title">原型链与继承机制详解</div>
+                <div class="edit-time">刚刚</div>
+              </div>
+              <div class="edit-item" onclick="window.location.href='/articles/new'">
+                <div class="edit-dot" style={{background:'var(--green)'}}></div>
+                <div class="edit-title">Goroutine 调度器原理分析</div>
+                <div class="edit-time">2h</div>
+              </div>
+              <div class="edit-item" onclick="window.location.href='/articles/new'">
+                <div class="edit-dot" style={{background:'var(--amber)'}}></div>
+                <div class="edit-title">Promise 与 async/await 对比</div>
+                <div class="edit-time">昨天</div>
+              </div>
+              <div class="edit-item" onclick="window.location.href='/articles/new'">
+                <div class="edit-dot" style={{background:'var(--purple)'}}></div>
+                <div class="edit-title">分布式系统 CAP 定理实战</div>
+                <div class="edit-time">3天前</div>
+              </div>
+              <div class="edit-item" onclick="window.location.href='/articles/new'">
+                <div class="edit-dot" style={{background:'var(--orange)'}}></div>
+                <div class="edit-title">Redis 缓存设计模式</div>
+                <div class="edit-time">3天前</div>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="panel-title">标签 <span class="panel-link" onclick="toast('筛选已清除','info')">清除筛选</span></div>
+              <div class="tag-cloud">
+                <span class="tag-pill active" onclick="this.classList.toggle('active');filterByTag(this)">JavaScript</span>
+                <span class="tag-pill" onclick="this.classList.toggle('active');filterByTag(this)">Go</span>
+                <span class="tag-pill" onclick="this.classList.toggle('active');filterByTag(this)">React</span>
+                <span class="tag-pill" onclick="this.classList.toggle('active');filterByTag(this)">并发</span>
+                <span class="tag-pill" onclick="this.classList.toggle('active');filterByTag(this)">数据结构</span>
+                <span class="tag-pill" onclick="this.classList.toggle('active');filterByTag(this)">系统设计</span>
+                <span class="tag-pill" onclick="this.classList.toggle('active');filterByTag(this)">Node.js</span>
+                <span class="tag-pill" onclick="this.classList.toggle('active');filterByTag(this)">算法</span>
+                <span class="tag-pill" onclick="this.classList.toggle('active');filterByTag(this)">微服务</span>
+                <span class="tag-pill" onclick="this.classList.toggle('active');filterByTag(this)">Docker</span>
+                <span class="tag-pill" onclick="this.classList.toggle('active');filterByTag(this)">TypeScript</span>
+                <span class="tag-pill" onclick="this.classList.toggle('active');filterByTag(this)">性能优化</span>
+              </div>
+            </div>
+          </div>
+          <script dangerouslySetInnerHTML={{__html: `
+            setTimeout(() => {
+              const actData = [8,22,35,28,45,32,20,40,17,38,25,48,14,30];
+              const actMax = Math.max(...actData);
+              const actContainer = document.getElementById('actBars');
+              if (actContainer) {
+                actData.forEach((v, i) => {
+                  const bar = document.createElement('div');
+                  bar.className = 'act-bar';
+                  bar.style.height = Math.round((v / actMax) * 100) + '%';
+                  if (i === actData.length - 1) { bar.classList.add('hi'); }
+                  else if (v > actMax * 0.6) { bar.classList.add('md'); }
+                  actContainer.appendChild(bar);
+                });
+              }
+            }, 100);
+          `}}></script>
 
           {showSeed ? (
             <div style={{ marginTop: '18px', background: 'var(--bg1)', border: '1px solid var(--border)', borderRadius: '12px', padding: '14px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>

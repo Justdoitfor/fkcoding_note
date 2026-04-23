@@ -4,6 +4,7 @@ import series from './routes/series';
 import articles from './routes/articles';
 import stats from './routes/stats';
 import auth from './routes/auth';
+import notes from './routes/notes';
 import { authMiddleware } from './middleware/auth';
 
 type Bindings = {
@@ -31,11 +32,13 @@ app.use('/dashboard/*', authMiddleware);
 app.use('/series/*', authMiddleware);
 app.use('/articles/*', authMiddleware);
 app.use('/stats/*', authMiddleware);
+app.use('/notes/*', authMiddleware);
 
 // Mount Routes
 app.route('/dashboard', dashboard);
 app.route('/series', series);
 app.route('/articles', articles);
 app.route('/stats', stats);
+app.route('/notes', notes);
 
 export default app;
