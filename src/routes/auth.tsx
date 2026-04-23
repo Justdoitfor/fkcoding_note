@@ -51,7 +51,8 @@ auth.post('/login', async (c) => {
         });
       }
       const sessionId = await createSession(c.env.KV, 'admin-id');
-      setCookie(c, 'session', sessionId, { httpOnly: true, secure: true, sameSite: 'Strict' });
+      const isHttps = new URL(c.req.url).protocol === 'https:';
+      setCookie(c, 'session', sessionId, { httpOnly: true, secure: isHttps, sameSite: 'Strict' });
       return c.redirect('/dashboard');
     } catch (err) {
       console.error("Login error:", err);

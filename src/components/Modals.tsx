@@ -20,7 +20,7 @@ export const Modals = () => html`
   <div class="search-modal">
     <div class="search-input-wrap">
       <svg width="15" height="15" viewBox="0 0 15 15" fill="none" style="flex-shrink:0;opacity:.4"><circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" stroke-width="1.3"/><path d="M10.5 10.5l3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-      <input class="search-input" id="searchInput" placeholder="搜索教程、文章、笔记…" oninput="handleSearch(this.value)" autofocus>
+      <input class="search-input" id="searchInput" placeholder="搜索教程、文章、笔记…" oninput="handleSearch(this.value)">
       <span style="font-size:10.5px;color:var(--t3);cursor:pointer" onclick="closeOverlay('searchOverlay')">ESC</span>
     </div>
     <div class="search-results" id="searchResults">
@@ -173,7 +173,7 @@ export const Modals = () => html`
     </div>
     <form hx-post="/notes" hx-swap="none" onsubmit="setTimeout(() => { closeOverlay('quickNoteModal'); toast('笔记已保存', 'success'); this.reset(); }, 100)">
       <div class="modal-body">
-        <textarea class="form-input" name="content" rows="6" placeholder="快速记录想法、代码片段、链接…&#10;&#10;支持 Markdown 格式" style="resize:none;font-family:var(--fm);font-size:12.5px;line-height:1.7" autofocus required></textarea>
+        <textarea class="form-input" name="content" rows="6" placeholder="快速记录想法、代码片段、链接…&#10;&#10;支持 Markdown 格式" style="resize:none;font-family:var(--fm);font-size:12.5px;line-height:1.7" required></textarea>
       </div>
       <div class="modal-foot">
         <button type="button" class="btn" onclick="closeOverlay('quickNoteModal')">取消</button>

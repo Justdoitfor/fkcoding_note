@@ -60,10 +60,10 @@ statsApp.get('/', async (c) => {
           <div class="panel-title">年度创作热力图 <span style={{fontSize:'10px',color:'var(--t3)'}}>悬停查看详情</span></div>
           <div class="hm-grid" id="hmGrid">
             {days.map(d => (
-              <div class="hm-sq" data-level={d.level} title={`${d.date}: ${d.count} 字`}></div>
+              <div class={`hm-cell hm${d.level}`} title={`${d.date}: ${d.count} 字`}></div>
             ))}
           </div>
-          <div class="hm-foot"><span>少</span><div class="hm-sq" data-level="0"></div><div class="hm-sq" data-level="1"></div><div class="hm-sq" data-level="2"></div><div class="hm-sq" data-level="3"></div><div class="hm-sq" data-level="4"></div><span>多</span></div>
+          <div class="hm-foot"><span>少</span><div class="hm-sq hm0"></div><div class="hm-sq hm1"></div><div class="hm-sq hm2"></div><div class="hm-sq hm3"></div><div class="hm-sq hm4"></div><span>多</span></div>
         </div>
 
         <div class="g2s">

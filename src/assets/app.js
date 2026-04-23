@@ -10,7 +10,13 @@ function showPage(name) {
 function openModal(id) {
   closeCtx();
   const el = document.getElementById(id);
-  if (el) { el.classList.add('show'); }
+  if (el) {
+    el.classList.add('show');
+    setTimeout(() => {
+      const focusEl = el.querySelector('input, textarea, select, button');
+      if (focusEl) focusEl.focus();
+    }, 0);
+  }
 }
 function closeOverlay(id) {
   const el = document.getElementById(id);
