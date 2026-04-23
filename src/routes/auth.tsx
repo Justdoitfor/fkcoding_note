@@ -11,7 +11,7 @@ auth.get('/login', (c) => {
 <head>
   <meta charset="UTF-8">
   <title>Login - fkcoding-note</title>
-  <link rel="stylesheet" href="/app.css">
+  <link rel="stylesheet" href="/assets/app.css">
   <style>
     body { display: flex; align-items: center; justify-content: center; height: 100vh; background: var(--bg); }
     .login-box { background: var(--surface); padding: 30px; border-radius: var(--radius-lg); box-shadow: var(--shadow-md); width: 320px; }
