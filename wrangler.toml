@@ -1,0 +1,17 @@
+name = "fkcoding-note"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "fkcoding-note-db"
+database_id = "your-d1-database-id"
+
+[[kv_namespaces]]
+binding = "KV"
+id = "your-kv-namespace-id"
+
+[assets]
+directory = "./src/assets"
+binding = "ASSETS"
