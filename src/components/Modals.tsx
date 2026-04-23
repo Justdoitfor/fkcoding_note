@@ -7,12 +7,11 @@ export const Modals = () => html`
 
 <!-- ═══════════ CONTEXT MENU ═══════════ -->
 <div class="ctx-menu" id="ctxMenu">
-  <div class="ctx-item" onclick="toast('已在新标签打开','info');closeCtx()">📄 在新标签打开</div>
-  <div class="ctx-item" onclick="toast('链接已复制','success');closeCtx()">🔗 复制链接</div>
-  <div class="ctx-item" onclick="openModal('moveModal');closeCtx()">📦 移动到…</div>
+  <div class="ctx-item" onclick="ctxOpenBlank()">📄 在新标签打开</div>
+  <div class="ctx-item" onclick="ctxCopyLink()">🔗 复制链接</div>
+  <div class="ctx-item" onclick="ctxMove()">📦 移动到…</div>
   <div class="ctx-sep"></div>
-  <div class="ctx-item" onclick="toast('开发中','info');closeCtx()">📋 复制文章</div>
-  <div class="ctx-item danger" onclick="openModal('deleteModal');closeCtx()">🗑 删除</div>
+  <div class="ctx-item danger" onclick="ctxDelete()">🗑 删除</div>
 </div>
 
 <!-- ═══════════ SEARCH OVERLAY ═══════════ -->
@@ -44,37 +43,16 @@ export const Modals = () => html`
 
 <!-- ═══════════ NEW ARTICLE MODAL ═══════════ -->
 <div class="overlay" id="newArticleModal" onclick="if(event.target===this)closeOverlay('newArticleModal')">
-  <div class="modal">
+  <div class="modal" style="width:400px">
     <div class="modal-head">
       <div class="modal-title">新建文章</div>
       <button class="modal-close" onclick="closeOverlay('newArticleModal')">✕</button>
     </div>
-    <form hx-post="/articles" hx-swap="none">
+    <form action="/articles/new" method="get">
       <div class="modal-body">
-        <div class="form-row">
-          <label class="form-label">文章标题 <span style="color:var(--red)">*</span></label>
-          <input class="form-input" name="title" placeholder="如：深入理解 JavaScript 闭包" id="newArticleTitle" required>
-        </div>
-        <div class="form-row">
-          <label class="form-label">模板</label>
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px">
-            <div class="template-opt sel" id="tpl-blank" onclick="document.querySelectorAll('.template-opt').forEach(el=>el.classList.remove('sel')); this.classList.add('sel');" style="border:1px solid var(--accent);border-radius:6px;padding:10px 12px;cursor:pointer;background:var(--abg)">
-              <div style="font-size:16px;margin-bottom:4px">📄</div>
-              <div style="font-size:11px;font-weight:500;color:var(--accent)">空白</div>
-              <div style="font-size:10px;color:var(--t3)">从零开始</div>
-            </div>
-            <div class="template-opt" id="tpl-tut" onclick="document.querySelectorAll('.template-opt').forEach(el=>el.classList.remove('sel')); this.classList.add('sel');" style="border:1px solid var(--border2);border-radius:6px;padding:10px 12px;cursor:pointer">
-              <div style="font-size:16px;margin-bottom:4px">📚</div>
-              <div style="font-size:11px;font-weight:500">教程</div>
-              <div style="font-size:10px;color:var(--t3)">含目标/步骤</div>
-            </div>
-            <div class="template-opt" id="tpl-note" onclick="document.querySelectorAll('.template-opt').forEach(el=>el.classList.remove('sel')); this.classList.add('sel');" style="border:1px solid var(--border2);border-radius:6px;padding:10px 12px;cursor:pointer">
-              <div style="font-size:16px;margin-bottom:4px">📝</div>
-              <div style="font-size:11px;font-weight:500">笔记</div>
-              <div style="font-size:10px;color:var(--t3)">快速记录</div>
-            </div>
-          </div>
-        </div>
+        <label class="form-label">文章标题</label>
+        <input class="form-input" name="title" placeholder="如：深入理解 JavaScript 闭包" required>
+        <input type="hidden" name="seriesId" id="newArticleSeriesId">
       </div>
       <div class="modal-foot">
         <button type="button" class="btn" onclick="closeOverlay('newArticleModal')">取消</button>
@@ -86,25 +64,42 @@ export const Modals = () => html`
 
 <!-- ═══════════ NEW SERIES MODAL ═══════════ -->
 <div class="overlay" id="newSeriesModal" onclick="if(event.target===this)closeOverlay('newSeriesModal')">
-  <div class="modal">
+  <div class="modal" style="width:440px">
     <div class="modal-head">
-      <div class="modal-title">新建教程系列</div>
+      <div class="modal-title">新建系列</div>
       <button class="modal-close" onclick="closeOverlay('newSeriesModal')">✕</button>
     </div>
-    <form hx-post="/series" hx-swap="none" onsubmit="setTimeout(() => window.location.reload(), 300)">
+    <form hx-post="/series" hx-swap="none" onsubmit="setTimeout(() => { closeOverlay('newSeriesModal'); toast('系列已创建', 'success'); window.location.reload() }, 200)">
       <div class="modal-body">
-        <div class="form-row">
-          <label class="form-label">系列名称 <span style="color:var(--red)">*</span></label>
-          <input class="form-input" name="title" placeholder="如：Rust 系统编程实战" id="newSeriesName" required>
-        </div>
-        <div class="form-row">
-          <label class="form-label">简介</label>
-          <textarea class="form-input" name="description" rows="2" placeholder="一句话描述这个系列的内容…" style="resize:none;line-height:1.5"></textarea>
-        </div>
+        <label class="form-label">系列名称</label>
+        <input class="form-input" name="title" placeholder="如：Rust 系统编程实战" required>
+        <label class="form-label" style="margin-top:15px">描述 <span style="font-weight:400;color:var(--t3)">(可选)</span></label>
+        <textarea class="form-input" name="description" rows="2" placeholder="一句话描述这个系列的内容…"></textarea>
       </div>
       <div class="modal-foot">
         <button type="button" class="btn" onclick="closeOverlay('newSeriesModal')">取消</button>
-        <button type="submit" class="btn btn-primary" onclick="closeOverlay('newSeriesModal')">创建系列</button>
+        <button type="submit" class="btn btn-primary">创建系列</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ═══════════ NEW CHILD SERIES MODAL ═══════════ -->
+<div class="overlay" id="newChildSeriesModal" onclick="if(event.target===this)closeOverlay('newChildSeriesModal')">
+  <div class="modal" style="width:440px">
+    <div class="modal-head">
+      <div class="modal-title">新建子系列/章节</div>
+      <button class="modal-close" onclick="closeOverlay('newChildSeriesModal')">✕</button>
+    </div>
+    <form hx-post="/series" hx-swap="none" onsubmit="setTimeout(() => { closeOverlay('newChildSeriesModal'); toast('子系列已创建', 'success'); window.location.reload() }, 200)">
+      <div class="modal-body">
+        <input type="hidden" name="parentId" id="newChildParentId">
+        <label class="form-label">章节名称</label>
+        <input class="form-input" name="title" placeholder="如：基础语法" required>
+      </div>
+      <div class="modal-foot">
+        <button type="button" class="btn" onclick="closeOverlay('newChildSeriesModal')">取消</button>
+        <button type="submit" class="btn btn-primary">创建子章节</button>
       </div>
     </form>
   </div>
@@ -171,7 +166,7 @@ export const Modals = () => html`
       <div class="modal-title">⚡ 快速笔记</div>
       <button class="modal-close" onclick="closeOverlay('quickNoteModal')">✕</button>
     </div>
-    <form hx-post="/notes" hx-swap="none" onsubmit="setTimeout(() => { closeOverlay('quickNoteModal'); toast('笔记已保存', 'success'); this.reset(); }, 100)">
+    <form hx-post="/notes" hx-swap="none" onsubmit="closeOverlay('quickNoteModal');toast('笔记已保存', 'success');setTimeout(()=>window.location.reload(), 500)">
       <div class="modal-body">
         <textarea class="form-input" name="content" rows="6" placeholder="快速记录想法、代码片段、链接…&#10;&#10;支持 Markdown 格式" style="resize:none;font-family:var(--fm);font-size:12.5px;line-height:1.7" required></textarea>
       </div>
@@ -185,37 +180,24 @@ export const Modals = () => html`
 
 <!-- ═══════════ PUBLISH MODAL ═══════════ -->
 <div class="overlay" id="publishModal" onclick="if(event.target===this)closeOverlay('publishModal')">
-  <div class="modal" style="width:420px">
+  <div class="modal" style="width:480px">
     <div class="modal-head">
-      <div class="modal-title">发布文章</div>
+      <div class="modal-title">发布设置</div>
       <button class="modal-close" onclick="closeOverlay('publishModal')">✕</button>
     </div>
-    <div class="modal-body">
-      <div style="background:var(--gbg);border-radius:8px;padding:12px 14px;margin-bottom:14px;border:1px solid rgba(21,163,122,.2)">
-        <div style="font-size:12px;font-weight:500;color:var(--green);margin-bottom:3px">✓ 发布检查通过</div>
-        <div style="font-size:11px;color:var(--green);opacity:.8">标题、摘要、标签均已填写</div>
-      </div>
-      <div class="form-row">
-        <label class="form-label">摘要预览</label>
-        <div style="background:var(--s2);border-radius:6px;padding:10px 12px;font-size:12px;color:var(--t2);line-height:1.6">深入理解 JavaScript 原型链的工作原理，掌握原型式继承、构造函数继承和 ES6 Class 继承的实现差异。</div>
-      </div>
-      <div class="form-row">
-        <label class="form-label">标签</label>
-        <div style="display:flex;gap:5px;flex-wrap:wrap">
-          <span class="mtag mtag-js">JavaScript</span>
-          <span class="mtag" style="background:var(--pbg);color:var(--purple)">原型链</span>
-          <span class="mtag" style="background:var(--gbg);color:var(--green)">继承</span>
+    <div class="modal-body" style="padding:8px">
+      <div style="background:var(--s2);border-radius:8px;padding:14px;border:1px solid var(--border2);margin-bottom:14px">
+        <div style="font-weight:500;margin-bottom:6px" id="pubTitlePreview">文章标题</div>
+        <div style="font-size:12.5px;color:var(--t3);line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">
+          文章摘要预览...
         </div>
       </div>
-      <div class="form-row">
-        <label class="form-label">可见性</label>
-        <div style="display:flex;gap:8px">
-          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;flex:1;border:1px solid var(--accent);border-radius:6px;padding:8px 10px;background:var(--abg)">
-            <input type="radio" name="visibility" checked style="accent-color:var(--accent)"> 公开
-          </label>
-          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;flex:1;border:1px solid var(--border2);border-radius:6px;padding:8px 10px">
-            <input type="radio" name="visibility" style="accent-color:var(--accent)"> 仅自己
-          </label>
+
+      <div class="form-row" style="margin-bottom:14px">
+        <label class="form-label" style="margin-bottom:8px">可见性</label>
+        <div style="display:flex;gap:16px">
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="radio" name="vis" checked> 公开</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="radio" name="vis"> 仅自己</label>
         </div>
       </div>
     </div>

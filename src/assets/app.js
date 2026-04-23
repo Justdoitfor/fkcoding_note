@@ -44,8 +44,11 @@ function toast(msg, type = 'default') {
 }
 
 // ─── CONTEXT MENU ───
-function showCtx(e) {
+let activeCtxArticleId = null;
+
+function showCtx(e, articleId) {
   e.preventDefault();
+  activeCtxArticleId = articleId;
   const m = document.getElementById('ctxMenu');
   if (!m) return;
   m.style.left = Math.min(e.clientX, window.innerWidth - 180) + 'px';
@@ -57,6 +60,37 @@ function closeCtx() {
   if (m) m.classList.remove('show'); 
 }
 document.addEventListener('click', e => { if (!e.target.closest('#ctxMenu')) closeCtx(); });
+
+// ─── CTX MENU ACTIONS ───
+function ctxOpenBlank() {
+  if (activeCtxArticleId) {
+    window.open(`/articles/edit/${activeCtxArticleId}`, '_blank');
+  }
+  closeCtx();
+}
+function ctxCopyLink() {
+  if (activeCtxArticleId) {
+    navigator.clipboard.writeText(`${window.location.origin}/articles/edit/${activeCtxArticleId}`);
+    toast('链接已复制', 'success');
+  }
+  closeCtx();
+}
+function ctxMove() {
+  if (activeCtxArticleId) {
+    // 借用现有的 moveModal 逻辑，修改下全局 id
+    window.history.pushState({}, '', `/articles/edit/${activeCtxArticleId}`);
+    openModal('moveModal');
+  }
+  closeCtx();
+}
+function ctxDelete() {
+  if (activeCtxArticleId) {
+    // 借用现有的 deleteModal 逻辑，修改下全局 id
+    window.history.pushState({}, '', `/articles/edit/${activeCtxArticleId}`);
+    openModal('deleteModal');
+  }
+  closeCtx();
+}
 
 // ─── USER POPOVER ───
 function togglePopover() {
@@ -119,6 +153,17 @@ function filterByTag(el) {
 }
 
 // ─── EDITOR ACTIONS ───
+window.openPublishModal = function() {
+  const titleInput = document.getElementById('title-input');
+  if (titleInput) {
+    const pubTitlePreview = document.getElementById('pubTitlePreview');
+    if (pubTitlePreview) {
+      pubTitlePreview.textContent = titleInput.value || '无标题文章';
+    }
+  }
+  openModal('publishModal');
+};
+
 window.publishArticle = function() {
   const id = window.location.pathname.split('/').pop();
   htmx.ajax('POST', `/articles/${id}/publish`, {swap:'none'}).then(() => {

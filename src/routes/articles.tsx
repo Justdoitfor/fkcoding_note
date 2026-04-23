@@ -150,7 +150,7 @@ articlesApp.get('/new', async (c) => {
               <div class="saved-state" id="save-status"><div class="saved-dot"></div>尚未保存</div>
               <button class="btn btn-sm" onclick="toast('新文章没有历史版本', 'info')">历史版本</button>
               <button class="btn btn-sm" onclick="document.getElementById('page-editor').requestFullscreen()">全屏</button>
-              <button class="btn btn-sm btn-primary" onclick="openModal('publishModal')">发布</button>
+              <button class="btn btn-sm btn-primary" onclick="openPublishModal()">发布</button>
             </div>
 
             <div class="ed-tabs">
@@ -284,7 +284,7 @@ articlesApp.get('/edit/:id', async (c) => {
               <div class="saved-state" id="save-status"><div class="saved-dot"></div>已保存</div>
               <button class="btn btn-sm" onclick={`openHistoryModal('${article.id}')`}>历史版本</button>
               <button class="btn btn-sm" onclick="document.getElementById('page-editor').requestFullscreen()">全屏</button>
-              <button class="btn btn-sm btn-primary" onclick="openModal('publishModal')">发布</button>
+              <button class="btn btn-sm btn-primary" onclick="openPublishModal()">发布</button>
             </div>
 
             <div class="ed-tabs">
