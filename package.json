@@ -4,7 +4,7 @@
   "main": "src/index.ts",
   "scripts": {
     "dev": "wrangler pages dev src/index.ts",
-    "build": "mkdir -p dist/assets && cp -r src/assets/* dist/assets/ && echo \"export { default } from '../src/index.ts';\" > dist/_worker.js",
+    "build": "mkdir -p dist/assets && cp -r src/assets/* dist/assets/ && echo \"export default { fetch: async (request, env, ctx) => { const url = new URL(request.url); if (url.pathname.startsWith('/assets/')) { return env.ASSETS.fetch(request); } const { default: app } = await import('../src/index.ts'); return app.fetch(request, env, ctx); } };\" > dist/_worker.js",
     "deploy": "wrangler pages deploy dist",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "wrangler d1 migrations apply fkcoding-note --remote"
