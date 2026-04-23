@@ -106,8 +106,18 @@ function switchEditorMode(mode, el) {
   }
 }
 
-// Show initial page
-showPage('dashboard');
+// Show initial page (based on url)
+const pathname = window.location.pathname;
+if (pathname === '/dashboard' || pathname === '/') {
+  showPage('dashboard');
+} else if (pathname === '/series') {
+  showPage('series');
+} else if (pathname.startsWith('/articles')) {
+  showPage('editor');
+} else if (pathname === '/stats') {
+  showPage('stats');
+}
+
 // Open JS tree by default
 const jsTree = document.getElementById('tree-js');
 if (jsTree) jsTree.style.display = '';

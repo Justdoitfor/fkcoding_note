@@ -14,7 +14,7 @@ articlesApp.get('/new', async (c) => {
 
   return c.html(
     <Layout title="编辑器" current="editor">
-      <div id="page-editor" style={{ height: 'calc(100vh - var(--topbar-h))' }}>
+      <div id="page-editor" class="page" style={{ height: 'calc(100vh - var(--topbar-h))', padding: '0' }}>
         <div class="editor-shell" style={{ height: '100%' }}>
           {/* Left tree */}
           <div class="etree">
