@@ -1,8 +1,11 @@
 import { Hono } from 'hono';
 import { setCookie, deleteCookie } from 'hono/cookie';
 import { createSession, deleteSession } from '../lib/session';
+import { drizzle } from 'drizzle-orm/d1';
+import { users } from '../db/schema';
+import { eq } from 'drizzle-orm';
 
-const auth = new Hono<{ Bindings: { KV: KVNamespace } }>();
+const auth = new Hono<{ Bindings: { KV: KVNamespace; DB: D1Database } }>();
 
 auth.get('/login', (c) => {
   return c.html(`
@@ -37,12 +40,22 @@ auth.post('/login', async (c) => {
   // Simplified auth for MVP, in real app check against DB
   if (body.username === 'admin' && body.password === 'admin') {
     try {
+      const db = drizzle(c.env.DB);
+      const existingUser = await db.select().from(users).where(eq(users.id, 'admin-id')).get();
+      if (!existingUser) {
+        await db.insert(users).values({
+          id: 'admin-id',
+          username: 'admin',
+          passwordHash: 'admin',
+          createdAt: Date.now(),
+        });
+      }
       const sessionId = await createSession(c.env.KV, 'admin-id');
       setCookie(c, 'session', sessionId, { httpOnly: true, secure: true, sameSite: 'Strict' });
       return c.redirect('/dashboard');
     } catch (err) {
-      console.error("Login KV error:", err);
-      return c.text("Server Error: Cloudflare KV is not bound correctly. Please check Cloudflare Pages Settings -> Bindings and ensure 'KV' is bound to your KV namespace.", 500);
+      console.error("Login error:", err);
+      return c.text("Server Error: please check Cloudflare Pages Settings -> Bindings and ensure both 'KV' and 'DB' are bound, and D1 migrations have been applied.", 500);
     }
   }
   return c.redirect('/login?error=1');

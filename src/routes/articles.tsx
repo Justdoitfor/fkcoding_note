@@ -2,14 +2,14 @@ import { Hono } from 'hono';
 import { Layout } from '../components/Layout';
 import { html } from 'hono/html';
 import { drizzle } from 'drizzle-orm/d1';
-import { articles, series, tags, articleTags } from '../db/schema';
+import { articles, series, tags, articleTags, writingLogs } from '../db/schema';
 import { nanoid } from 'nanoid';
-import { eq, inArray } from 'drizzle-orm';
+import { and, eq, inArray } from 'drizzle-orm';
 
 const articlesApp = new Hono<{ Bindings: { DB: D1Database }; Variables: { userId: string } }>();
 
 // 递归组件：渲染编辑器左侧简单的系列与文章树
-const EditorTree = (props: { allSeries: any[]; allArticles: any[]; parentId: string | null; depth: number; activeArticleId?: string }) => {
+const EditorTree: (props: { allSeries: any[]; allArticles: any[]; parentId: string | null; depth: number; activeArticleId?: string }) => ReturnType<typeof html> = (props) => {
   const { allSeries, allArticles, parentId, depth, activeArticleId } = props;
   
   const currentSeries = allSeries
@@ -291,7 +291,7 @@ articlesApp.get('/edit/:id', async (c) => {
               <div class="meta-lbl">标签</div>
               <div class="meta-tag-wrap" id="article-tags-wrap">
                 {/* 动态渲染文章标签（新建时为空） */}
-                <span class="meta-tag meta-add" onclick={`const t=prompt('输入新标签名称 (逗号分隔多个)'); if(t) { htmx.ajax('POST', '/articles/${newArticleId}/tags', {values:{tags:t}, target:'#article-tags-wrap', swap:'innerHTML'}); }`}>+ 添加</span>
+                <span class="meta-tag meta-add" onclick={`const t=prompt('输入新标签名称 (逗号分隔多个)'); if(t) { htmx.ajax('POST', '/articles/${articleId}/tags', {values:{tags:t}, target:'#article-tags-wrap', swap:'innerHTML'}); }`}>+ 添加</span>
               </div>
             </div>
             <div class="meta-sec">
@@ -330,10 +330,15 @@ articlesApp.put('/:id', async (c) => {
 
   const existing = await db.select().from(articles).where(eq(articles.id, articleId)).get();
 
+  const now = Date.now();
+  const dateStr = new Date(now).toISOString().split('T')[0];
+  const oldWordCount = existing?.wordCount || 0;
+  const isNewArticle = !existing;
+
   if (existing) {
     // 更新
     await db.update(articles)
-      .set({ content, title, wordCount, updatedAt: Date.now() })
+      .set({ content, title, wordCount, updatedAt: now })
       .where(eq(articles.id, articleId));
   } else {
     // 插入新文章
@@ -343,9 +348,36 @@ articlesApp.put('/:id', async (c) => {
       title,
       content,
       wordCount,
-      createdAt: Date.now(),
-      updatedAt: Date.now()
+      createdAt: now,
+      updatedAt: now
     });
+  }
+
+  const deltaWords = wordCount - oldWordCount;
+  if (deltaWords !== 0 || isNewArticle) {
+    const log = await db
+      .select()
+      .from(writingLogs)
+      .where(and(eq(writingLogs.userId, userId), eq(writingLogs.date, dateStr)))
+      .get();
+
+    const newLogWordCount = Math.max(0, (log?.wordCount || 0) + deltaWords);
+    const newLogArticleCount = (log?.articleCount || 0) + (isNewArticle ? 1 : 0);
+
+    if (log) {
+      await db
+        .update(writingLogs)
+        .set({ wordCount: newLogWordCount, articleCount: newLogArticleCount })
+        .where(eq(writingLogs.id, log.id));
+    } else {
+      await db.insert(writingLogs).values({
+        id: nanoid(),
+        userId,
+        date: dateStr,
+        articleCount: isNewArticle ? 1 : 0,
+        wordCount: Math.max(0, deltaWords),
+      });
+    }
   }
 
   const timeStr = new Date().toLocaleTimeString('zh-CN', { hour12: false });
@@ -377,16 +409,17 @@ articlesApp.post('/:id/tags', async (c) => {
   if (tagNames.length > 0) {
     for (const name of tagNames) {
       // 查找或创建 tag
-      let tagRecord = await db.select().from(tags).where(eq(tags.name, name)).get();
+      let tagRecord = await db.select().from(tags).where(and(eq(tags.userId, userId), eq(tags.name, name))).get();
       if (!tagRecord) {
         tagRecord = { id: nanoid(), userId, name, color: 'gray' };
         await db.insert(tags).values(tagRecord);
       }
       
       // 绑定关系
-      const existingLink = await db.select().from(articleTags)
-        .where(eq(articleTags.articleId, articleId))
-        .where(eq(articleTags.tagId, tagRecord.id))
+      const existingLink = await db
+        .select()
+        .from(articleTags)
+        .where(and(eq(articleTags.articleId, articleId), eq(articleTags.tagId, tagRecord.id)))
         .get();
         
       if (!existingLink) {
@@ -418,9 +451,9 @@ articlesApp.delete('/:id/tags/:tagId', async (c) => {
   const tagId = c.req.param('tagId');
 
   // 删除绑定关系
-  await db.delete(articleTags)
-    .where(eq(articleTags.articleId, articleId))
-    .where(eq(articleTags.tagId, tagId));
+  await db
+    .delete(articleTags)
+    .where(and(eq(articleTags.articleId, articleId), eq(articleTags.tagId, tagId)));
 
   // 重新获取绑定的标签渲染返回
   const attachedTagsRecords = await db.select().from(articleTags).where(eq(articleTags.articleId, articleId));
