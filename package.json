@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "main": "src/index.ts",
   "scripts": {
-    "dev": "wrangler dev",
-    "build": "mkdir -p dist",
-    "deploy": "wrangler deploy",
+    "dev": "wrangler pages dev src/index.ts",
+    "build": "mkdir -p dist && cp -r src/assets/* dist/ && echo \"export { default } from '../src/index.ts';\" > dist/_worker.js",
+    "deploy": "wrangler pages deploy dist",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "wrangler d1 migrations apply fkcoding-note-db"
   },
