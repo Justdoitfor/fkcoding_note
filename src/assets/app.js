@@ -146,3 +146,58 @@ setTimeout(() => {
   const mdInput = document.getElementById('md-input');
   if (mdInput) updatePreview(mdInput.value);
 }, 100);
+
+// ─── Markdown Toolbar Helper ───
+window.insertMarkdown = function(prefix, suffix = '') {
+  const textarea = document.getElementById('md-input');
+  if (!textarea) return;
+
+  const start = textarea.selectionStart;
+  const end = textarea.selectionEnd;
+  const text = textarea.value;
+  const selectedText = text.substring(start, end);
+  
+  let replacement = '';
+  let newCursorPos = 0;
+
+  // Handle prefix/suffix (like **bold**)
+  if (suffix) {
+    if (selectedText.startsWith(prefix) && selectedText.endsWith(suffix)) {
+      // Toggle off if already applied
+      replacement = selectedText.substring(prefix.length, selectedText.length - suffix.length);
+      newCursorPos = start + replacement.length;
+    } else {
+      // Apply
+      replacement = prefix + selectedText + suffix;
+      newCursorPos = start + prefix.length + selectedText.length;
+    }
+  } else {
+    // Handle prefix only (like blockquotes or lists)
+    const isLineStart = start === 0 || text[start - 1] === '\n';
+    const lines = selectedText.split('\n');
+    
+    // Toggle block prefix
+    if (lines.every(line => line.startsWith(prefix))) {
+      replacement = lines.map(line => line.substring(prefix.length)).join('\n');
+    } else {
+      replacement = lines.map(line => (isLineStart || start !== end ? prefix : '\n' + prefix) + line).join('\n');
+    }
+    newCursorPos = start + replacement.length;
+  }
+
+  // Update textarea value using standard methods so Alpine/HTMX can pick it up
+  textarea.value = text.substring(0, start) + replacement + text.substring(end);
+  
+  // Update Alpine state if exists
+  const alpineData = textarea.__x;
+  if (alpineData && alpineData.$data) {
+    alpineData.$data.content = textarea.value;
+  }
+  
+  // Dispatch input event to trigger HTMX and Preview
+  textarea.dispatchEvent(new Event('input', { bubbles: true }));
+  
+  // Restore selection
+  textarea.focus();
+  textarea.setSelectionRange(newCursorPos, newCursorPos);
+};
