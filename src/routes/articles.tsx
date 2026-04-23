@@ -44,17 +44,18 @@ articlesApp.get('/new', async (c) => {
   // 生成一个新的文章 ID 预占位
   const newArticleId = nanoid();
   
-  const allSeries = await db.select().from(series).where(eq(series.userId, userId));
-  const allArticles = await db.select().from(articles).where(eq(articles.userId, userId));
-  const draftArticles = allArticles.filter(a => !a.seriesId);
-  const allTags = await db.select().from(tags).where(eq(tags.userId, userId));
-
-  // Fetch attached tags for existing article
-  const attachedTagsRecords = await db.select().from(articleTags).where(eq(articleTags.articleId, articleId));
-  const attachedTagIds = attachedTagsRecords.map(t => t.tagId).filter(Boolean) as string[];
-  const attachedTags = attachedTagIds.length > 0 
-    ? await db.select().from(tags).where(inArray(tags.id, attachedTagIds))
-    : [];
+  let allSeries: any[] = [];
+  let allArticles: any[] = [];
+  let draftArticles: any[] = [];
+  
+  try {
+    allSeries = await db.select().from(series).where(eq(series.userId, userId));
+    allArticles = await db.select().from(articles).where(eq(articles.userId, userId));
+    draftArticles = allArticles.filter(a => !a.seriesId);
+  } catch (err) {
+    console.error("Editor tree fetch error:", err);
+    // Ignore error, tree will just be empty if DB not ready
+  }
 
   return c.html(
     <Layout title="编辑器" current="editor">
@@ -289,12 +290,8 @@ articlesApp.get('/edit/:id', async (c) => {
             <div class="meta-sec">
               <div class="meta-lbl">标签</div>
               <div class="meta-tag-wrap" id="article-tags-wrap">
-                {attachedTags.map((t: any) => html`
-                  <span class="meta-tag" onclick="if(confirm('删除标签?')) { htmx.ajax('DELETE', \`/articles/${articleId}/tags/${t.id}\`, {target:'#article-tags-wrap', swap:'innerHTML'}); }">
-                    ${t.name} &times;
-                  </span>
-                `)}
-                <span class="meta-tag meta-add" onclick={`const t=prompt('输入新标签名称 (逗号分隔多个)'); if(t) { htmx.ajax('POST', '/articles/${articleId}/tags', {values:{tags:t}, target:'#article-tags-wrap', swap:'innerHTML'}); }`}>+ 添加</span>
+                {/* 动态渲染文章标签（新建时为空） */}
+                <span class="meta-tag meta-add" onclick={`const t=prompt('输入新标签名称 (逗号分隔多个)'); if(t) { htmx.ajax('POST', '/articles/${newArticleId}/tags', {values:{tags:t}, target:'#article-tags-wrap', swap:'innerHTML'}); }`}>+ 添加</span>
               </div>
             </div>
             <div class="meta-sec">
