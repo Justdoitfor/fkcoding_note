@@ -1,74 +1,70 @@
 import { Hono } from 'hono';
 import { Layout } from '../components/Layout';
 import { html } from 'hono/html';
+import { drizzle } from 'drizzle-orm/d1';
+import { writingLogs } from '../db/schema';
+import { eq } from 'drizzle-orm';
 
-const stats = new Hono();
+const statsApp = new Hono<{ Bindings: { DB: D1Database }; Variables: { userId: string } }>();
 
-stats.get('/', async (c) => {
+statsApp.get('/', async (c) => {
+  const db = drizzle(c.env.DB);
+  const userId = c.get('userId');
+
+  let allLogs: any[] = [];
+  try {
+    allLogs = await db.select().from(writingLogs).where(eq(writingLogs.userId, userId));
+  } catch (err) {
+    console.error("Stats fetch error:", err);
+  }
+
+  // 计算过去 30 天的数据（简化版热力图数据结构）
+  const days = [];
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const dateStr = d.toISOString().split('T')[0];
+    
+    const log = allLogs.find(l => l.date === dateStr);
+    const count = log ? log.wordCount : 0;
+    
+    let level = 0;
+    if (count > 0) level = 1;
+    if (count > 500) level = 2;
+    if (count > 1000) level = 3;
+    if (count > 2000) level = 4;
+    
+    days.push({ date: dateStr, count, level });
+  }
+
   return c.html(
-    <Layout title="统计" current="stats">
+    <Layout title="数据统计" current="stats">
       <div id="page-stats" class="page">
         <div class="page-head">
-          <div class="page-title">学习统计</div>
-          <div class="page-sub">记录知识积累的每一天 · 2026年</div>
+          <div class="page-title">数据统计</div>
+          <div class="page-sub">回顾你的创作历程</div>
         </div>
-
-        <div class="stats-row">
-          <div class="stat-card">
-            <div class="stat-lbl">本月新增</div>
-            <div class="stat-num">24</div>
-            <div class="stat-meta"><span class="chip chip-green">↑ +8 vs 上月</span></div>
+        
+        <div style={{ background: 'var(--bg1)', padding: '24px', borderRadius: '12px', border: '1px solid var(--border)' }}>
+          <div style={{ marginBottom: '16px', fontSize: '13px', fontWeight: '500' }}>近 30 天创作热力图</div>
+          <div class="heatmap">
+            {days.map(d => (
+              <div class="hm-cell" data-level={d.level} title={`${d.date}: ${d.count} 字`}></div>
+            ))}
           </div>
-          <div class="stat-card">
-            <div class="stat-lbl">总写作字数</div>
-            <div class="stat-num">892K</div>
-            <div class="stat-meta"><span class="chip chip-blue">年均 74K/月</span></div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-lbl">连续创作</div>
-            <div class="stat-num">17天</div>
-            <div class="stat-meta"><span class="chip chip-amber">🔥 最长 32 天</span></div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-lbl">标签覆盖</div>
-            <div class="stat-num">48</div>
-            <div class="stat-meta" style={{ fontSize: '11px', color: 'var(--text3)' }}>技术栈多样性</div>
-          </div>
-        </div>
-
-        <div class="panel heatmap-panel">
-          <div class="panel-title">创作热力图 — 近一年 <span style={{ fontSize: '10px', color: 'var(--text3)' }}>共 187 篇</span></div>
-          <div class="hm-grid" id="hm-grid"></div>
-          <div class="hm-footer">
-            <span>少</span>
-            <div class="hm-sq" style={{ background: 'var(--surface3)' }}></div>
-            <div class="hm-sq" style={{ background: '#bbf7d0' }}></div>
-            <div class="hm-sq" style={{ background: '#4ade80' }}></div>
-            <div class="hm-sq" style={{ background: '#16a34a' }}></div>
-            <div class="hm-sq" style={{ background: '#166534' }}></div>
-            <span>多</span>
+          <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '6px', fontSize: '11px', color: 'var(--text3)' }}>
+            少
+            <div class="hm-cell" data-level="0"></div>
+            <div class="hm-cell" data-level="1"></div>
+            <div class="hm-cell" data-level="2"></div>
+            <div class="hm-cell" data-level="3"></div>
+            <div class="hm-cell" data-level="4"></div>
+            多
           </div>
         </div>
       </div>
-      {html`<script>
-        const hmGrid = document.getElementById('hm-grid');
-        if (hmGrid) {
-          for (let i = 0; i < 371; i++) {
-            const cell = document.createElement('div');
-            const r = Math.random();
-            let cls = 'hm-cell ';
-            if (r > 0.88) cls += 'hm4';
-            else if (r > 0.74) cls += 'hm3';
-            else if (r > 0.58) cls += 'hm2';
-            else if (r > 0.42) cls += 'hm1';
-            else cls += 'hm0';
-            cell.className = cls;
-            hmGrid.appendChild(cell);
-          }
-        }
-      </script>`}
     </Layout>
   );
 });
 
-export default stats;
+export default statsApp;

@@ -62,7 +62,7 @@ seriesApp.get('/', async (c) => {
         <div class="page-head" style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
           <div>
             <div class="page-title">教程系列</div>
-            <div class="page-sub">${tree.length} 个顶级系列 · 树状层级管理</div>
+            <div class="page-sub">{tree.length} 个顶级系列 · 树状层级管理</div>
           </div>
           <form hx-post="/series" hx-target="#series-tree-root" hx-swap="beforeend">
             <button class="btn btn-primary" type="button" onclick="const title = prompt('请输入新系列名称'); if(title) { const f = this.closest('form'); const i = document.createElement('input'); i.type='hidden'; i.name='title'; i.value=title; f.appendChild(i); f.requestSubmit(); }">
@@ -74,8 +74,8 @@ seriesApp.get('/', async (c) => {
 
         <div class="series-tree">
           <div class="stree-root" id="series-tree-root">
-            ${tree.length === 0 ? html`<div style="padding: 40px; text-align: center; color: var(--text3); font-size: 13px;">还没有创建任何系列，点击右上角新建一个吧！</div>` : ''}
-            ${tree.map(node => SeriesNode({ node, depth: 0 }))}
+            {tree.length === 0 ? <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text3)', fontSize: '13px' }}>还没有创建任何系列，点击右上角新建一个吧！</div> : null}
+            {tree.map(node => SeriesNode({ node, depth: 0 }))}
           </div>
         </div>
       </div>

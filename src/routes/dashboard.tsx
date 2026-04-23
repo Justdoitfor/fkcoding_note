@@ -44,7 +44,7 @@ dashboard.get('/', async (c) => {
         <div id="page-dashboard" class="page">
           <div class="page-head">
             <div class="page-title">👋 早上好，fkcoding</div>
-            <div class="page-sub">今天是 ${new Date().toLocaleDateString('zh-CN')} · 距上次创作 0 天</div>
+            <div class="page-sub">今天是 {new Date().toLocaleDateString('zh-CN')} · 距上次创作 0 天</div>
           </div>
 
           <div class="stats-row">
