@@ -30,9 +30,9 @@ dashboard.get('/', async (c) => {
     .from(articles)
     .where(eq(articles.userId, userId));
 
-  const totalSeries = seriesCountResult.count || 0;
-  const totalArticles = articlesCountResult.count || 0;
-  const totalWords = wordsCountResult.total || 0;
+  const totalSeries = seriesCountResult?.count || 0;
+  const totalArticles = articlesCountResult?.count || 0;
+  const totalWords = wordsCountResult?.total || 0;
   const totalWordsK = (totalWords / 1000).toFixed(1) + 'K';
 
   // Streak logic (simplified for now)
