@@ -111,3 +111,28 @@ showPage('dashboard');
 // Open JS tree by default
 const jsTree = document.getElementById('tree-js');
 if (jsTree) jsTree.style.display = '';
+
+// ─── Editor Preview & Meta Update ───
+window.updatePreview = function(content) {
+  // Update Preview Content using marked.js
+  const previewEl = document.getElementById('preview-content');
+  if (previewEl && window.marked) {
+    previewEl.innerHTML = marked.parse(content);
+  }
+
+  // Update Meta Info
+  const wordCount = content.replace(/\s+/g, '').length;
+  const readTime = Math.max(1, Math.ceil(wordCount / 300));
+  
+  const countEl = document.getElementById('meta-word-count');
+  if (countEl) countEl.textContent = wordCount;
+  
+  const timeEl = document.getElementById('meta-read-time');
+  if (timeEl) timeEl.textContent = `约 ${readTime} 分钟`;
+};
+
+// Initial parse for preview if needed
+setTimeout(() => {
+  const mdInput = document.getElementById('md-input');
+  if (mdInput) updatePreview(mdInput.value);
+}, 100);

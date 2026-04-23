@@ -32,7 +32,7 @@ articlesApp.get('/new', async (c) => {
           {/* Editor main */}
           <div class="editor-main">
             <div class="editor-topbar">
-              <div class="editor-doc-name">新文章</div>
+              <div class="editor-doc-name" x-data="{ title: '新文章' }" x-text="document.getElementById('md-input') ? (document.getElementById('md-input').value.match(/^#\\s+(.*)/m) ? document.getElementById('md-input').value.match(/^#\\s+(.*)/m)[1] : '新文章') : '新文章'">新文章</div>
               <div class="status-saved" id="save-status"><div class="status-dot"></div>尚未保存</div>
               <button class="btn btn-primary" style={{ fontSize: '11px', padding: '4px 10px' }} hx-post={`/articles/${newArticleId}/publish`} hx-swap="none">发布</button>
             </div>
@@ -53,15 +53,22 @@ articlesApp.get('/new', async (c) => {
               <button class="tb" title="斜体"><i>I</i></button>
               <button class="tb" title="删除线"><s>S</s></button>
               <button class="tb" title="行内代码" style={{ fontFamily: 'var(--font-mono)', fontSize: '11px' }}>`</button>
+              <div class="tb-sep"></div>
+              <button class="tb" title="链接">
+                <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M5 8.5l3-3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M3.5 6l-1 1a2.5 2.5 0 003.5 3.5l1-1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M6.5 7l1-1a2.5 2.5 0 00-3.5-3.5l-1 1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+              </button>
+              <button class="tb" title="图片">
+                <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="1.5" y="2.5" width="10" height="8" rx="1.5" stroke="currentColor" stroke-width="1.2"/><circle cx="4.5" cy="5.5" r="1" fill="currentColor"/><path d="M1.5 8.5l3-3 2.5 2.5 2-1.5 2 2.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
             </div>
 
             {/* Split editor */}
             <div class="editor-split" id="editor-area">
-              <div class="ed-pane" id="ed-write">
+              <div class="ed-pane" id="ed-write" style={{ flex: '1' }}>
                 <div class="pane-label">Markdown</div>
-                <textarea class="ed-textarea" spellcheck={false} id="md-input" name="content" x-data="{ content: '# 新文章\\n\\n开始你的创作...' }" x-model="content" hx-put={`/articles/${newArticleId}`} hx-trigger="keyup changed delay:1500ms" hx-target="#save-status" hx-swap="innerHTML"></textarea>
+                <textarea class="ed-textarea" spellcheck={false} id="md-input" name="content" x-data="{ content: '# 新文章\\n\\n开始你的创作...' }" x-model="content" hx-put={`/articles/${newArticleId}`} hx-trigger="keyup changed delay:1500ms" hx-target="#save-status" hx-swap="innerHTML" oninput="updatePreview(this.value)"></textarea>
               </div>
-              <div class="prev-pane" id="ed-preview">
+              <div class="prev-pane" id="ed-preview" style={{ flex: '0', display: 'none' }}>
                 <div class="pane-label">预览</div>
                 <div class="prev-body" id="preview-content">
                   <h1>新文章</h1>
@@ -78,8 +85,18 @@ articlesApp.get('/new', async (c) => {
               <div class="meta-val" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><div class="status-dot"></div>草稿</div>
             </div>
             <div class="meta-sec">
+              <div class="meta-lbl">标签</div>
+              <div class="meta-tag-wrap">
+                <span class="meta-tag meta-add">+ 添加</span>
+              </div>
+            </div>
+            <div class="meta-sec">
               <div class="meta-lbl">字数</div>
-              <div class="meta-num">0</div>
+              <div class="meta-num" id="meta-word-count">0</div>
+            </div>
+            <div class="meta-sec">
+              <div class="meta-lbl">阅读时间</div>
+              <div class="meta-num" id="meta-read-time">约 0 分钟</div>
             </div>
           </div>
         </div>
