@@ -41,41 +41,30 @@ npm run dev
 
 本地服务器将启动在 `http://localhost:8787`。
 
-## 📦 部署到 Cloudflare
+## 📦 部署到 Cloudflare Pages
 
-1. 全局安装 wrangler 并登录：
-   ```bash
-   npm install -g wrangler
-   wrangler login
-   ```
+最简单的部署方式是直接在 Cloudflare 控制台中关联 GitHub 仓库，无需配置任何 CI/CD 密钥。
 
-2. 在 Cloudflare 面板或通过 CLI 创建 D1 数据库和 KV 命名空间：
-   ```bash
-   wrangler d1 create fkcoding-note-db
-   wrangler kv:namespace create KV
-   ```
-
-3. 更新 `wrangler.toml` 中的 `database_id` 和 `id`：
-   ```toml
-   [[d1_databases]]
-   binding = "DB"
-   database_name = "fkcoding-note-db"
-   database_id = "<your-d1-database-id>"
-
-   [[kv_namespaces]]
-   binding = "KV"
-   id = "<your-kv-namespace-id>"
-   ```
-
-4. 将数据库结构部署到生产环境：
-   ```bash
-   wrangler d1 migrations apply fkcoding-note-db --remote
-   ```
-
-5. 一键部署 Worker：
-   ```bash
-   npm run deploy
-   ```
+1. 登录 [Cloudflare 控制台](https://dash.cloudflare.com/)，进入 **Workers & Pages** -> **Overview**
+2. 点击 **Create (创建)** -> **Pages** -> **Connect to Git (连接到 Git)**
+3. 选择你的 GitHub 账号和 `fkcoding-note` 仓库，点击 **Begin setup (开始设置)**
+4. **配置构建设置：**
+   - **Framework preset (框架预设)**: 选择 `None`
+   - **Build command (构建命令)**: 输入 `npm run build`
+   - **Build output directory (构建输出目录)**: 输入 `dist`
+5. 点击 **Save and Deploy (保存并部署)**。
+   - *(注：第一次部署可能会提示缺少数据库，先不要管它)*
+6. **绑定 D1 数据库和 KV：**
+   - 在部署完成后，进入项目的 **Settings (设置)** -> **Functions (函数)** 页面。
+   - 向下滚动找到 **D1 database bindings**，点击 **Add binding**：
+     - **Variable name (变量名称)**: 输入 `DB`
+     - **D1 database**: 选择你之前创建的 `fkcoding-note` 数据库。
+   - 继续向下滚动找到 **KV namespace bindings**，点击 **Add binding**：
+     - **Variable name (变量名称)**: 输入 `KV`
+     - **KV namespace**: 选择你创建的 KV 命名空间。
+7. **重新部署以生效：**
+   - 回到 **Deployments (部署)** 选项卡，点击刚才那次部署右侧的三点菜单，选择 **Retry deployment (重试部署)**。
+   - 以后每次推送到 `main` 分支，Cloudflare 都会自动重新部署并应用这些绑定。
 
 ## 📁 目录结构
 
