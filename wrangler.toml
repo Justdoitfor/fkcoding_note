@@ -6,7 +6,7 @@ compatibility_flags = ["nodejs_compat"]
 [[d1_databases]]
 binding = "DB"
 database_name = "fkcoding-note"
-database_id = "bfbd97c7-4156-49ff-a409-e19ac1eb5a56"
+database_id = "your-d1-database-id"
 
 [[kv_namespaces]]
 binding = "KV"

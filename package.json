@@ -7,7 +7,7 @@
     "build": "mkdir -p dist && cp -r src/assets/* dist/ && echo \"export { default } from '../src/index.ts';\" > dist/_worker.js",
     "deploy": "wrangler pages deploy dist",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "wrangler d1 migrations apply fkcoding-note-db"
+    "db:migrate": "wrangler d1 migrations apply fkcoding-note --remote"
   },
   "dependencies": {
     "hono": "^4.4.0",
