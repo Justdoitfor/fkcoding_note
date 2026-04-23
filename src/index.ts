@@ -4,6 +4,7 @@ import series from './routes/series';
 import articles from './routes/articles';
 import stats from './routes/stats';
 import auth from './routes/auth';
+import { authMiddleware } from './middleware/auth';
 
 type Bindings = {
   DB: D1Database;
@@ -25,6 +26,11 @@ app.route('/', auth);
 
 // Redirect root to dashboard
 app.get('/', (c) => c.redirect('/dashboard'));
+
+app.use('/dashboard/*', authMiddleware);
+app.use('/series/*', authMiddleware);
+app.use('/articles/*', authMiddleware);
+app.use('/stats/*', authMiddleware);
 
 // Mount Routes
 app.route('/dashboard', dashboard);
