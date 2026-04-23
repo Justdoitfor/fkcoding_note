@@ -36,9 +36,14 @@ auth.post('/login', async (c) => {
   const body = await c.req.parseBody();
   // Simplified auth for MVP, in real app check against DB
   if (body.username === 'admin' && body.password === 'admin') {
-    const sessionId = await createSession(c.env.KV, 'admin-id');
-    setCookie(c, 'session', sessionId, { httpOnly: true, secure: true, sameSite: 'Strict' });
-    return c.redirect('/dashboard');
+    try {
+      const sessionId = await createSession(c.env.KV, 'admin-id');
+      setCookie(c, 'session', sessionId, { httpOnly: true, secure: true, sameSite: 'Strict' });
+      return c.redirect('/dashboard');
+    } catch (err) {
+      console.error("Login KV error:", err);
+      return c.text("Server Error: Cloudflare KV is not bound correctly. Please check Cloudflare Pages Settings -> Bindings and ensure 'KV' is bound to your KV namespace.", 500);
+    }
   }
   return c.redirect('/login?error=1');
 });
