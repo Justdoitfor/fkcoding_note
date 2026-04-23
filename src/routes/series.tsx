@@ -1,62 +1,81 @@
 import { Hono } from 'hono';
 import { Layout } from '../components/Layout';
 import { html } from 'hono/html';
+import { drizzle } from 'drizzle-orm/d1';
+import { series } from '../db/schema';
+import { eq, isNull } from 'drizzle-orm';
+import { nanoid } from 'nanoid';
 
-const series = new Hono();
+const seriesApp = new Hono<{ Bindings: { DB: D1Database }; Variables: { userId: string } }>();
 
-series.get('/', async (c) => {
+// 递归组件：渲染树状节点
+const SeriesNode = (props: { node: any; depth: number }) => {
+  const { node, depth } = props;
+  const isFolder = node.children && node.children.length > 0;
+  const icon = node.icon || (isFolder ? '📁' : '⚡');
+  
+  return html`
+    <div class="stree-row ${depth === 0 ? 'is-series' : `stree-indent-${depth}`}">
+      ${isFolder ? html`<svg class="stree-chevron open" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>` : ''}
+      <span class="stree-emoji" style="${depth > 0 ? 'font-size: 12px;' : ''}">${icon}</span>
+      <div style="flex: 1">
+        <div class="stree-title">${node.title}</div>
+        ${node.description && depth === 0 ? html`<div style="font-size: 10px; color: var(--text3); margin-top: 2px;">${node.description}</div>` : ''}
+      </div>
+      <div class="stree-actions">
+        <button class="stree-act" title="新建子章节" hx-post="/series/${node.id}/child" hx-prompt="请输入子章节名称" hx-target="closest .stree-row" hx-swap="afterend">+</button>
+        <button class="stree-act" title="编辑">✎</button>
+        <button class="stree-act" title="删除">✕</button>
+      </div>
+    </div>
+    ${isFolder ? node.children.map((child: any) => SeriesNode({ node: child, depth: depth + 1 })) : ''}
+  `;
+};
+
+// 构建树结构的工具函数
+function buildTree(items: any[], parentId: string | null = null): any[] {
+  return items
+    .filter(item => item.parentId === parentId)
+    .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0))
+    .map(item => ({
+      ...item,
+      children: buildTree(items, item.id)
+    }));
+}
+
+seriesApp.get('/', async (c) => {
+  const db = drizzle(c.env.DB);
+  const userId = c.get('userId');
+
+  // 获取该用户所有的系列节点
+  const allSeries = await db
+    .select()
+    .from(series)
+    .where(eq(series.userId, userId));
+
+  // 构建树状结构
+  const tree = buildTree(allSeries, null);
+
   return c.html(
     <Layout title="教程系列" current="series">
       <div id="page-series" class="page">
         <div class="page-head" style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
           <div>
             <div class="page-title">教程系列</div>
-            <div class="page-sub">12 个系列 · 树状层级管理</div>
+            <div class="page-sub">${tree.length} 个顶级系列 · 树状层级管理</div>
           </div>
-          <button class="btn btn-primary" onclick="alert('Not implemented in MVP')">
-            <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M6 1v10M1 6h10" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
-            新建系列
-          </button>
+          <form hx-post="/series" hx-target="#series-tree-root" hx-swap="beforeend">
+            <button class="btn btn-primary" type="button" onclick="const title = prompt('请输入新系列名称'); if(title) { const f = this.closest('form'); const i = document.createElement('input'); i.type='hidden'; i.name='title'; i.value=title; f.appendChild(i); f.requestSubmit(); }">
+              <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M6 1v10M1 6h10" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
+              新建系列
+            </button>
+          </form>
         </div>
 
         <div class="series-tree">
-          <div class="stree-root">
-            <div class="stree-row is-series">
-              <svg class="stree-chevron open" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-              <span class="stree-emoji">⚡</span>
-              <div style={{ flex: 1 }}>
-                <div class="stree-title">JavaScript 全栈开发指南</div>
-                <div style={{ fontSize: '10px', color: 'var(--text3)', marginTop: '2px' }}>现代 Web 开发从入门到生产部署</div>
-              </div>
-              <span class="stree-count">23 篇</span>
-              <span class="stree-status st-prog">进行中</span>
-              <div class="stree-actions">
-                <button class="stree-act" title="新建子章节">+</button>
-                <button class="stree-act" title="编辑">✎</button>
-                <button class="stree-act" title="删除">✕</button>
-              </div>
-            </div>
-            
-            <div class="stree-row stree-indent-1">
-              <svg class="stree-chevron open" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-              <span class="stree-emoji" style={{ fontSize: '12px' }}>📁</span>
-              <div class="stree-title">基础入门</div>
-              <span class="stree-count">6 篇</span>
-              <div class="stree-actions">
-                <button class="stree-act">+</button>
-                <button class="stree-act">✎</button>
-              </div>
-            </div>
-            
-            <a class="stree-row stree-indent-2" href="/articles/new" style={{ textDecoration: 'none', color: 'inherit' }}>
-              <span class="stree-emoji" style={{ fontSize: '12px' }}>📄</span>
-              <div class="stree-title">原型链与继承机制详解</div>
-              <span class="stree-status st-pub">已发布</span>
-              <div class="stree-actions">
-                <button class="stree-act">✎</button>
-                <button class="stree-act">✕</button>
-              </div>
-            </a>
+          <div class="stree-root" id="series-tree-root">
+            ${tree.length === 0 ? html`<div style="padding: 40px; text-align: center; color: var(--text3); font-size: 13px;">还没有创建任何系列，点击右上角新建一个吧！</div>` : ''}
+            ${tree.map(node => SeriesNode({ node, depth: 0 }))}
           </div>
         </div>
       </div>
@@ -64,4 +83,55 @@ series.get('/', async (c) => {
   );
 });
 
-export default series;
+// htmx 接口：创建顶级系列
+seriesApp.post('/', async (c) => {
+  const db = drizzle(c.env.DB);
+  const userId = c.get('userId');
+  const body = await c.req.parseBody();
+  const title = body.title as string;
+
+  if (!title) return c.text('Title is required', 400);
+
+  const newSeries = {
+    id: nanoid(),
+    userId,
+    parentId: null,
+    title,
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+  };
+
+  await db.insert(series).values(newSeries);
+
+  return c.html(SeriesNode({ node: newSeries, depth: 0 }));
+});
+
+// htmx 接口：创建子节点
+seriesApp.post('/:parentId/child', async (c) => {
+  const db = drizzle(c.env.DB);
+  const userId = c.get('userId');
+  const parentId = c.req.param('parentId');
+  const title = c.req.header('HX-Prompt'); // 从 htmx 的 prompt 输入中获取
+
+  if (!title) return c.text('Title is required', 400);
+
+  // 简单计算一下深度的逻辑（实际应用中可能需要查库获取 parent 的 depth）
+  // 这里暂时统一作为 depth 1 渲染返回，页面刷新后会由递归函数计算准确深度
+  const newSeries = {
+    id: nanoid(),
+    userId,
+    parentId,
+    title,
+    icon: '📄', // 默认子节点图标
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+  };
+
+  await db.insert(series).values(newSeries);
+
+  // 返回触发页面刷新，以重新渲染完整的树状结构
+  c.header('HX-Refresh', 'true');
+  return c.text('Created');
+});
+
+export default seriesApp;

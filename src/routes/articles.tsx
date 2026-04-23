@@ -1,10 +1,17 @@
 import { Hono } from 'hono';
 import { Layout } from '../components/Layout';
 import { html } from 'hono/html';
+import { drizzle } from 'drizzle-orm/d1';
+import { articles } from '../db/schema';
+import { nanoid } from 'nanoid';
+import { eq } from 'drizzle-orm';
 
-const articles = new Hono();
+const articlesApp = new Hono<{ Bindings: { DB: D1Database }; Variables: { userId: string } }>();
 
-articles.get('/new', async (c) => {
+articlesApp.get('/new', async (c) => {
+  // 生成一个新的文章 ID 预占位
+  const newArticleId = nanoid();
+
   return c.html(
     <Layout title="编辑器" current="editor">
       <div id="page-editor" style={{ height: 'calc(100vh - var(--topbar-h))' }}>
@@ -12,19 +19,12 @@ articles.get('/new', async (c) => {
           {/* Left tree */}
           <div class="etree">
             <div class="etree-head">
-              <div class="etree-series-name">JavaScript 全栈</div>
-              <button class="etree-icon-btn" title="新建章节">
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-              </button>
+              <div class="etree-series-name">无系列 (草稿)</div>
             </div>
             <div class="etree-body">
-              <div class="et-item et-ch">
-                <svg class="et-icon" viewBox="0 0 10 10" fill="none"><path d="M2 4l3 3 3-3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
-                基础入门
-              </div>
               <div class="et-item et-gc active">
                 <div class="et-dot"></div>
-                原型链机制
+                新文章
               </div>
             </div>
           </div>
@@ -32,11 +32,9 @@ articles.get('/new', async (c) => {
           {/* Editor main */}
           <div class="editor-main">
             <div class="editor-topbar">
-              <div class="editor-doc-name">原型链与继承机制详解</div>
-              <div class="status-saved"><div class="status-dot"></div>已保存</div>
-              <button class="btn" style={{ fontSize: '11px', padding: '4px 10px' }}>历史版本</button>
-              <button class="btn" style={{ fontSize: '11px', padding: '4px 10px' }}>全屏</button>
-              <button class="btn btn-primary" style={{ fontSize: '11px', padding: '4px 10px' }}>发布</button>
+              <div class="editor-doc-name">新文章</div>
+              <div class="status-saved" id="save-status"><div class="status-dot"></div>尚未保存</div>
+              <button class="btn btn-primary" style={{ fontSize: '11px', padding: '4px 10px' }} hx-post={`/articles/${newArticleId}/publish`} hx-swap="none">发布</button>
             </div>
 
             <div class="editor-tabs">
@@ -61,16 +59,13 @@ articles.get('/new', async (c) => {
             <div class="editor-split" id="editor-area">
               <div class="ed-pane" id="ed-write">
                 <div class="pane-label">Markdown</div>
-                <textarea class="ed-textarea" spellcheck={false} id="md-input" x-data="{ content: '# 原型链与继承机制详解\\\\n\\\\n> 🎯 **本文目标**：深入理解 JavaScript 原型链的工作原理。\\\\n\\\\n## 什么是原型链？\\\\n\\\\n在 JavaScript 中，每个对象都有一个内部属性 `[[Prototype]]`...' }" x-model="content" hx-put="/articles/save" hx-trigger="keyup changed delay:1500ms"></textarea>
+                <textarea class="ed-textarea" spellcheck={false} id="md-input" name="content" x-data="{ content: '# 新文章\\n\\n开始你的创作...' }" x-model="content" hx-put={`/articles/${newArticleId}`} hx-trigger="keyup changed delay:1500ms" hx-target="#save-status" hx-swap="innerHTML"></textarea>
               </div>
               <div class="prev-pane" id="ed-preview">
                 <div class="pane-label">预览</div>
                 <div class="prev-body" id="preview-content">
-                  {/* Markdown content preview will be rendered here by marked.js on client side */}
-                  <h1>原型链与继承机制详解</h1>
-                  <blockquote><p>🎯 本文目标：深入理解 JavaScript 原型链的工作原理。</p></blockquote>
-                  <h2>什么是原型链？</h2>
-                  <p>在 JavaScript 中，每个对象都有一个内部属性...</p>
+                  <h1>新文章</h1>
+                  <p>开始你的创作...</p>
                 </div>
               </div>
             </div>
@@ -80,15 +75,11 @@ articles.get('/new', async (c) => {
           <div class="meta-pane">
             <div class="meta-sec">
               <div class="meta-lbl">状态</div>
-              <div class="meta-val" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><div class="status-dot"></div>已发布</div>
-            </div>
-            <div class="meta-sec">
-              <div class="meta-lbl">所属系列</div>
-              <div class="meta-link">JavaScript 全栈 / 基础入门</div>
+              <div class="meta-val" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><div class="status-dot"></div>草稿</div>
             </div>
             <div class="meta-sec">
               <div class="meta-lbl">字数</div>
-              <div class="meta-num">1,247</div>
+              <div class="meta-num">0</div>
             </div>
           </div>
         </div>
@@ -97,4 +88,53 @@ articles.get('/new', async (c) => {
   );
 });
 
-export default articles;
+// htmx 接口：自动保存文章
+articlesApp.put('/:id', async (c) => {
+  const db = drizzle(c.env.DB);
+  const userId = c.get('userId');
+  const articleId = c.req.param('id');
+  const body = await c.req.parseBody();
+  const content = body.content as string || '';
+
+  // 简单的提取标题和字数
+  const titleMatch = content.match(/^#\s+(.*)/m);
+  const title = titleMatch ? titleMatch[1].trim() : '无标题文章';
+  const wordCount = content.replace(/\s+/g, '').length;
+
+  const existing = await db.select().from(articles).where(eq(articles.id, articleId)).get();
+
+  if (existing) {
+    // 更新
+    await db.update(articles)
+      .set({ content, title, wordCount, updatedAt: Date.now() })
+      .where(eq(articles.id, articleId));
+  } else {
+    // 插入新文章
+    await db.insert(articles).values({
+      id: articleId,
+      userId,
+      title,
+      content,
+      wordCount,
+      createdAt: Date.now(),
+      updatedAt: Date.now()
+    });
+  }
+
+  const timeStr = new Date().toLocaleTimeString('zh-CN', { hour12: false });
+  return c.html(`<div class="status-dot"></div>已保存于 ${timeStr}`);
+});
+
+// htmx 接口：发布文章
+articlesApp.post('/:id/publish', async (c) => {
+  const db = drizzle(c.env.DB);
+  const articleId = c.req.param('id');
+  
+  await db.update(articles)
+    .set({ status: 'published', publishedAt: Date.now() })
+    .where(eq(articles.id, articleId));
+    
+  return c.text('Published');
+});
+
+export default articlesApp;
