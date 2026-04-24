@@ -1,0 +1,1950 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>fkcoding-note v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=Lora:ital,wght@0,400;0,500;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+/* ═══ RESET ═══ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f5f4f0;
+  --surface:#ffffff;
+  --s2:#f0eeea;
+  --s3:#e8e6e0;
+  --s4:#dddad2;
+  --border:rgba(0,0,0,0.07);
+  --border2:rgba(0,0,0,0.13);
+  --border3:rgba(0,0,0,0.22);
+  --text:#18181b;
+  --t2:#4a4a52;
+  --t3:#9898a0;
+  --t4:#c4c4cc;
+  --accent:#2b55e0;
+  --accent2:#1a3fba;
+  --abg:#edf1fd;
+  --abg2:#d8e2fb;
+  --green:#14a374;
+  --gbg:#e4f5ef;
+  --amber:#b45208;
+  --ambg:#fdf3e2;
+  --red:#dc2626;
+  --rbg:#fef1f1;
+  --purple:#6d28d9;
+  --pbg:#f0edfb;
+  --orange:#c95b1a;
+  --obg:#fdf0e8;
+  --sw:218px;
+  --th:48px;
+  --r:7px;
+  --rl:11px;
+  --sh:0 1px 3px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04);
+  --shm:0 4px 20px rgba(0,0,0,0.10),0 1px 4px rgba(0,0,0,0.05);
+  --shl:0 12px 48px rgba(0,0,0,0.14),0 4px 12px rgba(0,0,0,0.06);
+  --f:'DM Sans',sans-serif;
+  --fm:'DM Mono',monospace;
+  --fserif:'Lora',serif;
+}
+html{font-size:14px}
+body{font-family:var(--f);background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;line-height:1.5;overflow:hidden;height:100vh}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:var(--s4);border-radius:2px}
+::-webkit-scrollbar-track{background:transparent}
+
+/* ═══ SHELL ═══ */
+.shell{display:flex;height:100vh;overflow:hidden}
+
+/* ════════════════════════════════
+   SIDEBAR
+════════════════════════════════ */
+.sidebar{
+  width:var(--sw);min-width:var(--sw);
+  background:var(--surface);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;height:100vh;flex-shrink:0;
+  transition:width .2s ease;
+}
+.logo{
+  padding:13px 15px 11px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:9px;cursor:pointer;flex-shrink:0;
+  transition:background .1s;
+}
+.logo:hover{background:var(--s2)}
+.logo-mark{
+  width:28px;height:28px;background:var(--text);border-radius:7px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  transition:background .15s;
+}
+.logo-name{font-size:13px;font-weight:500;letter-spacing:-.015em;line-height:1.2}
+.logo-tag{font-size:9px;letter-spacing:.07em;text-transform:uppercase;color:var(--t3);font-family:var(--fm)}
+
+/* Nav */
+.nav-label{padding:10px 15px 3px;font-size:9.5px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--t4);flex-shrink:0}
+.nav-item{
+  display:flex;align-items:center;gap:8px;padding:6px 10px 6px 13px;
+  border-radius:6px;margin:1px 5px;font-size:13px;color:var(--t2);
+  cursor:pointer;transition:background .1s,color .1s;user-select:none;position:relative;
+}
+.nav-item:hover{background:var(--s2);color:var(--text)}
+.nav-item.active{background:var(--text);color:#fff}
+.ni{width:14px;height:14px;opacity:.6;flex-shrink:0;transition:opacity .1s}
+.nav-item.active .ni,.nav-item:hover .ni{opacity:1}
+.nbadge{margin-left:auto;font-size:10px;font-family:var(--fm);background:var(--s3);color:var(--t3);padding:1px 5px;border-radius:8px}
+.nav-item.active .nbadge{background:rgba(255,255,255,.18);color:rgba(255,255,255,.7)}
+
+/* Tree */
+.tree-scroll{flex:1;overflow-y:auto;padding:3px 0 8px;min-height:0}
+.tree-item{
+  display:flex;align-items:center;gap:5px;
+  padding:4px 8px;margin:0 4px;border-radius:5px;
+  font-size:12px;color:var(--t2);cursor:pointer;
+  transition:background .1s;user-select:none;position:relative;
+}
+.tree-item:hover{background:var(--s2);color:var(--text)}
+.tree-item.active{background:var(--abg);color:var(--accent);font-weight:500}
+.tree-item.depth1{padding-left:12px}
+.tree-item.depth2{padding-left:22px}
+.tree-item.depth3{padding-left:32px}
+.tchev{width:10px;height:10px;flex-shrink:0;opacity:.4;transition:transform .15s,opacity .1s}
+.tchev.open{transform:rotate(90deg);opacity:.65}
+.tdot{width:4px;height:4px;border-radius:50%;background:currentColor;opacity:.38;flex-shrink:0}
+.tree-acts{display:none;gap:2px;margin-left:auto}
+.tree-item:hover .tree-acts{display:flex}
+.tact{width:17px;height:17px;border-radius:3px;border:none;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--t3)}
+.tact:hover{background:var(--s3);color:var(--text)}
+.tact.tdanger:hover{background:var(--rbg);color:var(--red)}
+
+/* New article button in tree */
+.tree-new-btn{
+  display:flex;align-items:center;gap:6px;padding:5px 10px 5px 12px;
+  margin:2px 4px;border-radius:5px;font-size:11px;color:var(--t3);
+  cursor:pointer;border:1px dashed var(--border2);transition:all .1s;
+}
+.tree-new-btn:hover{background:var(--abg);color:var(--accent);border-color:var(--accent)}
+
+/* Sidebar bottom */
+.sidebar-bottom{border-top:1px solid var(--border);padding:7px;flex-shrink:0;position:relative}
+.user-row{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:7px;cursor:pointer;transition:background .1s}
+.user-row:hover{background:var(--s2)}
+.avatar{width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;font-size:10px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:var(--fm);letter-spacing:-.02em}
+.uname{font-size:12px;font-weight:500}
+.uplan{font-size:10px;color:var(--t3)}
+
+/* ════════════════════════════════
+   MAIN
+════════════════════════════════ */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+
+/* Topbar */
+.topbar{
+  height:var(--th);background:var(--surface);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 18px;gap:8px;flex-shrink:0;
+}
+.topbar-bc{font-size:12px;color:var(--t3);display:flex;align-items:center;gap:4px;flex:1;min-width:0;overflow:hidden}
+.bc-crumb{color:var(--t2);white-space:nowrap}
+.bc-sep{opacity:.3;flex-shrink:0}
+.bc-active{color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.search-box{
+  display:flex;align-items:center;gap:6px;padding:5px 10px;
+  border-radius:6px;border:1px solid var(--border2);background:var(--s2);
+  font-size:12px;color:var(--t3);cursor:pointer;
+  transition:all .15s;min-width:160px;flex-shrink:0;
+}
+.search-box:hover{background:var(--s3);border-color:var(--border3)}
+.skbd{margin-left:auto;font-size:9.5px;font-family:var(--fm);background:var(--surface);color:var(--t3);padding:1px 4px;border-radius:3px;border:1px solid var(--border2)}
+
+/* Buttons */
+.btn{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:5px 12px;border-radius:6px;font-size:12px;font-weight:500;
+  font-family:var(--f);cursor:pointer;border:1px solid var(--border2);
+  background:var(--surface);color:var(--text);
+  transition:all .12s;white-space:nowrap;user-select:none;
+}
+.btn:hover{background:var(--s2)}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:var(--text);color:#fff;border-color:var(--text)}
+.btn-primary:hover{background:#2d2d35}
+.btn-accent{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn-accent:hover{background:var(--accent2)}
+.btn-danger{background:var(--red);color:#fff;border-color:var(--red)}
+.btn-danger:hover{background:#b91c1c}
+.btn-ghost{border-color:transparent;background:transparent}
+.btn-ghost:hover{background:var(--s2)}
+.btn-sm{padding:4px 10px;font-size:11.5px}
+.btn-xs{padding:3px 8px;font-size:11px}
+.btn-icon{width:30px;height:30px;padding:0;justify-content:center;border-color:transparent;background:transparent}
+.btn-icon:hover{background:var(--s2)}
+
+/* Page scroll area */
+.page-body{flex:1;overflow-y:auto;min-height:0}
+
+/* ════════════════════════════════
+   DASHBOARD PAGE
+════════════════════════════════ */
+.page{padding:22px 26px}
+.ph{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;gap:12px}
+.ph-title{font-size:19px;font-weight:500;letter-spacing:-.02em;margin-bottom:2px}
+.ph-sub{font-size:12px;color:var(--t3)}
+.ph-actions{display:flex;gap:6px;flex-shrink:0}
+
+/* Stat cards */
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
+.stat-card{
+  background:var(--s2);border-radius:var(--rl);padding:14px 15px;
+  cursor:pointer;transition:background .12s,box-shadow .12s;
+}
+.stat-card:hover{background:var(--s3);box-shadow:var(--sh)}
+.slbl{font-size:11px;color:var(--t3);margin-bottom:5px}
+.sval{font-size:22px;font-weight:400;font-family:var(--fserif);line-height:1;color:var(--text)}
+.smeta{font-size:11px;color:var(--t3);margin-top:5px}
+.chip{display:inline-flex;align-items:center;gap:2px;font-size:9.5px;font-weight:500;padding:2px 6px;border-radius:8px}
+.chip-g{background:var(--gbg);color:var(--green)}
+.chip-b{background:var(--abg);color:var(--accent)}
+.chip-a{background:var(--ambg);color:var(--amber)}
+
+/* Quick actions */
+.qa-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px}
+.qa-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);
+  padding:12px;display:flex;align-items:center;gap:9px;cursor:pointer;
+  transition:all .15s;
+}
+.qa-card:hover{border-color:var(--border2);box-shadow:var(--sh);transform:translateY(-1px)}
+.qa-card:active{transform:none}
+.qa-ico{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.qa-lbl{font-size:12px;font-weight:500;line-height:1.3}
+.qa-sub{font-size:10.5px;color:var(--t3);margin-top:2px}
+
+/* Panels */
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:15px}
+.ptitle{font-size:11px;font-weight:500;color:var(--t2);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+.plink{font-size:11px;color:var(--accent);cursor:pointer;padding:2px 4px;border-radius:3px}
+.plink:hover{background:var(--abg)}
+.g2{display:grid;grid-template-columns:3fr 2fr;gap:13px;margin-bottom:13px}
+.g2eq{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-bottom:13px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:13px;margin-bottom:13px}
+
+/* Series items */
+.si{
+  display:flex;align-items:center;gap:9px;padding:8px 7px;
+  border-radius:6px;cursor:pointer;transition:background .1s;margin:0 -7px;
+}
+.si:hover{background:var(--s2)}
+.si-emoji{font-size:17px;width:28px;text-align:center;flex-shrink:0}
+.si-name{font-size:12px;font-weight:500;margin-bottom:1px}
+.si-meta{font-size:10px;color:var(--t3);display:flex;align-items:center;gap:4px}
+.mtag{display:inline-block;padding:1px 6px;border-radius:3px;font-size:9.5px;font-weight:500}
+.mtag-js{background:var(--ambg);color:var(--amber)}
+.mtag-go{background:var(--gbg);color:var(--green)}
+.mtag-py{background:#e7f5e6;color:#15652f}
+.mtag-arch{background:var(--pbg);color:var(--purple)}
+.mtag-ts{background:var(--abg);color:var(--accent)}
+
+/* Act bars */
+.act-bars{display:flex;align-items:flex-end;gap:3px;height:50px;margin-bottom:5px}
+.abar{flex:1;border-radius:2px 2px 0 0;background:var(--s3);transition:background .12s;cursor:pointer;min-height:3px}
+.abar:hover,.abar.hi{background:var(--accent)}
+.abar.md{background:var(--accent);opacity:.55}
+.act-days{display:flex;gap:3px;font-size:9px;color:var(--t3);font-family:var(--fm)}
+.act-days span{flex:1;text-align:center}
+
+/* Progress */
+.prog{margin-bottom:9px}
+.prog:last-child{margin-bottom:0}
+.prog-row{display:flex;justify-content:space-between;font-size:11px;color:var(--t2);margin-bottom:4px}
+.prog-pct{font-family:var(--fm);color:var(--t3);font-size:10px}
+.ptrack{height:4px;background:var(--s3);border-radius:2px;overflow:hidden}
+.pfill{height:100%;border-radius:2px;transition:width .4s ease}
+
+/* Recent edits */
+.ei{display:flex;align-items:center;gap:8px;padding:6px 6px;border-radius:5px;cursor:pointer;transition:background .1s}
+.ei:hover{background:var(--s2)}
+.edot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.etitle{font-size:12px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.etime{font-size:10px;color:var(--t3);font-family:var(--fm);flex-shrink:0}
+
+/* Tags */
+.tag-cloud{display:flex;flex-wrap:wrap;gap:5px}
+.tpill{padding:3px 9px;border-radius:15px;font-size:11px;border:1px solid var(--border2);color:var(--t2);cursor:pointer;transition:all .1s;user-select:none}
+.tpill:hover{border-color:var(--accent);color:var(--accent);background:var(--abg)}
+.tpill.on{background:var(--text);color:#fff;border-color:var(--text)}
+
+/* ════════════════════════════════
+   SERIES PAGE
+════════════════════════════════ */
+.series-tree{max-width:800px}
+.stblock{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;margin-bottom:10px}
+.strow{
+  display:flex;align-items:center;gap:8px;
+  padding:11px 14px;border-bottom:1px solid var(--border);
+  cursor:pointer;transition:background .1s;
+}
+.strow:last-child{border-bottom:none}
+.strow:hover{background:var(--s2)}
+.strow.series-root{font-weight:500}
+.strow.i1{padding-left:28px}
+.strow.i2{padding-left:46px}
+.st-chev{width:12px;height:12px;flex-shrink:0;opacity:.35;transition:transform .15s}
+.st-chev.open{transform:rotate(90deg);opacity:.6}
+.st-emoji{font-size:15px;width:22px;text-align:center;flex-shrink:0}
+.st-title{font-size:13px;flex:1}
+.st-sub{font-size:10px;color:var(--t3);margin-top:1px}
+.st-count{font-size:10px;color:var(--t3);font-family:var(--fm);flex-shrink:0}
+.st-status{font-size:9.5px;padding:2px 6px;border-radius:6px;flex-shrink:0}
+.st-pub{background:var(--gbg);color:var(--green)}
+.st-dft{background:var(--s3);color:var(--t3)}
+.st-prog{background:var(--ambg);color:var(--amber)}
+.st-acts{display:flex;gap:3px;opacity:0;transition:opacity .15s;flex-shrink:0}
+.strow:hover .st-acts{opacity:1}
+.st-act{width:24px;height:24px;border-radius:4px;border:none;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--t3);transition:background .1s}
+.st-act:hover{background:var(--s3);color:var(--text)}
+.st-act.danger:hover{background:var(--rbg);color:var(--red)}
+.drag-handle{cursor:grab;opacity:0;font-size:12px;color:var(--t3);flex-shrink:0}
+.strow:hover .drag-handle{opacity:.45}
+
+/* ════════════════════════════════
+   READ MODE (article viewer)
+════════════════════════════════ */
+.read-page{display:flex;flex-direction:column;height:100%;overflow:hidden}
+
+/* Article top bar */
+.read-topbar{
+  height:44px;background:var(--surface);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 20px;gap:10px;flex-shrink:0;
+}
+.read-breadcrumb{font-size:12px;color:var(--t3);display:flex;align-items:center;gap:5px;flex:1;min-width:0;overflow:hidden}
+.read-breadcrumb .rbc-sep{opacity:.3}
+.read-breadcrumb .rbc-series{color:var(--accent);cursor:pointer}
+.read-breadcrumb .rbc-series:hover{text-decoration:underline}
+.read-breadcrumb .rbc-title{color:var(--t2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* Two-column read layout */
+.read-layout{flex:1;display:flex;overflow:hidden}
+.read-toc{
+  width:200px;min-width:200px;
+  background:var(--surface);border-right:1px solid var(--border);
+  overflow-y:auto;padding:16px 12px;flex-shrink:0;
+}
+.toc-title{font-size:10px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);font-family:var(--fm);margin-bottom:10px}
+.toc-item{display:block;font-size:12px;color:var(--t2);padding:3px 0;cursor:pointer;transition:color .1s;line-height:1.4}
+.toc-item:hover{color:var(--accent)}
+.toc-item.active-toc{color:var(--accent);font-weight:500}
+.toc-item.h2{padding-left:0}
+.toc-item.h3{padding-left:10px;font-size:11px;color:var(--t3)}
+.toc-item.h3:hover{color:var(--accent)}
+.toc-divider{height:1px;background:var(--border);margin:10px 0}
+.toc-meta{font-size:10px;color:var(--t3);line-height:1.7}
+
+/* Article content */
+.read-content{flex:1;overflow-y:auto;padding:36px 56px 60px;background:var(--bg)}
+.article-header{margin-bottom:28px;max-width:720px}
+.article-tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px}
+.art-tag{padding:2px 9px;border-radius:10px;font-size:10px;font-weight:500}
+.article-title{font-size:28px;font-weight:500;font-family:var(--fserif);line-height:1.3;letter-spacing:-.02em;margin-bottom:12px;color:var(--text)}
+.article-meta-bar{display:flex;align-items:center;gap:12px;font-size:12px;color:var(--t3);border-bottom:1px solid var(--border);padding-bottom:14px;flex-wrap:wrap}
+.ameta-item{display:flex;align-items:center;gap:4px}
+.ameta-dot{width:3px;height:3px;border-radius:50%;background:var(--s4)}
+/* Article body typography */
+.art-body{max-width:720px;font-size:15px;line-height:1.85;color:var(--t2)}
+.art-body h2{font-size:19px;font-weight:500;font-family:var(--fserif);color:var(--text);margin:36px 0 12px;letter-spacing:-.01em}
+.art-body h3{font-size:15px;font-weight:500;color:var(--text);margin:24px 0 8px}
+.art-body p{margin-bottom:16px}
+.art-body code{font-family:var(--fm);font-size:13px;background:var(--s2);padding:2px 6px;border-radius:4px;color:#c0392b}
+.art-body pre{background:#1c1c22;border-radius:10px;padding:18px 20px;margin:20px 0;overflow-x:auto;position:relative}
+.art-body pre .copy-btn{position:absolute;top:10px;right:10px;background:rgba(255,255,255,.1);border:none;color:rgba(255,255,255,.5);border-radius:4px;padding:3px 8px;font-size:10px;cursor:pointer;transition:all .15s;font-family:var(--f)}
+.art-body pre .copy-btn:hover{background:rgba(255,255,255,.2);color:#fff}
+.art-body pre code{background:none;color:#a8dba8;font-size:13px;line-height:1.75;padding:0}
+.art-body blockquote{border-left:2.5px solid var(--accent);padding:10px 16px;margin:20px 0;background:var(--abg);border-radius:0 8px 8px 0}
+.art-body blockquote p{color:var(--accent);margin:0;font-size:14px}
+.art-body table{width:100%;border-collapse:collapse;margin:20px 0;font-size:13.5px}
+.art-body th{background:var(--s2);padding:8px 12px;text-align:left;font-weight:500;border:1px solid var(--border);font-size:12px}
+.art-body td{padding:8px 12px;border:1px solid var(--border);color:var(--t2)}
+.art-body ul,.art-body ol{padding-left:22px;margin-bottom:16px;color:var(--t2)}
+.art-body li{margin-bottom:4px}
+.art-body hr{border:none;border-top:1px solid var(--border);margin:32px 0}
+.art-body strong{color:var(--text);font-weight:500}
+/* Callout */
+.callout{display:flex;gap:10px;padding:12px 14px;border-radius:8px;margin:20px 0}
+.callout-tip{background:#fffbeb;border:1px solid #fde68a}
+.callout-info{background:var(--abg);border:1px solid var(--abg2)}
+.callout-warn{background:var(--ambg);border:1px solid #fed7aa}
+.callout-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+.callout p{margin:0;font-size:13.5px}
+/* Article nav prev/next */
+.art-nav{display:flex;justify-content:space-between;gap:16px;margin-top:48px;padding-top:24px;border-top:1px solid var(--border);max-width:720px}
+.art-nav-card{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:12px 14px;cursor:pointer;transition:all .15s;max-width:48%}
+.art-nav-card:hover{border-color:var(--border2);box-shadow:var(--sh)}
+.art-nav-dir{font-size:10px;color:var(--t3);margin-bottom:4px;font-family:var(--fm)}
+.art-nav-title{font-size:13px;font-weight:500;color:var(--text)}
+.art-nav-right{text-align:right}
+
+/* ════════════════════════════════
+   EDIT MODE
+════════════════════════════════ */
+.edit-mode{display:flex;flex-direction:column;height:100%;overflow:hidden}
+.edit-topbar{
+  height:44px;background:var(--surface);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 14px;gap:8px;flex-shrink:0;
+}
+.edit-doctitle{
+  font-size:13px;font-weight:500;flex:1;min-width:0;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.save-status{font-size:11px;display:flex;align-items:center;gap:4px;flex-shrink:0;white-space:nowrap}
+.sdot{width:6px;height:6px;border-radius:50%}
+
+.edit-tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);padding:0 14px;flex-shrink:0}
+.etab{padding:7px 14px;font-size:12px;cursor:pointer;border-bottom:2px solid transparent;color:var(--t3);transition:color .1s;margin-bottom:-1px}
+.etab.on{color:var(--text);border-bottom-color:var(--text);font-weight:500}
+.etab:hover:not(.on){color:var(--t2)}
+
+/* Toolbar */
+.toolbar{background:var(--surface);border-bottom:1px solid var(--border);padding:4px 14px;display:flex;align-items:center;gap:1px;flex-wrap:wrap;flex-shrink:0}
+.tb{width:27px;height:25px;border-radius:5px;border:none;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:var(--t2);font-family:var(--f);transition:background .1s}
+.tb:hover{background:var(--s2);color:var(--text)}
+.tb.on{background:var(--s3);color:var(--text)}
+.tb-sep{width:1px;height:16px;background:var(--border);margin:0 4px;flex-shrink:0}
+.tb-sel{height:25px;font-size:11px;font-family:var(--f);border:1px solid var(--border2);border-radius:5px;padding:0 6px;background:var(--surface);color:var(--t2);cursor:pointer;outline:none}
+
+.edit-split{flex:1;display:flex;overflow:hidden}
+.edit-write{flex:1;display:flex;flex-direction:column;overflow:hidden;border-right:1px solid var(--border)}
+.edit-prev{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.pane-lbl{padding:4px 15px;font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--t3);background:var(--s2);border-bottom:1px solid var(--border);flex-shrink:0;font-family:var(--fm)}
+.md-textarea{flex:1;width:100%;border:none;outline:none;resize:none;padding:20px 22px;font-size:13px;line-height:1.9;font-family:var(--fm);color:var(--text);background:var(--surface);overflow-y:auto}
+.edit-preview-body{flex:1;overflow-y:auto;padding:24px 28px;background:var(--surface)}
+
+/* Edit meta sidebar */
+.edit-meta{width:176px;min-width:176px;background:var(--surface);border-left:1px solid var(--border);overflow-y:auto;padding:14px 12px;flex-shrink:0}
+.ml{font-size:9.5px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--t3);margin-bottom:5px;font-family:var(--fm);display:block}
+.ms{margin-bottom:16px}
+.mv{font-size:12px;color:var(--t2)}
+.mlink{font-size:11px;color:var(--accent);cursor:pointer}
+.mlink:hover{text-decoration:underline}
+.mtag-edit{display:inline-block;padding:2px 7px;border-radius:7px;font-size:10px;background:var(--s2);color:var(--t2);cursor:pointer;margin:2px 2px 0 0;transition:background .1s}
+.mtag-edit:hover{background:var(--s3)}
+.mtag-add{border:1px dashed var(--border2);background:transparent;color:var(--t3)}
+.mtag-add:hover{border-color:var(--accent);color:var(--accent);background:var(--abg)}
+.minput{width:100%;border:1px solid var(--border2);border-radius:5px;padding:5px 8px;font-size:11px;font-family:var(--f);background:var(--surface);color:var(--text);outline:none;resize:none;line-height:1.5;transition:border-color .15s}
+.minput:focus{border-color:var(--accent)}
+.toc2{font-size:11px;color:var(--t2);padding:2px 0;cursor:pointer;display:block}
+.toc2:hover{color:var(--accent)}
+.toc2-h2{padding-left:8px;font-size:10px;color:var(--t3)}
+
+/* ════════════════════════════════
+   STATS PAGE
+════════════════════════════════ */
+.hm-grid{display:grid;grid-template-columns:repeat(53,1fr);gap:2px;margin-bottom:5px}
+.hm-cell{aspect-ratio:1;border-radius:2px;cursor:pointer;transition:opacity .1s}
+.hm-cell:hover{opacity:.7}
+.hm0{background:var(--s3)}.hm1{background:#bbf7d0}.hm2{background:#4ade80}.hm3{background:#16a34a}.hm4{background:#166534}
+.hm-foot{display:flex;align-items:center;justify-content:flex-end;gap:4px;font-size:9.5px;color:var(--t3)}
+.hm-sq{width:10px;height:10px;border-radius:1.5px}
+.chart-bars{display:flex;align-items:flex-end;gap:4px;height:88px;margin-bottom:4px}
+.cbar{flex:1;border-radius:3px 3px 0 0;cursor:pointer;transition:opacity .15s;min-height:3px}
+.cbar:hover{opacity:.7}
+.cbar-l{display:flex;gap:4px;font-size:9px;color:var(--t3);font-family:var(--fm)}
+.cbar-l span{flex:1;text-align:center}
+.donut-wrap{display:flex;align-items:center;gap:14px}
+.dleg .dl{display:flex;align-items:center;gap:6px;margin-bottom:7px;font-size:11px;cursor:pointer}
+.dl-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+.dl-name{flex:1;color:var(--t2);transition:color .1s}
+.dl-pct{color:var(--t3);font-size:10px;font-family:var(--fm)}
+.dleg .dl:hover .dl-name{color:var(--accent)}
+.wc-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border)}
+.wc-row:last-child{border-bottom:none}
+.wc-dt{font-size:11px;color:var(--t3);width:40px;font-family:var(--fm);flex-shrink:0}
+.wc-track{flex:1;height:10px;background:var(--s3);border-radius:2px;overflow:hidden}
+.wc-fill{height:100%;border-radius:2px}
+.wc-val{font-size:11px;color:var(--t2);width:36px;text-align:right;font-family:var(--fm);flex-shrink:0}
+.rank-row{display:flex;align-items:center;gap:8px;padding:6px 5px;border-radius:5px;cursor:pointer;transition:background .1s;border-bottom:1px solid var(--border);margin:0 -5px}
+.rank-row:hover{background:var(--s2)}
+.rank-row:last-child{border-bottom:none}
+.rk-n{font-size:10px;font-family:var(--fm);color:var(--t3);width:14px;text-align:right}
+.rk-bar{flex:1;height:8px;background:var(--s3);border-radius:2px;overflow:hidden}
+.rk-fill{height:100%;border-radius:2px}
+.rk-val{font-size:10px;color:var(--t3);font-family:var(--fm);width:26px;text-align:right}
+
+/* ════════════════════════════════
+   OVERLAYS & MODALS
+════════════════════════════════ */
+.overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.32);z-index:100;
+  display:flex;align-items:flex-start;justify-content:center;
+  padding-top:70px;backdrop-filter:blur(2px);
+  opacity:0;pointer-events:none;transition:opacity .18s;
+}
+.overlay.show{opacity:1;pointer-events:all}
+.modal{
+  background:var(--surface);border-radius:var(--rl);
+  box-shadow:var(--shl);max-width:92vw;max-height:82vh;
+  overflow:hidden;display:flex;flex-direction:column;
+  border:1px solid var(--border2);
+  transform:translateY(-8px) scale(.98);transition:transform .18s;
+}
+.overlay.show .modal{transform:none}
+.mhead{padding:16px 18px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.mtitle{font-size:14px;font-weight:500}
+.mclose{width:26px;height:26px;border-radius:5px;border:none;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--t3);font-size:16px}
+.mclose:hover{background:var(--s2);color:var(--text)}
+.mbody{padding:16px 18px;overflow-y:auto;flex:1}
+.mfoot{padding:12px 18px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px;flex-shrink:0}
+.frow{margin-bottom:14px}
+.flbl{display:block;font-size:11px;font-weight:500;color:var(--t2);margin-bottom:5px}
+.finput{width:100%;border:1px solid var(--border2);border-radius:6px;padding:7px 10px;font-size:13px;font-family:var(--f);background:var(--surface);color:var(--text);outline:none;transition:border-color .15s}
+.finput:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(43,85,224,.08)}
+.fselect{width:100%;border:1px solid var(--border2);border-radius:6px;padding:7px 10px;font-size:13px;font-family:var(--f);background:var(--surface);color:var(--text);outline:none;cursor:pointer}
+.fhint{font-size:11px;color:var(--t3);margin-top:4px}
+.emoji-grid{display:grid;grid-template-columns:repeat(10,1fr);gap:4px;margin-top:6px}
+.emoji-opt{width:30px;height:30px;border-radius:5px;border:1px solid transparent;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .1s}
+.emoji-opt:hover{background:var(--s2)}
+.emoji-opt.sel{background:var(--abg);border-color:var(--accent)}
+.tpl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.tpl-opt{border:1px solid var(--border2);border-radius:6px;padding:10px 12px;cursor:pointer;transition:all .1s;text-align:center}
+.tpl-opt:hover{background:var(--s2)}
+.tpl-opt.sel{border-color:var(--accent);background:var(--abg)}
+.tpl-opt.sel .tpl-name{color:var(--accent)}
+.tpl-ico{font-size:18px;margin-bottom:5px}
+.tpl-name{font-size:11px;font-weight:500}
+.tpl-sub{font-size:10px;color:var(--t3);margin-top:2px}
+
+/* Search modal */
+.search-modal{width:560px;border-radius:var(--rl);background:var(--surface);box-shadow:var(--shl);border:1px solid var(--border2);overflow:hidden;transform:translateY(-8px) scale(.98);transition:transform .18s}
+.overlay.show .search-modal{transform:none}
+.sinput-wrap{display:flex;align-items:center;gap:10px;padding:13px 16px;border-bottom:1px solid var(--border)}
+.sinput{flex:1;border:none;outline:none;font-size:14px;font-family:var(--f);color:var(--text);background:transparent}
+.sinput::placeholder{color:var(--t3)}
+.sresults{max-height:380px;overflow-y:auto}
+.ssec{padding:8px 14px 4px;font-size:10px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);font-family:var(--fm)}
+.sitem{display:flex;align-items:center;gap:10px;padding:9px 14px;cursor:pointer;transition:background .1s}
+.sitem:hover,.sitem.sfocus{background:var(--s2)}
+.sitem-ico{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.sitem-title{font-size:13px;font-weight:500;margin-bottom:1px}
+.sitem-meta{font-size:11px;color:var(--t3)}
+.sitem-type{margin-left:auto;font-size:9.5px;font-family:var(--fm);color:var(--t3);background:var(--s2);padding:2px 6px;border-radius:4px;flex-shrink:0}
+.sfoot{padding:9px 14px;border-top:1px solid var(--border);display:flex;gap:12px;font-size:10.5px;color:var(--t3)}
+.skbd2{font-family:var(--fm);background:var(--s2);border-radius:3px;padding:1px 5px;color:var(--t2)}
+
+/* Confirm dialog */
+.confirm-modal{width:360px}
+.confirm-ico{width:42px;height:42px;border-radius:50%;margin:0 auto 12px;display:flex;align-items:center;justify-content:center}
+.confirm-title{font-size:15px;font-weight:500;text-align:center;margin-bottom:6px}
+.confirm-desc{font-size:13px;color:var(--t2);text-align:center;line-height:1.6}
+
+/* Publish modal */
+.publish-check{background:var(--gbg);border-radius:8px;padding:11px 14px;margin-bottom:14px;border:1px solid rgba(20,163,116,.2)}
+
+/* History modal */
+.hist-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s}
+.hist-row:hover{background:var(--s2)}
+.hist-row:last-child{border-bottom:none}
+
+/* User popover */
+.popover{position:absolute;bottom:calc(100% + 6px);left:8px;background:var(--surface);border:1px solid var(--border2);border-radius:var(--r);box-shadow:var(--shm);z-index:60;min-width:190px;padding:4px;display:none}
+.popover.show{display:block}
+.pop-head{padding:10px 12px 8px;border-bottom:1px solid var(--border)}
+.pop-name{font-size:13px;font-weight:500}
+.pop-email{font-size:11px;color:var(--t3)}
+.dd-item{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:5px;font-size:12px;color:var(--t2);cursor:pointer;transition:background .1s}
+.dd-item:hover{background:var(--s2);color:var(--text)}
+.dd-item.danger{color:var(--red)}
+.dd-item.danger:hover{background:var(--rbg)}
+.dd-sep{height:1px;background:var(--border);margin:3px 0}
+
+/* Context menu */
+.ctx-menu{position:fixed;background:var(--surface);border:1px solid var(--border2);border-radius:var(--r);box-shadow:var(--shm);z-index:300;min-width:168px;padding:4px;display:none}
+.ctx-menu.show{display:block}
+.citem{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:5px;font-size:12px;color:var(--t2);cursor:pointer;transition:background .1s}
+.citem:hover{background:var(--s2);color:var(--text)}
+.citem.danger{color:var(--red)}
+.citem.danger:hover{background:var(--rbg)}
+.csep{height:1px;background:var(--border);margin:3px 0}
+
+/* Toast */
+.toast-area{position:fixed;bottom:20px;right:20px;z-index:500;display:flex;flex-direction:column;gap:7px;pointer-events:none}
+.toast{background:var(--text);color:#fff;padding:10px 14px;border-radius:8px;font-size:12px;font-weight:500;box-shadow:var(--shm);display:flex;align-items:center;gap:7px;animation:tup .2s ease;pointer-events:all;min-width:190px}
+.toast.success{background:#14a374}
+.toast.error{background:var(--red)}
+.toast.info{background:var(--accent)}
+@keyframes tup{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.toast-fade{animation:tdown .28s ease forwards}
+@keyframes tdown{to{opacity:0;transform:translateY(4px)}}
+
+/* Tooltip */
+.tip-wrap{position:relative;display:inline-flex}
+.tip{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--text);color:#fff;font-size:10px;padding:4px 8px;border-radius:5px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .15s;z-index:60}
+.tip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:4px solid transparent;border-top-color:var(--text)}
+.tip-wrap:hover .tip{opacity:1}
+
+/* Page switcher */
+.switcher{position:fixed;bottom:14px;right:14px;background:var(--text);border-radius:10px;padding:6px;display:flex;flex-direction:column;gap:2px;box-shadow:var(--shm);z-index:998}
+.sw-lbl{font-size:9px;color:rgba(255,255,255,.28);padding:3px 10px 1px;font-family:var(--fm);letter-spacing:.05em}
+.sw-btn{padding:5px 10px;border-radius:5px;font-size:11px;font-weight:500;font-family:var(--f);cursor:pointer;border:none;color:rgba(255,255,255,.5);background:transparent;transition:all .1s;text-align:left}
+.sw-btn:hover{background:rgba(255,255,255,.1);color:rgba(255,255,255,.9)}
+.sw-btn.on{background:rgba(255,255,255,.17);color:#fff}
+
+/* Syntax HL */
+.kw{color:#79b8ff}.fn{color:#b5dcff}.str{color:#9ecbff}.cm{color:#6a9955;font-style:italic}.num{color:#f8c555}
+
+/* Collapsible */
+.collap{overflow:hidden;transition:max-height .18s ease}
+.collap.shut{max-height:0!important}
+</style>
+</head>
+<body>
+
+<!-- ═══ TOAST AREA ═══ -->
+<div class="toast-area" id="toastArea"></div>
+
+<!-- ═══ CONTEXT MENU ═══ -->
+<div class="ctx-menu" id="ctxMenu">
+  <div class="citem" onclick="openModal('moveModal');closeCtx()">📦 移动到…</div>
+  <div class="citem" onclick="toast('链接已复制','success');closeCtx()">🔗 复制链接</div>
+  <div class="citem" onclick="toast('已复制为新文章','info');closeCtx()">📋 复制文章</div>
+  <div class="csep"></div>
+  <div class="citem" onclick="enterEditMode();closeCtx()">✎ 编辑文章</div>
+  <div class="citem danger" onclick="openModal('deleteModal');closeCtx()">🗑 删除文章</div>
+</div>
+
+<!-- ═══ SEARCH OVERLAY ═══ -->
+<div class="overlay" id="ovSearch" onclick="if(event.target===this)closeOverlay('ovSearch')">
+  <div class="search-modal">
+    <div class="sinput-wrap">
+      <svg width="15" height="15" viewBox="0 0 15 15" fill="none" style="flex-shrink:0;opacity:.4"><circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" stroke-width="1.3"/><path d="M10.5 10.5l3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      <input class="sinput" id="sinput" placeholder="搜索教程、文章、笔记…" oninput="doSearch(this.value)" autofocus>
+      <span style="font-size:10.5px;color:var(--t3);cursor:pointer;flex-shrink:0" onclick="closeOverlay('ovSearch')">ESC</span>
+    </div>
+    <div class="sresults" id="sresults">
+      <div class="ssec">最近访问</div>
+      <div class="sitem" onclick="openArticle('proto');closeOverlay('ovSearch')">
+        <div class="sitem-ico" style="background:var(--ambg)">📄</div>
+        <div style="flex:1;min-width:0"><div class="sitem-title">原型链与继承机制详解</div><div class="sitem-meta">JavaScript 全栈 / 基础入门</div></div>
+        <span class="sitem-type">文章</span>
+      </div>
+      <div class="sitem" onclick="openArticle('goroutine');closeOverlay('ovSearch')">
+        <div class="sitem-ico" style="background:var(--gbg)">📄</div>
+        <div style="flex:1;min-width:0"><div class="sitem-title">Goroutine 调度器原理</div><div class="sitem-meta">Go 并发编程 / 运行时</div></div>
+        <span class="sitem-type">文章</span>
+      </div>
+      <div class="ssec">系列</div>
+      <div class="sitem" onclick="showPage('series');closeOverlay('ovSearch')">
+        <div class="sitem-ico" style="background:var(--pbg)">📂</div>
+        <div style="flex:1;min-width:0"><div class="sitem-title">系统设计精讲</div><div class="sitem-meta">11 篇 · 进行中</div></div>
+        <span class="sitem-type">系列</span>
+      </div>
+      <div class="ssec">快捷操作</div>
+      <div class="sitem" onclick="openModal('newArticleModal');closeOverlay('ovSearch')">
+        <div class="sitem-ico" style="background:var(--abg)">✏️</div>
+        <div style="flex:1"><div class="sitem-title">新建文章</div><div class="sitem-meta">进入编辑器创作</div></div>
+      </div>
+      <div class="sitem" onclick="openModal('newSeriesModal');closeOverlay('ovSearch')">
+        <div class="sitem-ico" style="background:var(--gbg)">📂</div>
+        <div style="flex:1"><div class="sitem-title">新建系列</div><div class="sitem-meta">创建教程系列</div></div>
+      </div>
+    </div>
+    <div class="sfoot">
+      <span><span class="skbd2">↑↓</span> 导航</span>
+      <span><span class="skbd2">↵</span> 打开</span>
+      <span><span class="skbd2">ESC</span> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ NEW ARTICLE MODAL ═══ -->
+<div class="overlay" id="newArticleModal" onclick="if(event.target===this)closeOverlay('newArticleModal')">
+  <div class="modal" style="width:480px">
+    <div class="mhead"><div class="mtitle">新建文章</div><button class="mclose" onclick="closeOverlay('newArticleModal')">✕</button></div>
+    <div class="mbody">
+      <div class="frow">
+        <label class="flbl">文章标题 <span style="color:var(--red)">*</span></label>
+        <input class="finput" id="newTitle" placeholder="如：深入理解 JavaScript 闭包">
+      </div>
+      <div class="frow">
+        <label class="flbl">所属系列</label>
+        <select class="fselect" id="newSeries">
+          <option value="">— 独立文章 —</option>
+          <option value="js">⚡ JavaScript 全栈开发指南</option>
+          <option value="go">🐹 Go 并发编程实战</option>
+          <option value="py">🐍 Python 数据处理系列</option>
+          <option value="sd">🏗️ 系统设计精讲</option>
+        </select>
+      </div>
+      <div class="frow">
+        <label class="flbl">章节</label>
+        <select class="fselect">
+          <option>— 选择章节 —</option>
+          <option>基础入门</option><option>进阶实战</option><option>工程实践</option>
+        </select>
+      </div>
+      <div class="frow">
+        <label class="flbl">写作模板</label>
+        <div class="tpl-grid">
+          <div class="tpl-opt sel" id="tpl-blank" onclick="selTpl(this)">
+            <div class="tpl-ico">📄</div><div class="tpl-name">空白</div><div class="tpl-sub">自由创作</div>
+          </div>
+          <div class="tpl-opt" id="tpl-tutorial" onclick="selTpl(this)">
+            <div class="tpl-ico">📚</div><div class="tpl-name">教程</div><div class="tpl-sub">含目标/步骤</div>
+          </div>
+          <div class="tpl-opt" id="tpl-note" onclick="selTpl(this)">
+            <div class="tpl-ico">⚡</div><div class="tpl-name">笔记</div><div class="tpl-sub">快速记录</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="mfoot">
+      <button class="btn" onclick="closeOverlay('newArticleModal')">取消</button>
+      <button class="btn btn-primary" onclick="createNewArticle()">创建并编辑</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ NEW SERIES MODAL ═══ -->
+<div class="overlay" id="newSeriesModal" onclick="if(event.target===this)closeOverlay('newSeriesModal')">
+  <div class="modal" style="width:460px">
+    <div class="mhead"><div class="mtitle">新建教程系列</div><button class="mclose" onclick="closeOverlay('newSeriesModal')">✕</button></div>
+    <div class="mbody">
+      <div class="frow">
+        <label class="flbl">系列名称 <span style="color:var(--red)">*</span></label>
+        <input class="finput" id="newSeriesName" placeholder="如：Rust 系统编程实战">
+      </div>
+      <div class="frow">
+        <label class="flbl">图标</label>
+        <div class="emoji-grid">
+          <div class="emoji-opt sel" onclick="selEmoji(this)">🦀</div>
+          <div class="emoji-opt" onclick="selEmoji(this)">⚡</div>
+          <div class="emoji-opt" onclick="selEmoji(this)">🐹</div>
+          <div class="emoji-opt" onclick="selEmoji(this)">🐍</div>
+          <div class="emoji-opt" onclick="selEmoji(this)">🏗️</div>
+          <div class="emoji-opt" onclick="selEmoji(this)">⚛️</div>
+          <div class="emoji-opt" onclick="selEmoji(this)">🔐</div>
+          <div class="emoji-opt" onclick="selEmoji(this)">📡</div>
+          <div class="emoji-opt" onclick="selEmoji(this)">🧮</div>
+          <div class="emoji-opt" onclick="selEmoji(this)">🛠️</div>
+        </div>
+      </div>
+      <div class="frow">
+        <label class="flbl">简介</label>
+        <textarea class="finput" rows="2" placeholder="一句话描述这个系列…" style="resize:none;line-height:1.5"></textarea>
+      </div>
+      <div class="frow">
+        <label class="flbl">父系列（可选）</label>
+        <select class="fselect"><option>— 顶级系列 —</option><option>⚡ JavaScript 全栈</option><option>🐹 Go 并发编程</option></select>
+        <div class="fhint">选择后将作为子分类展示在对应系列下</div>
+      </div>
+    </div>
+    <div class="mfoot">
+      <button class="btn" onclick="closeOverlay('newSeriesModal')">取消</button>
+      <button class="btn btn-primary" onclick="createSeries()">创建系列</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ DELETE CONFIRM ═══ -->
+<div class="overlay" id="deleteModal" onclick="if(event.target===this)closeOverlay('deleteModal')">
+  <div class="modal confirm-modal">
+    <div class="mhead"><div class="mtitle">删除确认</div><button class="mclose" onclick="closeOverlay('deleteModal')">✕</button></div>
+    <div class="mbody" style="text-align:center;padding:24px 24px 16px">
+      <div class="confirm-ico" style="background:var(--rbg)">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="var(--red)"><path d="M9 3h2v8H9zM9 13h2v2H9z"/></svg>
+      </div>
+      <div class="confirm-title" id="deleteTitleLabel">删除「原型链与继承机制详解」?</div>
+      <div class="confirm-desc">此操作不可撤销，文章内容将被永久删除。</div>
+    </div>
+    <div class="mfoot" style="justify-content:center;gap:10px">
+      <button class="btn" onclick="closeOverlay('deleteModal')" style="min-width:80px">取消</button>
+      <button class="btn btn-danger" onclick="confirmDelete()" style="min-width:80px">确认删除</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MOVE MODAL ═══ -->
+<div class="overlay" id="moveModal" onclick="if(event.target===this)closeOverlay('moveModal')">
+  <div class="modal" style="width:400px">
+    <div class="mhead"><div class="mtitle">移动文章到…</div><button class="mclose" onclick="closeOverlay('moveModal')">✕</button></div>
+    <div class="mbody" style="padding:8px">
+      <div style="padding:0 10px 6px;font-size:11px;color:var(--t3)">选择目标系列或章节</div>
+      <div style="border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin:0 6px">
+        <div class="strow" onclick="toast('文章已移动','success');closeOverlay('moveModal')"><span style="font-size:14px;margin-right:6px">⚡</span>JavaScript 全栈开发指南</div>
+        <div class="strow i1" onclick="toast('文章已移动','success');closeOverlay('moveModal')"><span style="font-size:12px;margin-right:6px">📁</span>基础入门</div>
+        <div class="strow i1" onclick="toast('文章已移动','success');closeOverlay('moveModal')"><span style="font-size:12px;margin-right:6px">📁</span>React 进阶</div>
+        <div class="strow" onclick="toast('文章已移动','success');closeOverlay('moveModal')"><span style="font-size:14px;margin-right:6px">🐹</span>Go 并发编程实战</div>
+        <div class="strow" onclick="toast('文章已移动','success');closeOverlay('moveModal')"><span style="font-size:14px;margin-right:6px">🏗️</span>系统设计精讲</div>
+      </div>
+    </div>
+    <div class="mfoot"><button class="btn" onclick="closeOverlay('moveModal')">取消</button></div>
+  </div>
+</div>
+
+<!-- ═══ HISTORY MODAL ═══ -->
+<div class="overlay" id="historyModal" onclick="if(event.target===this)closeOverlay('historyModal')">
+  <div class="modal" style="width:500px">
+    <div class="mhead"><div class="mtitle">历史版本</div><button class="mclose" onclick="closeOverlay('historyModal')">✕</button></div>
+    <div class="mbody" style="padding:8px">
+      <div style="padding:0 10px 6px;font-size:11px;color:var(--t3)">保留最近 20 个版本，点击可恢复</div>
+      <div id="histList"></div>
+    </div>
+    <div class="mfoot"><button class="btn" onclick="closeOverlay('historyModal')">关闭</button></div>
+  </div>
+</div>
+
+<!-- ═══ PUBLISH MODAL ═══ -->
+<div class="overlay" id="publishModal" onclick="if(event.target===this)closeOverlay('publishModal')">
+  <div class="modal" style="width:420px">
+    <div class="mhead"><div class="mtitle">发布文章</div><button class="mclose" onclick="closeOverlay('publishModal')">✕</button></div>
+    <div class="mbody">
+      <div class="publish-check">
+        <div style="font-size:12px;font-weight:500;color:var(--green);margin-bottom:2px">✓ 发布检查通过</div>
+        <div style="font-size:11px;color:var(--green);opacity:.8">标题、摘要、标签均已填写</div>
+      </div>
+      <div class="frow">
+        <label class="flbl">内容摘要</label>
+        <div style="background:var(--s2);border-radius:6px;padding:10px 12px;font-size:12px;color:var(--t2);line-height:1.6">深入理解 JavaScript 原型链的工作原理，掌握原型式继承、构造函数继承和 ES6 Class 继承的实现差异。</div>
+      </div>
+      <div class="frow">
+        <label class="flbl">标签</label>
+        <div style="display:flex;gap:5px;flex-wrap:wrap">
+          <span class="mtag mtag-js">JavaScript</span>
+          <span class="mtag" style="background:var(--pbg);color:var(--purple)">原型链</span>
+          <span class="mtag" style="background:var(--gbg);color:var(--green)">继承</span>
+        </div>
+      </div>
+      <div class="frow">
+        <label class="flbl">可见性</label>
+        <div style="display:flex;gap:8px">
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;flex:1;border:1px solid var(--accent);border-radius:6px;padding:8px 10px;background:var(--abg)"><input type="radio" name="vis" checked style="accent-color:var(--accent)"> 公开发布</label>
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;flex:1;border:1px solid var(--border2);border-radius:6px;padding:8px 10px"><input type="radio" name="vis" style="accent-color:var(--accent)"> 仅自己可见</label>
+        </div>
+      </div>
+    </div>
+    <div class="mfoot">
+      <button class="btn" onclick="closeOverlay('publishModal')">取消</button>
+      <button class="btn btn-primary" onclick="doPublish()">确认发布</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ QUICK NOTE MODAL ═══ -->
+<div class="overlay" id="quickNoteModal" onclick="if(event.target===this)closeOverlay('quickNoteModal')">
+  <div class="modal" style="width:440px">
+    <div class="mhead"><div class="mtitle">⚡ 快速笔记</div><button class="mclose" onclick="closeOverlay('quickNoteModal')">✕</button></div>
+    <div class="mbody">
+      <textarea class="finput" rows="7" placeholder="快速记录想法、代码片段、参考链接…&#10;&#10;支持 Markdown 格式" style="resize:none;font-family:var(--fm);font-size:12.5px;line-height:1.75"></textarea>
+      <div style="margin-top:8px;display:flex;gap:5px;align-items:center;flex-wrap:wrap">
+        <span style="font-size:11px;color:var(--t3)">标签：</span>
+        <span class="tpill on" style="font-size:10px;padding:2px 7px" onclick="this.classList.toggle('on')">JavaScript</span>
+        <span class="tpill" style="font-size:10px;padding:2px 7px" onclick="this.classList.toggle('on')">Go</span>
+        <span class="tpill" style="font-size:10px;padding:2px 7px;border-style:dashed;color:var(--t3)" onclick="toast('添加标签','info')">+ 添加</span>
+      </div>
+    </div>
+    <div class="mfoot">
+      <button class="btn" onclick="closeOverlay('quickNoteModal')">取消</button>
+      <button class="btn btn-primary" onclick="toast('笔记已保存 ✓','success');closeOverlay('quickNoteModal')">保存笔记</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ USER POPOVER ═══ -->
+<div class="popover" id="userPopover">
+  <div class="pop-head">
+    <div class="pop-name">fkcoding</div>
+    <div class="pop-email">fkcoding@example.com</div>
+  </div>
+  <div style="padding:4px">
+    <div class="dd-item" onclick="toast('前往账户设置','info');closePopover()">⚙️ &nbsp;账户设置</div>
+    <div class="dd-item" onclick="toast('邀请链接已复制','success');closePopover()">🔗 &nbsp;分享知识库</div>
+    <div class="dd-item" onclick="toast('正在导出 ZIP…','info');closePopover()">📦 &nbsp;导出全部内容</div>
+    <div class="dd-sep"></div>
+    <div class="dd-item danger" onclick="toast('已退出登录','info');closePopover()">🚪 &nbsp;退出登录</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     SHELL
+═══════════════════════════════════ -->
+<div class="shell">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar" id="sidebar">
+    <div class="logo" onclick="showPage('dashboard')">
+      <div class="logo-mark">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="white"><rect x="1" y="1" width="5" height="5" rx="1"/><rect x="8" y="1" width="5" height="5" rx="1"/><rect x="1" y="8" width="5" height="5" rx="1"/><path d="M8 10.5h5M10.5 8v5" stroke="white" stroke-width="1.2" stroke-linecap="round"/></svg>
+      </div>
+      <div>
+        <div class="logo-name">fkcoding-note</div>
+        <div class="logo-tag">Knowledge Base</div>
+      </div>
+    </div>
+
+    <div class="nav-label">主菜单</div>
+    <div class="nav-item active" id="nav-dashboard" onclick="showPage('dashboard')">
+      <svg class="ni" viewBox="0 0 15 15" fill="currentColor"><rect x="1" y="1" width="6" height="6" rx="1.5"/><rect x="8" y="1" width="6" height="6" rx="1.5"/><rect x="1" y="8" width="6" height="6" rx="1.5"/><rect x="8" y="8" width="6" height="6" rx="1.5"/></svg>
+      总览
+    </div>
+    <div class="nav-item" id="nav-series" onclick="showPage('series')">
+      <svg class="ni" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="1.5" y="1.5" width="12" height="12" rx="2"/><path d="M4 5h7M4 7.5h5M4 10h7" stroke-linecap="round"/></svg>
+      教程系列 <span class="nbadge">12</span>
+    </div>
+    <div class="nav-item" id="nav-stats" onclick="showPage('stats')">
+      <svg class="ni" viewBox="0 0 15 15" fill="currentColor"><rect x="1" y="8" width="3" height="6" rx="1"/><rect x="6" y="5" width="3" height="9" rx="1"/><rect x="11" y="2" width="3" height="12" rx="1"/></svg>
+      统计
+    </div>
+    <div class="nav-item" id="nav-notes" onclick="openModal('quickNoteModal')">
+      <svg class="ni" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="1.5" y="1.5" width="12" height="12" rx="2"/><path d="M4 5h7M4 7.5h7M4 10h4" stroke-linecap="round"/></svg>
+      快速笔记 <span class="nbadge">34</span>
+    </div>
+
+    <!-- Tree -->
+    <div class="nav-label" style="margin-top:5px">教程树</div>
+    <div class="tree-scroll">
+      <!-- JS Series -->
+      <div class="tree-item depth1" onclick="togTree('tj')" oncontextmenu="showCtx(event)">
+        <svg class="tchev open" id="tj-c" viewBox="0 0 10 10" fill="none"><path d="M3 2l4 3-4 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        ⚡ JavaScript 全栈
+        <div class="tree-acts">
+          <button class="tact" onclick="event.stopPropagation();openModal('newArticleModal')" title="新建">+</button>
+          <button class="tact" onclick="event.stopPropagation();toast('重命名系列','info')" title="重命名">✎</button>
+        </div>
+      </div>
+      <div id="tj" class="collap" style="max-height:300px">
+        <div class="tree-item depth2" onclick="togTree('tj1')" oncontextmenu="showCtx(event)">
+          <svg class="tchev open" id="tj1-c" viewBox="0 0 10 10" fill="none"><path d="M3 2l4 3-4 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          基础入门
+          <div class="tree-acts">
+            <button class="tact" onclick="event.stopPropagation();openModal('newArticleModal')">+</button>
+          </div>
+        </div>
+        <div id="tj1" class="collap" style="max-height:200px">
+          <div class="tree-item depth3" oncontextmenu="showCtx(event)" onclick="openArticle('vars')">
+            <div class="tdot"></div>变量与类型
+          </div>
+          <div class="tree-item depth3 active" id="tree-proto" oncontextmenu="showCtx(event)" onclick="openArticle('proto')">
+            <div class="tdot"></div>原型链机制
+          </div>
+          <div class="tree-item depth3" oncontextmenu="showCtx(event)" onclick="openArticle('closure')">
+            <div class="tdot"></div>闭包详解
+          </div>
+          <div class="tree-item depth3" oncontextmenu="showCtx(event)" onclick="openArticle('async')">
+            <div class="tdot"></div>异步编程
+          </div>
+        </div>
+        <div class="tree-item depth2" onclick="togTree('tj2')" oncontextmenu="showCtx(event)">
+          <svg class="tchev" id="tj2-c" viewBox="0 0 10 10" fill="none"><path d="M3 2l4 3-4 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          React 进阶
+        </div>
+        <div id="tj2" class="collap shut" style="max-height:200px">
+          <div class="tree-item depth3" onclick="openArticle('hooks')"><div class="tdot"></div>Hooks 解析</div>
+          <div class="tree-item depth3" onclick="openArticle('hooks')"><div class="tdot"></div>状态管理对比</div>
+        </div>
+        <div class="tree-item depth2" oncontextmenu="showCtx(event)">
+          <svg class="tchev" viewBox="0 0 10 10" fill="none"><path d="M3 2l4 3-4 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          Node.js 后端
+        </div>
+        <!-- New article button in tree -->
+        <div class="tree-new-btn depth2" onclick="openModal('newArticleModal')" style="padding-left:30px">
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M5 1v8M1 5h8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          新建文章
+        </div>
+      </div>
+      <!-- Go Series -->
+      <div class="tree-item depth1" onclick="togTree('tgo')" oncontextmenu="showCtx(event)">
+        <svg class="tchev" id="tgo-c" viewBox="0 0 10 10" fill="none"><path d="M3 2l4 3-4 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        🐹 Go 并发编程
+        <div class="tree-acts">
+          <button class="tact" onclick="event.stopPropagation();openModal('newArticleModal')">+</button>
+        </div>
+      </div>
+      <div id="tgo" class="collap shut" style="max-height:200px">
+        <div class="tree-item depth2" onclick="openArticle('goroutine')"><div class="tdot"></div>Goroutine 原理</div>
+        <div class="tree-item depth2" onclick="openArticle('goroutine')"><div class="tdot"></div>Channel 模式</div>
+      </div>
+      <div class="tree-item depth1" oncontextmenu="showCtx(event)">
+        <svg class="tchev" viewBox="0 0 10 10" fill="none"><path d="M3 2l4 3-4 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        🏗️ 系统设计精讲
+      </div>
+      <div class="tree-item depth1" oncontextmenu="showCtx(event)">
+        <svg class="tchev" viewBox="0 0 10 10" fill="none"><path d="M3 2l4 3-4 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        🐍 Python 数据处理
+      </div>
+      <!-- Add series -->
+      <div class="tree-new-btn" style="margin:6px 4px 0" onclick="openModal('newSeriesModal')">
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M5 1v8M1 5h8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        新建系列
+      </div>
+    </div>
+
+    <!-- User -->
+    <div class="sidebar-bottom">
+      <div class="user-row" id="userRow" onclick="togglePopover()">
+        <div class="avatar">FK</div>
+        <div style="flex:1;min-width:0">
+          <div class="uname">fkcoding</div>
+          <div class="uplan">Free · Cloudflare</div>
+        </div>
+        <svg style="width:11px;height:11px;opacity:.3;flex-shrink:0" viewBox="0 0 11 11" fill="none"><path d="M2 4l3.5 3.5L9 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <div class="main">
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="topbar-bc">
+        <span>fkcoding-note</span>
+        <span class="bc-sep">/</span>
+        <span class="bc-crumb" id="bcCrumb1" style="display:none;cursor:pointer" onclick="showPage('series')"></span>
+        <span class="bc-sep" id="bcSep2" style="display:none">/</span>
+        <span class="bc-active" id="bcActive">总览</span>
+      </div>
+      <div class="search-box" onclick="openModal('ovSearch')">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="5.5" cy="5.5" r="3.8" stroke="currentColor" stroke-width="1.2"/><path d="M8.5 8.5l2.5 2.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        搜索…
+        <span class="skbd">⌘K</span>
+      </div>
+      <div class="tip-wrap">
+        <button class="btn btn-icon" onclick="openModal('quickNoteModal')">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1.5v5M4 3.5h6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><rect x="1.5" y="5" width="11" height="7.5" rx="1.5" stroke="currentColor" stroke-width="1.2"/></svg>
+        </button>
+        <div class="tip">快速笔记</div>
+      </div>
+      <!-- Topbar right — changes per page -->
+      <div id="topbarRight">
+        <button class="btn btn-primary btn-sm" onclick="openModal('newArticleModal')">
+          <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M5.5 1v9M1 5.5h9" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
+          新建文章
+        </button>
+      </div>
+    </header>
+
+    <!-- PAGE CONTAINER -->
+    <div class="page-body">
+
+      <!-- ═════════ DASHBOARD ═════════ -->
+      <div id="pg-dashboard" class="page">
+        <div class="ph">
+          <div><div class="ph-title">👋 早上好，fkcoding</div><div class="ph-sub">2026年4月23日 · 连续创作第 17 天 🔥</div></div>
+          <div class="ph-actions">
+            <button class="btn btn-sm" onclick="openModal('newSeriesModal')">+ 新建系列</button>
+            <button class="btn btn-primary btn-sm" onclick="openModal('newArticleModal')">+ 新建文章</button>
+          </div>
+        </div>
+        <div class="stat-grid">
+          <div class="stat-card" onclick="showPage('series')">
+            <div class="slbl">教程系列</div><div class="sval">12</div>
+            <div class="smeta"><span class="chip chip-g">↑ +2 本月</span></div>
+          </div>
+          <div class="stat-card" onclick="showPage('series')">
+            <div class="slbl">文章总数</div><div class="sval">187</div>
+            <div class="smeta"><span class="chip chip-b">本周 +14</span></div>
+          </div>
+          <div class="stat-card" onclick="openModal('quickNoteModal')">
+            <div class="slbl">快速笔记</div><div class="sval">34</div>
+            <div class="smeta" style="color:var(--t3)">点击新建</div>
+          </div>
+          <div class="stat-card" onclick="showPage('stats')">
+            <div class="slbl">累计字数</div><div class="sval">892K</div>
+            <div class="smeta"><span class="chip chip-a">年均 74K/月</span></div>
+          </div>
+        </div>
+        <div class="qa-grid">
+          <div class="qa-card" onclick="openModal('newArticleModal')">
+            <div class="qa-ico" style="background:var(--abg)">📝</div>
+            <div><div class="qa-lbl">新建文章</div><div class="qa-sub">进入编辑器创作</div></div>
+          </div>
+          <div class="qa-card" onclick="openModal('newSeriesModal')">
+            <div class="qa-ico" style="background:var(--gbg)">📂</div>
+            <div><div class="qa-lbl">新建系列</div><div class="qa-sub">树状层级结构</div></div>
+          </div>
+          <div class="qa-card" onclick="openModal('quickNoteModal')">
+            <div class="qa-ico" style="background:var(--ambg)">⚡</div>
+            <div><div class="qa-lbl">快速笔记</div><div class="qa-sub">即时记录想法</div></div>
+          </div>
+          <div class="qa-card" onclick="showPage('stats')">
+            <div class="qa-ico" style="background:var(--pbg)">📊</div>
+            <div><div class="qa-lbl">学习统计</div><div class="qa-sub">数据可视化</div></div>
+          </div>
+        </div>
+        <div class="g2">
+          <div class="panel">
+            <div class="ptitle">近期系列 <span class="plink" onclick="showPage('series')">查看全部 →</span></div>
+            <div class="si" onclick="showPage('series')"><div class="si-emoji">⚡</div><div style="flex:1"><div class="si-name">JavaScript 全栈开发指南</div><div class="si-meta"><span class="mtag mtag-js">JS</span>· 23 篇 · 今天</div></div></div>
+            <div class="si" onclick="showPage('series')"><div class="si-emoji">🐹</div><div style="flex:1"><div class="si-name">Go 并发编程实战</div><div class="si-meta"><span class="mtag mtag-go">Go</span>· 15 篇 · 3天前</div></div></div>
+            <div class="si" onclick="showPage('series')"><div class="si-emoji">🐍</div><div style="flex:1"><div class="si-name">Python 数据处理系列</div><div class="si-meta"><span class="mtag mtag-py">Py</span>· 18 篇 · 1周前</div></div></div>
+            <div class="si" onclick="showPage('series')"><div class="si-emoji">🏗️</div><div style="flex:1"><div class="si-name">系统设计精讲</div><div class="si-meta"><span class="mtag mtag-arch">架构</span>· 11 篇 · 2周前</div></div></div>
+          </div>
+          <div class="panel">
+            <div class="ptitle">活跃度 <span style="color:var(--t3);font-size:10px">近14天</span></div>
+            <div class="act-bars" id="actBars"></div>
+            <div class="act-days"><span>10</span><span>11</span><span>12</span><span>13</span><span>14</span><span>15</span><span>16</span><span>17</span><span>18</span><span>19</span><span>20</span><span>21</span><span>22</span><span>今</span></div>
+            <div style="height:1px;background:var(--border);margin:12px 0"></div>
+            <div class="ptitle">系列进度</div>
+            <div class="prog"><div class="prog-row">JS 全栈<span class="prog-pct">78%</span></div><div class="ptrack"><div class="pfill" style="width:78%;background:var(--accent)"></div></div></div>
+            <div class="prog"><div class="prog-row">Go 并发<span class="prog-pct">55%</span></div><div class="ptrack"><div class="pfill" style="width:55%;background:var(--green)"></div></div></div>
+            <div class="prog"><div class="prog-row">系统设计<span class="prog-pct">85%</span></div><div class="ptrack"><div class="pfill" style="width:85%;background:var(--purple)"></div></div></div>
+          </div>
+        </div>
+        <div class="g2eq">
+          <div class="panel">
+            <div class="ptitle">最近编辑</div>
+            <div class="ei" onclick="openArticle('proto')"><div class="edot" style="background:var(--accent)"></div><div class="etitle">原型链与继承机制详解</div><div class="etime">刚刚</div></div>
+            <div class="ei" onclick="openArticle('goroutine')"><div class="edot" style="background:var(--green)"></div><div class="etitle">Goroutine 调度器原理分析</div><div class="etime">2h</div></div>
+            <div class="ei" onclick="openArticle('async')"><div class="edot" style="background:var(--amber)"></div><div class="etitle">Promise 与 async/await 对比</div><div class="etime">昨天</div></div>
+            <div class="ei" onclick="openArticle('hooks')"><div class="edot" style="background:var(--purple)"></div><div class="etitle">分布式系统 CAP 定理实战</div><div class="etime">3天前</div></div>
+            <div class="ei" onclick="openArticle('hooks')"><div class="edot" style="background:var(--orange)"></div><div class="etitle">Redis 缓存设计模式</div><div class="etime">3天前</div></div>
+          </div>
+          <div class="panel">
+            <div class="ptitle">标签筛选 <span class="plink" onclick="clearTags()">清除</span></div>
+            <div class="tag-cloud">
+              <span class="tpill on" onclick="this.classList.toggle('on');toast('已按 JavaScript 筛选','info')">JavaScript</span>
+              <span class="tpill" onclick="this.classList.toggle('on');toast('标签筛选已切换','info')">Go</span>
+              <span class="tpill" onclick="this.classList.toggle('on');toast('标签筛选已切换','info')">React</span>
+              <span class="tpill" onclick="this.classList.toggle('on');toast('标签筛选已切换','info')">并发</span>
+              <span class="tpill" onclick="this.classList.toggle('on');toast('标签筛选已切换','info')">数据结构</span>
+              <span class="tpill" onclick="this.classList.toggle('on');toast('标签筛选已切换','info')">系统设计</span>
+              <span class="tpill" onclick="this.classList.toggle('on');toast('标签筛选已切换','info')">Node.js</span>
+              <span class="tpill" onclick="this.classList.toggle('on');toast('标签筛选已切换','info')">算法</span>
+              <span class="tpill" onclick="this.classList.toggle('on');toast('标签筛选已切换','info')">Docker</span>
+              <span class="tpill" onclick="this.classList.toggle('on');toast('标签筛选已切换','info')">TypeScript</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═════════ SERIES PAGE ═════════ -->
+      <div id="pg-series" class="page" style="display:none">
+        <div class="ph">
+          <div><div class="ph-title">教程系列</div><div class="ph-sub">12 个系列 · 树状层级管理</div></div>
+          <div class="ph-actions">
+            <button class="btn btn-sm" onclick="openModal('newSeriesModal')">+ 新建系列</button>
+            <button class="btn btn-primary btn-sm" onclick="openModal('newArticleModal')">+ 新建文章</button>
+          </div>
+        </div>
+        <div class="series-tree">
+          <!-- Block 1 -->
+          <div class="stblock">
+            <div class="strow series-root" onclick="togStree('s1')">
+              <svg class="st-chev open" id="s1-c" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+              <span class="st-emoji">⚡</span>
+              <div style="flex:1"><div class="st-title">JavaScript 全栈开发指南</div><div class="st-sub">现代 Web 开发从入门到部署</div></div>
+              <span class="st-count">23 篇</span><span class="st-status st-prog">进行中</span>
+              <div class="st-acts">
+                <button class="st-act" onclick="event.stopPropagation();openModal('newArticleModal')" title="新建文章">+</button>
+                <button class="st-act" onclick="event.stopPropagation();toast('编辑系列信息','info')" title="编辑">✎</button>
+                <button class="st-act danger" onclick="event.stopPropagation();openModal('deleteModal')" title="删除">✕</button>
+              </div>
+            </div>
+            <div id="s1">
+              <div class="strow i1" onclick="togStree('s1c1')">
+                <svg class="st-chev open" id="s1c1-c" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+                <span class="st-emoji" style="font-size:13px">📁</span>
+                <div class="st-title">基础入门</div><span class="st-count">6 篇</span>
+                <div class="st-acts">
+                  <button class="st-act" onclick="event.stopPropagation();openModal('newArticleModal')">+</button>
+                  <button class="st-act" onclick="event.stopPropagation();toast('重命名章节','info')">✎</button>
+                  <button class="st-act danger" onclick="event.stopPropagation();openModal('deleteModal')">✕</button>
+                </div>
+              </div>
+              <div id="s1c1">
+                <div class="strow i2" oncontextmenu="showCtx(event)" onclick="openArticle('vars')">
+                  <span class="drag-handle">⠿</span>
+                  <span class="st-emoji" style="font-size:12px">📄</span>
+                  <div class="st-title">变量、类型与作用域</div>
+                  <span class="st-status st-pub">已发布</span>
+                  <div class="st-acts">
+                    <button class="st-act" onclick="event.stopPropagation();openArticle('vars')">👁</button>
+                    <button class="st-act" onclick="event.stopPropagation();enterEditModeFor('vars')">✎</button>
+                    <button class="st-act danger" onclick="event.stopPropagation();openModal('deleteModal')">✕</button>
+                  </div>
+                </div>
+                <div class="strow i2" oncontextmenu="showCtx(event)" onclick="openArticle('proto')">
+                  <span class="drag-handle">⠿</span>
+                  <span class="st-emoji" style="font-size:12px">📄</span>
+                  <div class="st-title">原型链与继承机制详解</div>
+                  <span class="st-status st-pub">已发布</span>
+                  <div class="st-acts">
+                    <button class="st-act" onclick="event.stopPropagation();openArticle('proto')">👁</button>
+                    <button class="st-act" onclick="event.stopPropagation();enterEditModeFor('proto')">✎</button>
+                    <button class="st-act danger" onclick="event.stopPropagation();openModal('deleteModal')">✕</button>
+                  </div>
+                </div>
+                <div class="strow i2" oncontextmenu="showCtx(event)" onclick="openArticle('async')">
+                  <span class="drag-handle">⠿</span>
+                  <span class="st-emoji" style="font-size:12px">📝</span>
+                  <div class="st-title">异步编程：回调、Promise、async</div>
+                  <span class="st-status st-dft">草稿</span>
+                  <div class="st-acts">
+                    <button class="st-act" onclick="event.stopPropagation();openArticle('async')">👁</button>
+                    <button class="st-act" onclick="event.stopPropagation();enterEditModeFor('async')">✎</button>
+                    <button class="st-act danger" onclick="event.stopPropagation();openModal('deleteModal')">✕</button>
+                  </div>
+                </div>
+                <div class="strow i2" style="border-style:dashed;cursor:pointer;color:var(--t3)" onclick="openModal('newArticleModal')">
+                  <svg width="11" height="11" viewBox="0 0 11 11" fill="none" style="opacity:.5"><path d="M5.5 1v9M1 5.5h9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+                  <span style="font-size:12px">新建文章到此章节</span>
+                </div>
+              </div>
+              <div class="strow i1">
+                <svg class="st-chev" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+                <span class="st-emoji" style="font-size:13px">📁</span>
+                <div class="st-title">React 进阶</div><span class="st-count">8 篇</span><span class="st-status st-prog">进行中</span>
+                <div class="st-acts"><button class="st-act" onclick="event.stopPropagation();openModal('newArticleModal')">+</button></div>
+              </div>
+              <div class="strow i1">
+                <svg class="st-chev" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+                <span class="st-emoji" style="font-size:13px">📁</span>
+                <div class="st-title">Node.js 后端</div><span class="st-count">9 篇</span><span class="st-status st-pub">完成</span>
+                <div class="st-acts"><button class="st-act" onclick="event.stopPropagation();openModal('newArticleModal')">+</button></div>
+              </div>
+            </div>
+          </div>
+          <!-- Block 2 -->
+          <div class="stblock">
+            <div class="strow series-root" onclick="togStree('s2')">
+              <svg class="st-chev" id="s2-c" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+              <span class="st-emoji">🐹</span>
+              <div style="flex:1"><div class="st-title">Go 并发编程实战</div><div class="st-sub">Goroutine、Channel 与并发模式</div></div>
+              <span class="st-count">15 篇</span><span class="st-status st-prog">进行中</span>
+              <div class="st-acts">
+                <button class="st-act" onclick="event.stopPropagation();openModal('newArticleModal')">+</button>
+                <button class="st-act" onclick="event.stopPropagation();toast('编辑系列','info')">✎</button>
+                <button class="st-act danger" onclick="event.stopPropagation();openModal('deleteModal')">✕</button>
+              </div>
+            </div>
+            <div id="s2" style="display:none">
+              <div class="strow i2" onclick="openArticle('goroutine')"><span class="st-emoji" style="font-size:12px">📄</span><div class="st-title">Goroutine 调度器原理</div><span class="st-status st-pub">已发布</span><div class="st-acts"><button class="st-act" onclick="event.stopPropagation();openArticle('goroutine')">👁</button><button class="st-act" onclick="event.stopPropagation();enterEditModeFor('goroutine')">✎</button></div></div>
+            </div>
+          </div>
+          <!-- Block 3 -->
+          <div class="stblock">
+            <div class="strow series-root">
+              <svg class="st-chev" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+              <span class="st-emoji">🏗️</span>
+              <div style="flex:1"><div class="st-title">系统设计精讲</div><div class="st-sub">大厂面试必备设计题解析</div></div>
+              <span class="st-count">11/13</span><span class="st-status st-pub">接近完成</span>
+              <div class="st-acts"><button class="st-act" onclick="openModal('newArticleModal')">+</button><button class="st-act" onclick="toast('编辑系列','info')">✎</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═════════ READ MODE (Article) ═════════ -->
+      <div id="pg-read" style="display:none;height:calc(100vh - var(--th));overflow:hidden">
+        <div class="read-page">
+          <!-- Article topbar -->
+          <div class="read-topbar">
+            <div class="read-breadcrumb">
+              <span class="rbc-series" onclick="showPage('series')">⚡ JavaScript 全栈</span>
+              <span class="rbc-sep">/</span>
+              <span class="rbc-series" style="color:var(--t3);cursor:pointer" onclick="showPage('series')">基础入门</span>
+              <span class="rbc-sep">/</span>
+              <span class="rbc-title" id="readTitle">原型链与继承机制详解</span>
+            </div>
+            <!-- Read mode actions -->
+            <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
+              <button class="btn btn-ghost btn-sm" onclick="toast('链接已复制','success')">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4.5 7.5l3-3M3 6l-1 1a2.5 2.5 0 003.5 3.5l1-1M7 3l1-1a2.5 2.5 0 00-3.5-3.5l-1 1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+                分享
+              </button>
+              <button class="btn btn-ghost btn-sm" onclick="openModal('historyModal')">历史版本</button>
+              <button class="btn btn-sm" onclick="enterEditMode()">
+                <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M7.5 1.5l2 2-6 6H1.5v-2l6-6z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                编辑
+              </button>
+              <button class="btn btn-primary btn-sm" id="readPublishBtn" onclick="openModal('publishModal')">发布</button>
+            </div>
+          </div>
+          <!-- Two-col layout -->
+          <div class="read-layout">
+            <!-- TOC -->
+            <div class="read-toc">
+              <div class="toc-title">目录</div>
+              <a class="toc-item h2 active-toc" onclick="toast('跳转至：什么是原型链','info')">什么是原型链？</a>
+              <a class="toc-item h2" onclick="toast('跳转至：构造函数','info')">构造函数与 prototype</a>
+              <a class="toc-item h3" onclick="toast('跳转至：new 操作符','info')">new 操作符原理</a>
+              <a class="toc-item h2" onclick="toast('跳转至：ES6 Class','info')">ES6 Class 继承</a>
+              <a class="toc-item h3" onclick="toast('跳转至：继承对比','info')">三种继承对比</a>
+              <a class="toc-item h2" onclick="toast('跳转至：最佳实践','info')">最佳实践建议</a>
+              <div class="toc-divider"></div>
+              <div class="toc-meta">
+                <div>📅 2026-04-23</div>
+                <div>📝 1,247 字</div>
+                <div>⏱ 约 6 分钟</div>
+                <div>👁 <span id="viewCount">已发布</span></div>
+              </div>
+              <div class="toc-divider"></div>
+              <!-- Article tags -->
+              <div class="toc-title">标签</div>
+              <div style="display:flex;flex-wrap:wrap;gap:4px">
+                <span class="mtag mtag-js" style="cursor:pointer" onclick="toast('筛选 JavaScript','info')">JavaScript</span>
+                <span class="mtag" style="background:var(--pbg);color:var(--purple);cursor:pointer" onclick="toast('筛选 原型链','info')">原型链</span>
+                <span class="mtag" style="background:var(--gbg);color:var(--green);cursor:pointer" onclick="toast('筛选 继承','info')">继承</span>
+              </div>
+            </div>
+            <!-- Article body -->
+            <div class="read-content" id="readContent">
+              <div class="article-header">
+                <div class="article-tags">
+                  <span class="art-tag" style="background:var(--ambg);color:var(--amber)">JavaScript</span>
+                  <span class="art-tag" style="background:var(--pbg);color:var(--purple)">原型链</span>
+                  <span class="art-tag" style="background:var(--gbg);color:var(--green)">继承</span>
+                  <span class="art-tag" style="background:var(--s2);color:var(--t2)">基础</span>
+                </div>
+                <div class="article-title" id="artTitle">原型链与继承机制详解</div>
+                <div class="article-meta-bar">
+                  <span class="ameta-item">📅 2026-04-23</span>
+                  <span class="ameta-dot"></span>
+                  <span class="ameta-item">✍️ fkcoding</span>
+                  <span class="ameta-dot"></span>
+                  <span class="ameta-item">⏱ 约 6 分钟阅读</span>
+                  <span class="ameta-dot"></span>
+                  <span class="ameta-item">📝 1,247 字</span>
+                  <span class="ameta-dot"></span>
+                  <span class="ameta-item" style="color:var(--green)">✓ 已发布</span>
+                </div>
+              </div>
+              <div class="art-body">
+                <div class="callout callout-info">
+                  <div class="callout-icon">🎯</div>
+                  <div><p><strong>本文目标</strong>：深入理解 JavaScript 原型链的工作原理，掌握原型式继承、构造函数继承和 ES6 Class 继承的实现差异与最佳实践。</p></div>
+                </div>
+                <h2>什么是原型链？</h2>
+                <p>在 JavaScript 中，每个对象都有一个内部属性 <code>[[Prototype]]</code>，它指向该对象的<strong>原型对象</strong>。当我们访问一个属性时，JavaScript 引擎会沿着原型链向上查找，直到找到该属性或到达链的顶端（<code>null</code>）。</p>
+                <pre><code><span class="kw">const</span> animal = {
+  type: <span class="str">'Animal'</span>,
+  <span class="fn">describe</span>() {
+    <span class="kw">return</span> <span class="str">`I am a <span class="num">${</span>this.type<span class="num">}</span>`</span>;
+  }
+};
+
+<span class="kw">const</span> dog = Object.<span class="fn">create</span>(animal);
+dog.type = <span class="str">'Dog'</span>;
+
+console.<span class="fn">log</span>(dog.<span class="fn">describe</span>()); <span class="cm">// "I am a Dog"</span>
+console.<span class="fn">log</span>(dog.__proto__ === animal); <span class="cm">// true</span>
+<button class="copy-btn" onclick="toast('代码已复制','success')">复制</button></code></pre>
+                <div class="callout callout-tip">
+                  <div class="callout-icon">💡</div>
+                  <div><p>现代 JavaScript 推荐使用 <code>Object.getPrototypeOf(obj)</code> 代替 <code>__proto__</code>，后者是非标准的遗留属性。</p></div>
+                </div>
+                <h2>构造函数与 prototype</h2>
+                <p>每个函数都有一个 <code>prototype</code> 属性，它是一个对象，包含所有该构造函数实例共享的方法。</p>
+                <h3>new 操作符原理</h3>
+                <p>当使用 <code>new</code> 调用构造函数时，JavaScript 引擎执行以下步骤：</p>
+                <ul>
+                  <li>创建一个新的空对象</li>
+                  <li>将新对象的 <code>[[Prototype]]</code> 设置为构造函数的 <code>prototype</code></li>
+                  <li>以新对象为 <code>this</code> 执行构造函数体</li>
+                  <li>如果构造函数返回对象则使用该对象，否则返回新对象</li>
+                </ul>
+                <h2>ES6 Class 继承</h2>
+                <table>
+                  <tr><th>特性</th><th>构造函数方式</th><th>ES6 Class</th></tr>
+                  <tr><td>语法</td><td>函数式</td><td>声明式，更清晰</td></tr>
+                  <tr><td>提升</td><td>函数提升</td><td>不提升（TDZ）</td></tr>
+                  <tr><td>严格模式</td><td>可选</td><td>强制启用</td></tr>
+                  <tr><td>静态方法</td><td>手动挂载</td><td><code>static</code> 关键字</td></tr>
+                  <tr><td>私有字段</td><td>约定 <code>_</code> 前缀</td><td><code>#field</code> 真私有</td></tr>
+                </table>
+                <div class="callout callout-warn">
+                  <div class="callout-icon">⚠️</div>
+                  <div><p>Class 是语法糖，底层依然基于原型链。理解原型链机制是掌握 Class 行为的基础。</p></div>
+                </div>
+                <h2>最佳实践建议</h2>
+                <p>在现代 JavaScript 开发中，优先使用 ES6 Class 语法，它更具可读性并支持现代 IDE 的静态分析。避免直接操作 <code>__proto__</code>，改用 <code>Object.create()</code> 或 <code>Object.setPrototypeOf()</code>。</p>
+                <hr>
+                <!-- Prev/Next -->
+                <div class="art-nav">
+                  <div class="art-nav-card" onclick="openArticle('vars')">
+                    <div class="art-nav-dir">← 上一篇</div>
+                    <div class="art-nav-title">变量、类型与作用域</div>
+                  </div>
+                  <div class="art-nav-card art-nav-right" onclick="openArticle('closure')">
+                    <div class="art-nav-dir">下一篇 →</div>
+                    <div class="art-nav-title">闭包详解</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═════════ EDIT MODE ═════════ -->
+      <div id="pg-edit" style="display:none;height:calc(100vh - var(--th));overflow:hidden">
+        <div class="edit-mode">
+          <div class="edit-topbar">
+            <!-- Back to read -->
+            <button class="btn btn-ghost btn-sm" style="flex-shrink:0" onclick="exitEditMode()">
+              <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M7 2L3 5.5 7 9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+              返回阅读
+            </button>
+            <div class="edit-doctitle" id="editTitle">原型链与继承机制详解</div>
+            <div class="save-status" id="saveStatus">
+              <div class="sdot" style="background:var(--green)"></div>
+              <span style="color:var(--green)">已保存</span>
+            </div>
+            <button class="btn btn-sm" onclick="openModal('historyModal')">历史版本</button>
+            <button class="btn btn-primary btn-sm" onclick="openModal('publishModal')">发布</button>
+          </div>
+          <div class="edit-tabs">
+            <div class="etab on" id="etab-e" onclick="switchEditTab('e')">编辑</div>
+            <div class="etab" id="etab-p" onclick="switchEditTab('p')">预览</div>
+            <div class="etab" id="etab-s" onclick="switchEditTab('s')">双栏</div>
+          </div>
+          <div class="toolbar">
+            <select class="tb-sel" onchange="toast('段落格式已更改','info')">
+              <option>正文</option><option>标题 1</option><option>标题 2</option><option>标题 3</option>
+            </select>
+            <div class="tb-sep"></div>
+            <button class="tb on" onclick="this.classList.toggle('on')" title="加粗"><b>B</b></button>
+            <button class="tb" onclick="this.classList.toggle('on')" title="斜体"><i>I</i></button>
+            <button class="tb" onclick="this.classList.toggle('on')" title="删除线"><s>S</s></button>
+            <button class="tb" style="font-family:var(--fm);font-size:11px" onclick="ins('\`代码\`')" title="行内代码">`</button>
+            <div class="tb-sep"></div>
+            <button class="tb" onclick="ins('[文字](https://)')" title="链接">🔗</button>
+            <button class="tb" onclick="toast('图片上传（Worker Assets）','info')" title="图片">🖼</button>
+            <div class="tb-sep"></div>
+            <button class="tb" onclick="ins('- 列表项')" title="无序列表">≡</button>
+            <button class="tb" onclick="ins('1. 列表项')" style="font-size:10px;font-family:var(--fm)" title="有序列表">1.</button>
+            <button class="tb" onclick="ins('- [ ] 待办')" title="任务列表">☑</button>
+            <button class="tb" onclick="ins('> 引用内容')" title="引用">❝</button>
+            <div class="tb-sep"></div>
+            <button class="tb" onclick="ins('\`\`\`javascript\n// 代码\n\`\`\`')" style="font-size:10px;font-family:var(--fm)" title="代码块">&lt;/&gt;</button>
+            <button class="tb" onclick="insTable()" title="插入表格">⊞</button>
+            <button class="tb" onclick="ins('\n---\n')" title="分割线">—</button>
+            <div class="tb-sep"></div>
+            <button class="tb" onclick="ins('$$\nE=mc^2\n$$')" title="数学公式">∑</button>
+            <button class="tb" onclick="ins('\`\`\`mermaid\ngraph TD\n  A-->B\n\`\`\`')" style="font-size:10px;font-family:var(--fm)" title="Mermaid">◈</button>
+          </div>
+          <div class="edit-split">
+            <div class="edit-write" id="ewWrite">
+              <div class="pane-lbl">Markdown 源码</div>
+              <textarea class="md-textarea" id="mdTA" oninput="onMdInput()" spellcheck="false"># 原型链与继承机制详解
+
+> 🎯 **本文目标**：深入理解 JavaScript 原型链的工作原理，掌握三种继承实现方式的差异。
+
+## 什么是原型链？
+
+在 JavaScript 中，每个对象都有一个内部属性 `[[Prototype]]`，它指向该对象的**原型对象**。
+
+```javascript
+const animal = {
+  type: 'Animal',
+  describe() {
+    return `I am a ${this.type}`;
+  }
+};
+const dog = Object.create(animal);
+dog.type = 'Dog';
+console.log(dog.describe()); // "I am a Dog"
+```
+
+## 构造函数与 prototype
+
+每个函数都有 `prototype` 属性，包含实例共享方法。
+
+## ES6 Class 继承
+
+| 特性 | 构造函数 | Class |
+|------|--------|-------|
+| 语法 | 函数式 | 声明式 |
+| 严格模式 | 可选 | 强制 |</textarea>
+            </div>
+            <div class="edit-prev" id="ewPrev" style="display:none">
+              <div class="pane-lbl">渲染预览</div>
+              <div class="edit-preview-body">
+                <div style="font-size:20px;font-weight:500;font-family:var(--fserif);margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border)">原型链与继承机制详解</div>
+                <blockquote style="border-left:2px solid var(--accent);padding:8px 14px;background:var(--abg);border-radius:0 6px 6px 0;margin-bottom:14px"><p style="color:var(--accent);margin:0;font-size:13px">🎯 本文目标：深入理解 JavaScript 原型链的工作原理</p></blockquote>
+                <div style="font-size:16px;font-weight:500;font-family:var(--fserif);margin:18px 0 8px">什么是原型链？</div>
+                <p style="font-size:13.5px;color:var(--t2);line-height:1.8">在 JavaScript 中，每个对象都有一个内部属性 <code style="font-family:var(--fm);font-size:12px;background:var(--s2);padding:1px 5px;border-radius:4px">[[Prototype]]</code>，它指向该对象的原型对象。</p>
+              </div>
+            </div>
+            <div class="edit-meta">
+              <div class="ms"><span class="ml">状态</span><div class="mv" style="display:flex;align-items:center;gap:5px"><div class="sdot" style="background:var(--green)"></div>已发布</div></div>
+              <div class="ms"><span class="ml">所属系列</span><div class="mlink" onclick="showPage('series')">JS 全栈 / 基础入门</div></div>
+              <div class="ms">
+                <span class="ml">标签</span>
+                <div>
+                  <span class="mtag-edit" onclick="toast('查看标签文章','info')">JavaScript</span>
+                  <span class="mtag-edit" onclick="toast('查看标签文章','info')">原型链</span>
+                  <span class="mtag-edit" onclick="toast('查看标签文章','info')">继承</span>
+                  <span class="mtag-edit mtag-add" onclick="toast('添加标签','info')">+ 添加</span>
+                </div>
+              </div>
+              <div class="ms"><span class="ml">摘要</span><textarea class="minput" rows="3" oninput="trigSave()">深入理解 JavaScript 原型链工作原理，掌握三种继承模式的差异与最佳实践。</textarea></div>
+              <div class="ms">
+                <span class="ml">目录</span>
+                <span class="toc2" onclick="toast('跳转至此处','info')">什么是原型链？</span>
+                <span class="toc2 toc2-h2" onclick="toast('跳转至此处','info')">构造函数与 prototype</span>
+                <span class="toc2 toc2-h2" onclick="toast('跳转至此处','info')">ES6 Class 继承</span>
+                <span class="toc2 toc2-h2" onclick="toast('跳转至此处','info')">最佳实践</span>
+              </div>
+              <div class="ms"><span class="ml">字数</span><div class="mv" id="wc" style="font-family:var(--fm);font-size:12px">1,247 字</div></div>
+              <div class="ms"><span class="ml">阅读时间</span><div class="mv" style="font-family:var(--fm);font-size:12px">约 6 分钟</div></div>
+              <div class="ms">
+                <span class="ml">操作</span>
+                <div style="display:flex;flex-direction:column;gap:4px">
+                  <button class="btn btn-ghost btn-sm" style="justify-content:flex-start;font-size:11px" onclick="openModal('moveModal')">📦 移动文章</button>
+                  <button class="btn btn-ghost btn-sm" style="justify-content:flex-start;font-size:11px" onclick="toast('链接已复制','success')">🔗 复制链接</button>
+                  <button class="btn btn-ghost btn-sm" style="justify-content:flex-start;font-size:11px;color:var(--red)" onclick="openModal('deleteModal')">🗑 删除文章</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═════════ STATS PAGE ═════════ -->
+      <div id="pg-stats" class="page" style="display:none">
+        <div class="ph">
+          <div><div class="ph-title">学习统计</div><div class="ph-sub">记录知识积累的每一天 · 2026年</div></div>
+          <button class="btn btn-sm" onclick="toast('导出 CSV','info')">导出数据</button>
+        </div>
+        <div class="stat-grid">
+          <div class="stat-card"><div class="slbl">本月新增</div><div class="sval">24</div><div class="smeta"><span class="chip chip-g">↑ +8 vs 上月</span></div></div>
+          <div class="stat-card"><div class="slbl">总字数</div><div class="sval">892K</div><div class="smeta"><span class="chip chip-b">年均 74K/月</span></div></div>
+          <div class="stat-card"><div class="slbl">连续创作</div><div class="sval">17天</div><div class="smeta"><span class="chip chip-a">🔥 最长 32 天</span></div></div>
+          <div class="stat-card"><div class="slbl">标签覆盖</div><div class="sval">48</div><div class="smeta" style="color:var(--t3)">技术栈</div></div>
+        </div>
+        <div class="panel" style="margin-bottom:13px">
+          <div class="ptitle">年度创作热力图 <span style="color:var(--t3);font-size:10px">共 187 篇 · 悬停查看</span></div>
+          <div class="hm-grid" id="hmGrid"></div>
+          <div class="hm-foot"><span>少</span><div class="hm-sq" style="background:var(--s3)"></div><div class="hm-sq" style="background:#bbf7d0"></div><div class="hm-sq" style="background:#4ade80"></div><div class="hm-sq" style="background:#16a34a"></div><div class="hm-sq" style="background:#166534"></div><span>多</span></div>
+        </div>
+        <div class="g3">
+          <div class="panel">
+            <div class="ptitle">月度文章数</div>
+            <div class="chart-bars">
+              <div class="cbar" style="height:55%;background:var(--accent);opacity:.45" onclick="toast('1月：18篇','info')"></div>
+              <div class="cbar" style="height:40%;background:var(--accent);opacity:.45" onclick="toast('2月：13篇','info')"></div>
+              <div class="cbar" style="height:72%;background:var(--accent);opacity:.45" onclick="toast('3月：24篇','info')"></div>
+              <div class="cbar" style="height:95%;background:var(--accent)" onclick="toast('4月：32篇（进行中）','info')"></div>
+              <div class="cbar" style="height:18%;background:var(--s3)"></div>
+              <div class="cbar" style="height:10%;background:var(--s3)"></div>
+              <div class="cbar" style="height:8%;background:var(--s3)"></div>
+              <div class="cbar" style="height:6%;background:var(--s3)"></div>
+              <div class="cbar" style="height:4%;background:var(--s3)"></div>
+              <div class="cbar" style="height:3%;background:var(--s3)"></div>
+              <div class="cbar" style="height:2%;background:var(--s3)"></div>
+              <div class="cbar" style="height:1%;background:var(--s3)"></div>
+            </div>
+            <div class="cbar-l"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span><span>11</span><span>12</span></div>
+          </div>
+          <div class="panel">
+            <div class="ptitle">内容分类</div>
+            <div class="donut-wrap">
+              <svg width="78" height="78" viewBox="0 0 78 78" style="flex-shrink:0">
+                <circle cx="39" cy="39" r="26" fill="none" stroke="var(--s3)" stroke-width="13"/>
+                <circle cx="39" cy="39" r="26" fill="none" stroke="var(--accent)" stroke-width="13" stroke-dasharray="69 94" stroke-dashoffset="0" transform="rotate(-90 39 39)"/>
+                <circle cx="39" cy="39" r="26" fill="none" stroke="var(--green)" stroke-width="13" stroke-dasharray="40 123" stroke-dashoffset="-69" transform="rotate(-90 39 39)"/>
+                <circle cx="39" cy="39" r="26" fill="none" stroke="var(--amber)" stroke-width="13" stroke-dasharray="29 134" stroke-dashoffset="-109" transform="rotate(-90 39 39)"/>
+                <circle cx="39" cy="39" r="26" fill="none" stroke="var(--purple)" stroke-width="13" stroke-dasharray="25 138" stroke-dashoffset="-138" transform="rotate(-90 39 39)"/>
+                <text x="39" y="42" text-anchor="middle" font-size="9" fill="var(--t2)" font-family="var(--fm)">187篇</text>
+              </svg>
+              <div class="dleg">
+                <div class="dl" onclick="toast('筛选 JS 文章','info')"><div class="dl-dot" style="background:var(--accent)"></div><span class="dl-name">JavaScript</span><span class="dl-pct">42%</span></div>
+                <div class="dl" onclick="toast('筛选 Go 文章','info')"><div class="dl-dot" style="background:var(--green)"></div><span class="dl-name">Go 语言</span><span class="dl-pct">24%</span></div>
+                <div class="dl" onclick="toast('筛选算法文章','info')"><div class="dl-dot" style="background:var(--amber)"></div><span class="dl-name">算法</span><span class="dl-pct">18%</span></div>
+                <div class="dl" onclick="toast('筛选系统设计','info')"><div class="dl-dot" style="background:var(--purple)"></div><span class="dl-name">系统设计</span><span class="dl-pct">16%</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="ptitle">月均字数</div>
+            <div class="wc-row"><div class="wc-dt">1月</div><div class="wc-track"><div class="wc-fill" style="width:65%;background:var(--accent);opacity:.6"></div></div><div class="wc-val">52K</div></div>
+            <div class="wc-row"><div class="wc-dt">2月</div><div class="wc-track"><div class="wc-fill" style="width:47%;background:var(--accent);opacity:.6"></div></div><div class="wc-val">38K</div></div>
+            <div class="wc-row"><div class="wc-dt">3月</div><div class="wc-track"><div class="wc-fill" style="width:90%;background:var(--accent);opacity:.6"></div></div><div class="wc-val">72K</div></div>
+            <div class="wc-row" onclick="toast('4月目标达成 🎉','success')" style="cursor:pointer"><div class="wc-dt" style="color:var(--green)">4月</div><div class="wc-track"><div class="wc-fill" style="width:100%;background:var(--green)"></div></div><div class="wc-val" style="color:var(--green)">80K✓</div></div>
+          </div>
+        </div>
+        <div class="g2eq">
+          <div class="panel">
+            <div class="ptitle">系列完成度</div>
+            <div class="prog"><div class="prog-row">JavaScript 全栈 <span class="prog-pct">78%</span></div><div class="ptrack"><div class="pfill" style="width:78%;background:var(--accent)"></div></div></div>
+            <div class="prog"><div class="prog-row">Go 并发编程 <span class="prog-pct">55%</span></div><div class="ptrack"><div class="pfill" style="width:55%;background:var(--green)"></div></div></div>
+            <div class="prog"><div class="prog-row">算法数据结构 <span class="prog-pct">32%</span></div><div class="ptrack"><div class="pfill" style="width:32%;background:var(--amber)"></div></div></div>
+            <div class="prog"><div class="prog-row">系统设计 <span class="prog-pct">85%</span></div><div class="ptrack"><div class="pfill" style="width:85%;background:var(--purple)"></div></div></div>
+            <div class="prog"><div class="prog-row">Python 处理 <span class="prog-pct">45%</span></div><div class="ptrack"><div class="pfill" style="width:45%;background:var(--orange)"></div></div></div>
+          </div>
+          <div class="panel">
+            <div class="ptitle">高频标签 Top 5</div>
+            <div class="rank-row" onclick="toast('筛选 JavaScript','info')"><div class="rk-n">1</div><span class="mtag mtag-js" style="flex-shrink:0">JS</span><div class="rk-bar"><div class="rk-fill" style="width:100%;background:var(--amber)"></div></div><div class="rk-val">78</div></div>
+            <div class="rank-row" onclick="toast('筛选 Go','info')"><div class="rk-n">2</div><span class="mtag mtag-go" style="flex-shrink:0">Go</span><div class="rk-bar"><div class="rk-fill" style="width:57%;background:var(--green)"></div></div><div class="rk-val">45</div></div>
+            <div class="rank-row" onclick="toast('筛选 并发','info')"><div class="rk-n">3</div><span class="mtag mtag-arch" style="flex-shrink:0;background:var(--pbg);color:var(--purple)">并发</span><div class="rk-bar"><div class="rk-fill" style="width:48%;background:var(--purple)"></div></div><div class="rk-val">38</div></div>
+            <div class="rank-row" onclick="toast('筛选 React','info')"><div class="rk-n">4</div><span class="mtag mtag-ts" style="flex-shrink:0">React</span><div class="rk-bar"><div class="rk-fill" style="width:39%;background:var(--accent)"></div></div><div class="rk-val">31</div></div>
+            <div class="rank-row" onclick="toast('筛选 算法','info')"><div class="rk-n">5</div><span class="mtag mtag-py" style="flex-shrink:0">算法</span><div class="rk-bar"><div class="rk-fill" style="width:37%;background:var(--green);opacity:.7"></div></div><div class="rk-val">29</div></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /page-body -->
+  </div><!-- /main -->
+</div><!-- /shell -->
+
+<!-- PAGE SWITCHER (demo only) -->
+<div class="switcher">
+  <div class="sw-lbl">PAGES</div>
+  <button class="sw-btn on" onclick="showPage('dashboard')">总览仪表盘</button>
+  <button class="sw-btn" onclick="showPage('series')">教程系列</button>
+  <button class="sw-btn" onclick="openArticle('proto')">阅读文章</button>
+  <button class="sw-btn" onclick="enterEditMode()">编辑模式</button>
+  <button class="sw-btn" onclick="showPage('stats')">统计分析</button>
+</div>
+
+<script>
+// ═══════════ PAGES ═══════════
+const ALL_PAGES = ['dashboard','series','read','edit','stats'];
+
+function showPage(name) {
+  ALL_PAGES.forEach(p => {
+    const el = document.getElementById('pg-' + p);
+    if (el) el.style.display = 'none';
+  });
+  const el = document.getElementById('pg-' + name);
+  if (el) el.style.display = 'block';
+
+  // Nav state
+  ['dashboard','series','stats','notes'].forEach(k => {
+    const n = document.getElementById('nav-' + k);
+    if (n) n.classList.toggle('active', k === name);
+  });
+
+  // Breadcrumb
+  const bc = { dashboard:'总览', series:'教程系列', stats:'统计分析' };
+  document.getElementById('bcCrumb1').style.display = 'none';
+  document.getElementById('bcSep2').style.display = 'none';
+  document.getElementById('bcActive').textContent = bc[name] || name;
+
+  // Switcher
+  document.querySelectorAll('.sw-btn').forEach((b, i) => {
+    b.classList.remove('on');
+  });
+  const map = {dashboard:0, series:1, stats:4};
+  if (map[name] !== undefined) document.querySelectorAll('.sw-btn')[map[name]].classList.add('on');
+
+  closeCtx();
+  closePopover();
+}
+
+// ═══════════ ARTICLE OPEN (READ MODE) ═══════════
+const articleData = {
+  proto: { title:'原型链与继承机制详解', series:'⚡ JavaScript 全栈', status:'pub' },
+  vars:  { title:'变量、类型与作用域', series:'⚡ JavaScript 全栈', status:'pub' },
+  closure:{ title:'闭包详解', series:'⚡ JavaScript 全栈', status:'pub' },
+  async: { title:'异步编程：回调、Promise、async', series:'⚡ JavaScript 全栈', status:'dft' },
+  hooks: { title:'Hooks 深度解析', series:'⚡ JavaScript 全栈', status:'pub' },
+  goroutine:{ title:'Goroutine 调度器原理', series:'🐹 Go 并发编程', status:'pub' },
+};
+let currentArticle = 'proto';
+
+function openArticle(id) {
+  currentArticle = id;
+  const art = articleData[id] || articleData.proto;
+  document.getElementById('readTitle').textContent = art.title;
+  document.getElementById('artTitle').textContent = art.title;
+  document.getElementById('editTitle').textContent = art.title;
+  // Mark tree item active
+  document.querySelectorAll('.tree-item').forEach(t => t.classList.remove('active'));
+  const tEl = document.getElementById('tree-' + id);
+  if (tEl) tEl.classList.add('active');
+  // Breadcrumb
+  document.getElementById('bcCrumb1').textContent = art.series;
+  document.getElementById('bcCrumb1').style.display = '';
+  document.getElementById('bcSep2').style.display = '';
+  document.getElementById('bcActive').textContent = art.title;
+  // Show read page
+  ALL_PAGES.forEach(p => { const el = document.getElementById('pg-' + p); if (el) el.style.display = 'none'; });
+  document.getElementById('pg-read').style.display = 'block';
+  // Switcher
+  document.querySelectorAll('.sw-btn').forEach(b => b.classList.remove('on'));
+  document.querySelectorAll('.sw-btn')[2].classList.add('on');
+  // Publish btn
+  document.getElementById('readPublishBtn').textContent = art.status === 'pub' ? '已发布' : '发布草稿';
+  document.getElementById('readPublishBtn').className = art.status === 'pub' ? 'btn btn-sm' : 'btn btn-primary btn-sm';
+  if (art.status === 'pub') {
+    document.getElementById('readPublishBtn').onclick = () => toast('文章已是发布状态','info');
+  } else {
+    document.getElementById('readPublishBtn').onclick = () => openModal('publishModal');
+  }
+  // Nav clear
+  ['dashboard','series','stats','notes'].forEach(k => {
+    const n = document.getElementById('nav-' + k);
+    if (n) n.classList.remove('active');
+  });
+}
+
+// ═══════════ EDIT MODE ═══════════
+function enterEditMode() {
+  ALL_PAGES.forEach(p => { const el = document.getElementById('pg-' + p); if (el) el.style.display = 'none'; });
+  document.getElementById('pg-edit').style.display = 'block';
+  document.getElementById('bcActive').textContent = '编辑：' + (articleData[currentArticle]?.title || '新文章');
+  document.querySelectorAll('.sw-btn').forEach(b => b.classList.remove('on'));
+  document.querySelectorAll('.sw-btn')[3].classList.add('on');
+  ['dashboard','series','stats','notes'].forEach(k => {
+    const n = document.getElementById('nav-' + k);
+    if (n) n.classList.remove('active');
+  });
+}
+
+function enterEditModeFor(id) {
+  currentArticle = id;
+  openArticle(id);
+  setTimeout(() => enterEditMode(), 50);
+}
+
+function exitEditMode() {
+  openArticle(currentArticle);
+  toast('已切换至阅读模式','info');
+}
+
+// ═══════════ MODALS ═══════════
+function openModal(id) {
+  closeCtx();
+  const el = document.getElementById(id);
+  if (el) el.classList.add('show');
+  if (id === 'historyModal') buildHistory();
+  if (id === 'ovSearch') {
+    setTimeout(() => { const si = document.getElementById('sinput'); if (si) { si.value=''; si.focus(); } }, 100);
+  }
+}
+function closeOverlay(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.remove('show');
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.overlay.show').forEach(o => o.classList.remove('show'));
+    closeCtx();
+    closePopover();
+  }
+  if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+    e.preventDefault();
+    openModal('ovSearch');
+  }
+});
+
+// ═══════════ CREATE ACTIONS ═══════════
+function createNewArticle() {
+  const title = document.getElementById('newTitle').value.trim();
+  if (!title) { toast('请填写文章标题', 'error'); return; }
+  currentArticle = 'new_' + Date.now();
+  articleData[currentArticle] = { title, series:'⚡ JavaScript 全栈', status:'dft' };
+  closeOverlay('newArticleModal');
+  document.getElementById('newTitle').value = '';
+  document.getElementById('mdTA').value = `# ${title}\n\n> 在这里添加文章简介\n\n## 介绍\n\n`;
+  enterEditMode();
+  toast(`「${title}」已创建，开始编辑`, 'success');
+}
+
+function createSeries() {
+  const name = document.getElementById('newSeriesName').value.trim();
+  if (!name) { toast('请填写系列名称', 'error'); return; }
+  closeOverlay('newSeriesModal');
+  document.getElementById('newSeriesName').value = '';
+  toast(`系列「${name}」已创建`, 'success');
+}
+
+function confirmDelete() {
+  closeOverlay('deleteModal');
+  showPage('series');
+  toast('文章已删除', 'info');
+}
+
+function doPublish() {
+  closeOverlay('publishModal');
+  if (articleData[currentArticle]) articleData[currentArticle].status = 'pub';
+  toast('文章已成功发布 🎉', 'success');
+  const btn = document.getElementById('readPublishBtn');
+  if (btn) { btn.textContent = '已发布'; btn.className = 'btn btn-sm'; }
+}
+
+// ═══════════ TREE TOGGLES ═══════════
+function togTree(id) {
+  const el = document.getElementById(id);
+  const chev = document.getElementById(id + '-c');
+  if (!el) return;
+  const shut = el.classList.contains('shut') || (el.style.maxHeight === '0px');
+  el.classList.toggle('shut', !shut);
+  if (chev) chev.classList.toggle('open', shut);
+}
+
+function togStree(id) {
+  const el = document.getElementById(id);
+  const chev = document.getElementById(id + '-c');
+  if (!el) return;
+  const hidden = el.style.display === 'none' || el.style.display === '';
+  // lazy-populate s2
+  if (id === 's2' && hidden && !el.innerHTML.trim()) {
+    el.innerHTML = `<div class="strow i2" onclick="openArticle('goroutine')"><span class="drag-handle">⠿</span><span class="st-emoji" style="font-size:12px">📄</span><div class="st-title">Goroutine 调度器原理</div><span class="st-status st-pub">已发布</span><div class="st-acts"><button class="st-act" onclick="event.stopPropagation();openArticle('goroutine')">👁</button><button class="st-act" onclick="event.stopPropagation();enterEditModeFor('goroutine')">✎</button></div></div>`;
+  }
+  el.style.display = hidden ? 'block' : 'none';
+  if (chev) chev.classList.toggle('open', hidden);
+}
+
+// ═══════════ EDIT TAB ═══════════
+function switchEditTab(t) {
+  ['e','p','s'].forEach(x => document.getElementById('etab-' + x).classList.toggle('on', x === t));
+  const w = document.getElementById('ewWrite');
+  const p = document.getElementById('ewPrev');
+  if (t === 'e') { w.style.display='flex'; p.style.display='none'; }
+  if (t === 'p') { w.style.display='none'; p.style.display='flex'; }
+  if (t === 's') { w.style.display='flex'; p.style.display='flex'; }
+}
+
+// ═══════════ EDITOR INPUT ═══════════
+let saveTimer;
+function onMdInput() {
+  const ss = document.getElementById('saveStatus');
+  ss.innerHTML = '<div class="sdot" style="background:var(--amber)"></div><span style="color:var(--amber)">保存中…</span>';
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    ss.innerHTML = '<div class="sdot" style="background:var(--green)"></div><span style="color:var(--green)">已保存</span>';
+    const txt = document.getElementById('mdTA').value;
+    const chars = txt.replace(/\s/g,'').length;
+    const wc = document.getElementById('wc');
+    if (wc) wc.textContent = chars.toLocaleString() + ' 字';
+  }, 1500);
+}
+function trigSave() { onMdInput(); }
+
+function ins(text) {
+  const ta = document.getElementById('mdTA');
+  const s = ta.selectionStart, e = ta.selectionEnd;
+  ta.value = ta.value.slice(0,s) + text + ta.value.slice(e);
+  ta.selectionStart = ta.selectionEnd = s + text.length;
+  ta.focus(); onMdInput();
+  toast('已插入 Markdown','info');
+}
+function insTable() { ins('\n| 列1 | 列2 | 列3 |\n|-----|-----|-----|\n| 内容 | 内容 | 内容 |\n'); }
+
+// ═══════════ TOAST ═══════════
+function toast(msg, type='') {
+  const area = document.getElementById('toastArea');
+  const t = document.createElement('div');
+  t.className = 'toast' + (type ? ' ' + type : '');
+  const icons = {success:'✓',error:'✕',info:'ℹ'};
+  t.innerHTML = `<span style="opacity:.7">${icons[type]||'•'}</span>${msg}`;
+  area.appendChild(t);
+  setTimeout(() => { t.classList.add('toast-fade'); setTimeout(() => t.remove(), 300); }, 2500);
+}
+
+// ═══════════ CONTEXT MENU ═══════════
+function showCtx(e) {
+  e.preventDefault();
+  const m = document.getElementById('ctxMenu');
+  m.style.left = Math.min(e.clientX, window.innerWidth - 180) + 'px';
+  m.style.top  = Math.min(e.clientY, window.innerHeight - 220) + 'px';
+  m.classList.add('show');
+}
+function closeCtx() { document.getElementById('ctxMenu').classList.remove('show'); }
+document.addEventListener('click', e => { if (!e.target.closest('#ctxMenu')) closeCtx(); });
+
+// ═══════════ POPOVER ═══════════
+function togglePopover() {
+  document.getElementById('userPopover').classList.toggle('show');
+}
+function closePopover() { document.getElementById('userPopover').classList.remove('show'); }
+document.addEventListener('click', e => { if (!e.target.closest('.sidebar-bottom')) closePopover(); });
+
+// ═══════════ SEARCH ═══════════
+function doSearch(val) {
+  if (!val.trim()) { resetSearch(); return; }
+  document.getElementById('sresults').innerHTML = `
+    <div class="ssec">搜索结果：「${val}」</div>
+    <div class="sitem" onclick="openArticle('proto');closeOverlay('ovSearch')">
+      <div class="sitem-ico" style="background:var(--ambg)">📄</div>
+      <div style="flex:1"><div class="sitem-title">原型链与继承机制详解</div><div class="sitem-meta">JavaScript 全栈 / 基础入门 · 匹配正文</div></div>
+      <span class="sitem-type">文章</span>
+    </div>
+    <div class="sitem" onclick="openArticle('goroutine');closeOverlay('ovSearch')">
+      <div class="sitem-ico" style="background:var(--gbg)">📄</div>
+      <div style="flex:1"><div class="sitem-title">Goroutine 调度器原理</div><div class="sitem-meta">Go 并发编程 / 运行时 · 匹配标题</div></div>
+      <span class="sitem-type">文章</span>
+    </div>
+    <div class="sitem" onclick="showPage('series');closeOverlay('ovSearch')">
+      <div class="sitem-ico" style="background:var(--pbg)">📂</div>
+      <div style="flex:1"><div class="sitem-title">系统设计精讲</div><div class="sitem-meta">系列 · 11 篇</div></div>
+      <span class="sitem-type">系列</span>
+    </div>
+  `;
+}
+function resetSearch() {
+  document.getElementById('sresults').innerHTML = `<div class="ssec">最近访问</div><div class="sitem" onclick="openArticle('proto');closeOverlay('ovSearch')"><div class="sitem-ico" style="background:var(--ambg)">📄</div><div style="flex:1"><div class="sitem-title">原型链与继承机制详解</div><div class="sitem-meta">JavaScript 全栈 / 基础入门</div></div><span class="sitem-type">文章</span></div>`;
+}
+
+// ═══════════ TEMPLATE SELECT ═══════════
+function selTpl(el) {
+  document.querySelectorAll('.tpl-opt').forEach(o => o.classList.remove('sel'));
+  el.classList.add('sel');
+}
+function selEmoji(el) {
+  document.querySelectorAll('.emoji-opt').forEach(o => o.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+// ═══════════ HISTORY ═══════════
+function buildHistory() {
+  const items = [
+    {t:'刚刚',l:'自动保存',c:1247},{t:'14:28',l:'手动保存',c:1198},
+    {t:'13:55',l:'自动保存',c:1056},{t:'13:22',l:'自动保存',c:892},
+    {t:'12:40',l:'自动保存',c:654},{t:'2026-04-22 18:30',l:'手动保存',c:421},
+  ];
+  document.getElementById('histList').innerHTML = items.map((it,i) => `
+    <div class="hist-row" onclick="toast('已恢复至 ${it.t} 版本','success');closeOverlay('historyModal')">
+      <div style="flex:1">
+        <div style="font-size:12px;font-weight:500">${it.t}</div>
+        <div style="font-size:10px;color:var(--t3);margin-top:2px">${it.l} · ${it.c.toLocaleString()} 字</div>
+      </div>
+      ${i===0 ? '<span class="st-status st-pub">当前</span>' : '<button class="btn btn-xs btn-ghost">恢复此版本</button>'}
+    </div>
+  `).join('');
+}
+
+// ═══════════ MISC ═══════════
+function clearTags() {
+  document.querySelectorAll('.tpill.on').forEach(t => t.classList.remove('on'));
+  toast('标签筛选已清除','info');
+}
+
+// ═══════════ ACTIVITY BARS ═══════════
+const actData = [4,11,18,14,23,16,9,21,8,19,12,24,7,15];
+const actMax = Math.max(...actData);
+const actCont = document.getElementById('actBars');
+if (actCont) {
+  actData.forEach((v,i) => {
+    const b = document.createElement('div');
+    const isToday = i === actData.length - 1;
+    const isHigh = v > actMax * .65;
+    b.className = 'abar' + (isToday ? ' hi' : isHigh ? ' md' : '');
+    b.style.height = Math.round(v/actMax*100) + '%';
+    b.title = v + ' 篇';
+    b.onclick = () => toast(`${v} 篇`, 'info');
+    actCont.appendChild(b);
+  });
+}
+
+// ═══════════ HEATMAP ═══════════
+const hm = document.getElementById('hmGrid');
+if (hm) {
+  for (let i = 0; i < 371; i++) {
+    const c = document.createElement('div');
+    const r = Math.random();
+    const lvl = r>.88?4:r>.74?3:r>.58?2:r>.42?1:0;
+    c.className = 'hm-cell hm' + lvl;
+    const d = new Date(2026,3,23);
+    d.setDate(d.getDate() - (370-i));
+    const ds = d.toLocaleDateString('zh-CN',{month:'numeric',day:'numeric'});
+    const cnt = [0,1,3,5,8][lvl];
+    c.title = ds + (cnt?' · '+cnt+' 篇':' · 无记录');
+    c.onclick = () => { if (cnt) toast(ds + ' · ' + cnt + ' 篇','info'); };
+    hm.appendChild(c);
+  }
+}
+
+// Initialize
+showPage('dashboard');
+</script>
+</body>
+</html>
