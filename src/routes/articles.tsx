@@ -232,6 +232,165 @@ articlesApp.get('/new', async (c) => {
   );
 });
 
+// 只读模式 (查看文章)
+articlesApp.get('/:id', async (c) => {
+  const db = drizzle(c.env.DB);
+  const userId = c.get('userId');
+  const articleId = c.req.param('id');
+
+  const article = await db.select().from(articles).where(eq(articles.id, articleId)).get();
+
+  if (!article || article.userId !== userId) {
+    return c.text('Article not found or unauthorized', 404);
+  }
+
+  let allSeries: any[] = [];
+  let allArticles: any[] = [];
+  let draftArticles: any[] = [];
+  
+  try {
+    allSeries = await db.select().from(series).where(eq(series.userId, userId));
+    allArticles = await db.select().from(articles).where(eq(articles.userId, userId));
+    draftArticles = allArticles.filter(a => !a.seriesId);
+  } catch (err) {}
+
+  return c.html(
+    <Layout title={article.title} current="reader">
+      <div id="pg-reader" class="page" style={{ height: 'calc(100vh - var(--th))', padding: '0' }}>
+        <div class="editor-wrap" style={{ height: '100%' }}>
+          {/* Left tree */}
+          <div class="etree">
+            <div class="etree-head">
+              <div class="etree-series" onclick="window.location.href='/series'" title="返回系列列表" style={{ flex: 1, cursor: 'pointer' }}>⚡ 全部内容</div>
+              <button class="btn btn-icon" style={{ width: '24px', height: '24px' }} onclick="window.location.href='/articles/new'" title="新建文章">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+              </button>
+            </div>
+            <div class="etree-body">
+              {EditorTree({ allSeries, allArticles, parentId: null, depth: 0, activeArticleId: articleId, isViewMode: true })}
+              
+              <div class="et-item et-ch" style={{marginTop:'10px'}}>
+                <svg class="et-icon" viewBox="0 0 10 10" fill="none"><path d="M2 4l3 3 3-3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+                未分类草稿
+              </div>
+              <div>
+                {draftArticles.map(a => (
+                  <a href={`/articles/${a.id}`} style={{textDecoration:'none'}}>
+                    <div class={`et-item et-gc ${a.id === articleId ? 'active' : ''}`}>
+                      <div class="et-dot"></div>
+                      {a.title}
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Editor main - View Mode */}
+          <div class="ed-main">
+            <div class="ed-topbar">
+              <div class="ed-title">{article.title}</div>
+              <div class="saved-state"><div class="saved-dot" style={{ background: 'var(--text3)' }}></div>最后更新于 {new Date(article.updatedAt).toLocaleString('zh-CN')}</div>
+              <button class="btn btn-sm btn-primary" onclick={`window.location.href='/articles/edit/${article.id}'`}>进入编辑模式</button>
+              <button class="btn btn-sm" onclick="document.getElementById('pg-reader').requestFullscreen()">全屏</button>
+            </div>
+
+            <div class="ed-split" id="editor-area">
+              <div class="ed-prev" id="edPrev" style={{ flex: 1, display: 'flex', borderLeft: 'none', maxWidth: '800px', margin: '0 auto', background: 'transparent' }}>
+                <div class="prev-body" id="preview-content" style={{ padding: '40px', width: '100%' }}>
+                  <div id="reader-content" x-data={`{ content: \`${article.content.replace(/`/g, '\\`').replace(/</g, '\\u003c')}\` }`} x-init="setTimeout(() => { if(window.marked) document.getElementById('reader-content').innerHTML = marked.parse(content); }, 50);">
+                    加载中...
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <script dangerouslySetInnerHTML={{__html: `
+              setTimeout(() => {
+                const readerEl = document.getElementById('reader-content');
+                if (readerEl && window.marked) {
+                  const renderer = new marked.Renderer();
+                  const toc = [];
+                  renderer.heading = function(token) {
+                    const text = token.text;
+                    const level = token.depth;
+                    const id = 'h-' + text.toLowerCase().replace(/[\\s]+/g, '-').replace(/[^\\w-]/g, '');
+                    toc.push({ level, text, id });
+                    return '<h' + level + ' id="' + id + '">' + text + '</h' + level + '>';
+                  };
+                  marked.setOptions({ renderer });
+                  
+                  const updateTOC = () => {
+                    const tocContainer = document.getElementById('toc-container');
+                    if (tocContainer) {
+                      if (toc.length === 0) {
+                        tocContainer.innerHTML = '<div style="color:var(--t3);font-size:11px;padding:4px 0">暂无目录</div>';
+                      } else {
+                        tocContainer.innerHTML = toc.map(item => {
+                          let cls = 'toc-item';
+                          if (item.level === 2) cls += ' toc-h2';
+                          if (item.level >= 3) cls += ' toc-h3';
+                          return '<div class="' + cls + '" onclick="document.getElementById(\\'' + item.id + '\\').scrollIntoView({behavior:\\'smooth\\'})">' + item.text + '</div>';
+                        }).join('');
+                      }
+                    }
+                  };
+                  setTimeout(updateTOC, 100);
+                }
+              }, 100);
+            `}}></script>
+          </div>
+
+          {/* Meta panel */}
+          <div class="meta-pane">
+            <div class="meta-s">
+              <div class="meta-l">目录</div>
+              <div id="toc-container" style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                <div style={{ color: 'var(--t3)', fontSize: '11px', padding: '4px 0' }}>暂无目录</div>
+              </div>
+            </div>
+            <div class="meta-s">
+              <div class="meta-l">状态</div>
+              <div class="meta-v" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div class="status-dot" style={{ background: article.status === 'published' ? 'var(--green)' : 'var(--amber)' }}></div>
+                {article.status === 'published' ? '已发布' : '草稿'}
+              </div>
+            </div>
+            <div class="meta-s">
+              <div class="meta-l">标签</div>
+              <div class="meta-tag-wrap" id="article-tags-wrap">
+                <span class="meta-tag meta-add-tag" onclick={`const t=prompt('输入新标签名称 (逗号分隔多个)'); if(t) { htmx.ajax('POST', '/articles/${articleId}/tags', {values:{tags:t}, target:'#article-tags-wrap', swap:'innerHTML'}); }`}>+ 添加</span>
+              </div>
+            </div>
+            <div class="meta-s">
+              <div class="meta-l">字数</div>
+              <div class="meta-num" id="meta-word-count">{article.wordCount}</div>
+            </div>
+            <div class="meta-s">
+              <div class="meta-l">阅读时间</div>
+              <div class="meta-num" id="meta-read-time">约 {Math.max(1, Math.ceil((article.wordCount || 0) / 300))} 分钟</div>
+            </div>
+            <div class="meta-s">
+              <div class="meta-l">修改时间</div>
+              <div class="meta-v" style={{ fontSize: '11px', fontFamily: 'var(--font-mono)' }}>
+                {new Date(article.updatedAt).toLocaleString('zh-CN')}
+              </div>
+            </div>
+            <div class="meta-s">
+              <div class="meta-l">操作</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <button class="btn btn-sm btn-ghost" style={{ justifyContent: 'flex-start', fontSize: '11px' }} onclick="openModal('moveModal')">📦 移动文章…</button>
+                <button class="btn btn-sm btn-ghost" style={{ justifyContent: 'flex-start', fontSize: '11px' }} onclick="toast('链接已复制','success')">🔗 复制链接</button>
+                <button class="btn btn-sm btn-ghost" style={{ justifyContent: 'flex-start', fontSize: '11px', color: 'var(--red)' }} onclick="openModal('deleteModal')">🗑 删除文章</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Layout>
+  );
+});
+
 // 编辑已有文章
 articlesApp.get('/edit/:id', async (c) => {
   const db = drizzle(c.env.DB);
@@ -283,9 +442,10 @@ articlesApp.get('/edit/:id', async (c) => {
           {/* Editor main */}
           <div class="ed-main">
             <div class="ed-topbar">
-              <div class="ed-title" x-data={`{ title: '${article.title.replace(/'/g, "\\'")}' }`} x-text="document.getElementById('md-input') ? (document.getElementById('md-input').value.match(/^#\\s+(.*)/m) ? document.getElementById('md-input').value.match(/^#\\s+(.*)/m)[1] : title) : title">{article.title}</div>
-              <div class="saved-state" id="save-status"><div class="saved-dot"></div>已保存</div>
-              <button class="btn btn-sm" onclick={`openHistoryModal('${article.id}')`}>历史版本</button>
+              <div class="ed-title" x-data={`{ title: \`${article.title.replace(/`/g, '\\`')}\` }`} x-text={`document.getElementById('md-input') ? (document.getElementById('md-input').value.match(/^#\\s+(.*)/m) ? document.getElementById('md-input').value.match(/^#\\s+(.*)/m)[1] : \`${article.title.replace(/`/g, '\\`')}\`) : \`${article.title.replace(/`/g, '\\`')}\``}>{article.title}</div>
+              <div class="saved-state" id="save-status"><div class="saved-dot" style={{ background: 'var(--text3)' }}></div>已保存</div>
+              <button class="btn btn-sm" onclick={`window.location.href='/articles/${article.id}'`}>返回阅读</button>
+              <button class="btn btn-sm" hx-get={`/articles/${article.id}/history`} hx-target="#history-list" onclick="openModal('historyModal')">历史版本</button>
               <button class="btn btn-sm" onclick="document.getElementById('page-editor').requestFullscreen()">全屏</button>
               <button class="btn btn-sm btn-primary" onclick="openPublishModal()">发布</button>
             </div>
