@@ -222,7 +222,7 @@ dashboard.get('/', async (c) => {
                 recentArticles.map((a, i) => {
                   const colors = ['var(--accent)', 'var(--green)', 'var(--amber)', 'var(--purple)', 'var(--orange)'];
                   return (
-                    <div class="edit-item" onclick={`window.location.href='/articles/edit/${a.id}'`}>
+                    <div class="edit-item" onclick={`window.location.href='/articles/${a.id}'`}>
                       <div class="edit-dot" style={{background:colors[i%colors.length]}}></div>
                       <div class="edit-title">{a.title}</div>
                       <div class="edit-time">{timeAgo(a.updatedAt)}</div>

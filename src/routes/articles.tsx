@@ -9,8 +9,8 @@ import { and, eq, inArray } from 'drizzle-orm';
 const articlesApp = new Hono<{ Bindings: { DB: D1Database }; Variables: { userId: string } }>();
 
 // 递归组件：渲染编辑器左侧简单的系列与文章树
-const EditorTree: (props: { allSeries: any[]; allArticles: any[]; parentId: string | null; depth: number; activeArticleId?: string }) => ReturnType<typeof html> = (props) => {
-  const { allSeries, allArticles, parentId, depth, activeArticleId } = props;
+const EditorTree: (props: { allSeries: any[]; allArticles: any[]; parentId: string | null; depth: number; activeArticleId?: string; isViewMode?: boolean }) => ReturnType<typeof html> = (props) => {
+  const { allSeries, allArticles, parentId, depth, activeArticleId, isViewMode } = props;
   
   const currentSeries = allSeries
     .filter(s => s.parentId === parentId)
@@ -24,14 +24,14 @@ const EditorTree: (props: { allSeries: any[]; allArticles: any[]; parentId: stri
       </div>
       <div>
         ${allArticles.filter(a => a.seriesId === s.id).map(a => html`
-          <a href="/articles/edit/${a.id}" style="text-decoration:none">
+          <a href="${isViewMode ? `/articles/${a.id}` : `/articles/edit/${a.id}`}" style="text-decoration:none">
             <div class="et-item et-gc ${a.id === activeArticleId ? 'active' : ''}" style="padding-left: ${26 + depth * 10}px">
               <div class="et-dot"></div>
               ${a.title}
             </div>
           </a>
         `)}
-        ${EditorTree({ allSeries, allArticles, parentId: s.id, depth: depth + 1, activeArticleId })}
+        ${EditorTree({ allSeries, allArticles, parentId: s.id, depth: depth + 1, activeArticleId, isViewMode })}
       </div>
     `)}
   `;
@@ -79,7 +79,7 @@ articlesApp.get('/search', async (c) => {
   let htmlStr = `<div class="search-section">搜索结果</div>`;
   for (const a of filtered) {
     htmlStr += `
-      <div class="search-item" onclick="window.location.href='/articles/edit/${a.id}';closeOverlay('searchOverlay')">
+      <div class="search-item" onclick="window.location.href='/articles/${a.id}';closeOverlay('searchOverlay')">
         <div class="search-item-icon" style="background:var(--ambg)">📄</div>
         <div style="flex:1"><div class="search-item-title">${a.title}</div></div>
         <span class="search-item-type">文章</span>
