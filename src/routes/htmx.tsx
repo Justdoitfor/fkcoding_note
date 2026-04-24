@@ -51,7 +51,7 @@ htmxApp.get('/sidebar-tree', async (c) => {
         ${node.children?.map((child: any) => renderNode(child, depth + 1))}
         ${nodeArticles.map(
             (a) => html`
-              <a href="/articles/edit/${a.id}" style="text-decoration:none">
+              <a href="/articles/${a.id}" style="text-decoration:none">
                 <div class="tree-row depth3 ${a.id === activeArticleId ? 'active' : ''}" oncontextmenu="showCtx(event, '${a.id}')">
                   <div class="tree-dot"></div> <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.title}</span>
                 </div>
@@ -75,7 +75,7 @@ htmxApp.get('/sidebar-tree', async (c) => {
       <div id="t-unclassified" class="collapsible" style="max-height:500px">
         ${unclassifiedArticles.map(
           (a) => html`
-            <a href="/articles/edit/${a.id}" style="text-decoration:none">
+            <a href="/articles/${a.id}" style="text-decoration:none">
               <div class="tree-row depth2 ${a.id === activeArticleId ? 'active' : ''}" oncontextmenu="showCtx(event, '${a.id}')">
                 <div class="tree-dot"></div> <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.title}</span>
               </div>
