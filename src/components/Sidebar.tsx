@@ -9,9 +9,9 @@ export default function Sidebar(props: { current?: string }) {
     <div class="logo-mark">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="white"><rect x="1" y="1" width="5" height="5" rx="1"/><rect x="8" y="1" width="5" height="5" rx="1"/><rect x="1" y="8" width="5" height="5" rx="1"/><path d="M8 10.5h5M10.5 8v5" stroke="white" stroke-width="1.2" stroke-linecap="round"/></svg>
     </div>
-    <div class="logo-text">
-      <div class="logo-title">fkcoding-note</div>
-      <div class="logo-sub">Knowledge Base</div>
+    <div>
+      <div class="logo-name">fkcoding-note</div>
+      <div class="logo-tag">Knowledge Base</div>
     </div>
   </div>
 
@@ -40,16 +40,16 @@ export default function Sidebar(props: { current?: string }) {
     </button>
   </div>
   
-  <div class="stree-area" hx-get="/htmx/sidebar-tree" hx-trigger="load">
+  <div class="tree-scroll" hx-get="/htmx/sidebar-tree" hx-trigger="load">
     <div style="padding: 10px; font-size: 11px; color: var(--t3); text-align: center;">加载中...</div>
   </div>
 
-  <div class="user-pane">
-    <div class="up-row" onclick="togglePopover()">
-      <div class="up-av">FK</div>
+  <div class="sidebar-bottom">
+    <div class="user-row" onclick="togglePopover()">
+      <div class="avatar">FK</div>
       <div style="flex:1">
-        <div class="up-name">fkcoding</div>
-        <div class="up-plan">Pro Plan</div>
+        <div class="uname">fkcoding</div>
+        <div class="uplan">Pro Plan</div>
       </div>
       <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 5l3 3 3-3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
     </div>

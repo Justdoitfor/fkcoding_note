@@ -1,0 +1,124 @@
+      <div id="pg-edit" style="display:none;height:calc(100vh - var(--th));overflow:hidden">
+        <div class="edit-mode">
+          <div class="edit-topbar">
+            <!-- Back to read -->
+            <button class="btn btn-ghost btn-sm" style="flex-shrink:0" onclick="exitEditMode()">
+              <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M7 2L3 5.5 7 9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+              返回阅读
+            </button>
+            <div class="edit-doctitle" id="editTitle">原型链与继承机制详解</div>
+            <div class="save-status" id="saveStatus">
+              <div class="sdot" style="background:var(--green)"></div>
+              <span style="color:var(--green)">已保存</span>
+            </div>
+            <button class="btn btn-sm" onclick="openModal('historyModal')">历史版本</button>
+            <button class="btn btn-primary btn-sm" onclick="openModal('publishModal')">发布</button>
+          </div>
+          <div class="edit-tabs">
+            <div class="etab on" id="etab-e" onclick="switchEditTab('e')">编辑</div>
+            <div class="etab" id="etab-p" onclick="switchEditTab('p')">预览</div>
+            <div class="etab" id="etab-s" onclick="switchEditTab('s')">双栏</div>
+          </div>
+          <div class="toolbar">
+            <select class="tb-sel" onchange="toast('段落格式已更改','info')">
+              <option>正文</option><option>标题 1</option><option>标题 2</option><option>标题 3</option>
+            </select>
+            <div class="tb-sep"></div>
+            <button class="tb on" onclick="this.classList.toggle('on')" title="加粗"><b>B</b></button>
+            <button class="tb" onclick="this.classList.toggle('on')" title="斜体"><i>I</i></button>
+            <button class="tb" onclick="this.classList.toggle('on')" title="删除线"><s>S</s></button>
+            <button class="tb" style="font-family:var(--fm);font-size:11px" onclick="ins('\`代码\`')" title="行内代码">`</button>
+            <div class="tb-sep"></div>
+            <button class="tb" onclick="ins('[文字](https://)')" title="链接">🔗</button>
+            <button class="tb" onclick="toast('图片上传（Worker Assets）','info')" title="图片">🖼</button>
+            <div class="tb-sep"></div>
+            <button class="tb" onclick="ins('- 列表项')" title="无序列表">≡</button>
+            <button class="tb" onclick="ins('1. 列表项')" style="font-size:10px;font-family:var(--fm)" title="有序列表">1.</button>
+            <button class="tb" onclick="ins('- [ ] 待办')" title="任务列表">☑</button>
+            <button class="tb" onclick="ins('> 引用内容')" title="引用">❝</button>
+            <div class="tb-sep"></div>
+            <button class="tb" onclick="ins('\`\`\`javascript\n// 代码\n\`\`\`')" style="font-size:10px;font-family:var(--fm)" title="代码块">&lt;/&gt;</button>
+            <button class="tb" onclick="insTable()" title="插入表格">⊞</button>
+            <button class="tb" onclick="ins('\n---\n')" title="分割线">—</button>
+            <div class="tb-sep"></div>
+            <button class="tb" onclick="ins('$$\nE=mc^2\n$$')" title="数学公式">∑</button>
+            <button class="tb" onclick="ins('\`\`\`mermaid\ngraph TD\n  A-->B\n\`\`\`')" style="font-size:10px;font-family:var(--fm)" title="Mermaid">◈</button>
+          </div>
+          <div class="edit-split">
+            <div class="edit-write" id="ewWrite">
+              <div class="pane-lbl">Markdown 源码</div>
+              <textarea class="md-textarea" id="mdTA" oninput="onMdInput()" spellcheck="false"># 原型链与继承机制详解
+
+> 🎯 **本文目标**：深入理解 JavaScript 原型链的工作原理，掌握三种继承实现方式的差异。
+
+## 什么是原型链？
+
+在 JavaScript 中，每个对象都有一个内部属性 `[[Prototype]]`，它指向该对象的**原型对象**。
+
+```javascript
+const animal = {
+  type: 'Animal',
+  describe() {
+    return `I am a ${this.type}`;
+  }
+};
+const dog = Object.create(animal);
+dog.type = 'Dog';
+console.log(dog.describe()); // "I am a Dog"
+```
+
+## 构造函数与 prototype
+
+每个函数都有 `prototype` 属性，包含实例共享方法。
+
+## ES6 Class 继承
+
+| 特性 | 构造函数 | Class |
+|------|--------|-------|
+| 语法 | 函数式 | 声明式 |
+| 严格模式 | 可选 | 强制 |</textarea>
+            </div>
+            <div class="edit-prev" id="ewPrev" style="display:none">
+              <div class="pane-lbl">渲染预览</div>
+              <div class="edit-preview-body">
+                <div style="font-size:20px;font-weight:500;font-family:var(--fserif);margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border)">原型链与继承机制详解</div>
+                <blockquote style="border-left:2px solid var(--accent);padding:8px 14px;background:var(--abg);border-radius:0 6px 6px 0;margin-bottom:14px"><p style="color:var(--accent);margin:0;font-size:13px">🎯 本文目标：深入理解 JavaScript 原型链的工作原理</p></blockquote>
+                <div style="font-size:16px;font-weight:500;font-family:var(--fserif);margin:18px 0 8px">什么是原型链？</div>
+                <p style="font-size:13.5px;color:var(--t2);line-height:1.8">在 JavaScript 中，每个对象都有一个内部属性 <code style="font-family:var(--fm);font-size:12px;background:var(--s2);padding:1px 5px;border-radius:4px">[[Prototype]]</code>，它指向该对象的原型对象。</p>
+              </div>
+            </div>
+            <div class="edit-meta">
+              <div class="ms"><span class="ml">状态</span><div class="mv" style="display:flex;align-items:center;gap:5px"><div class="sdot" style="background:var(--green)"></div>已发布</div></div>
+              <div class="ms"><span class="ml">所属系列</span><div class="mlink" onclick="showPage('series')">JS 全栈 / 基础入门</div></div>
+              <div class="ms">
+                <span class="ml">标签</span>
+                <div>
+                  <span class="mtag-edit" onclick="toast('查看标签文章','info')">JavaScript</span>
+                  <span class="mtag-edit" onclick="toast('查看标签文章','info')">原型链</span>
+                  <span class="mtag-edit" onclick="toast('查看标签文章','info')">继承</span>
+                  <span class="mtag-edit mtag-add" onclick="toast('添加标签','info')">+ 添加</span>
+                </div>
+              </div>
+              <div class="ms"><span class="ml">摘要</span><textarea class="minput" rows="3" oninput="trigSave()">深入理解 JavaScript 原型链工作原理，掌握三种继承模式的差异与最佳实践。</textarea></div>
+              <div class="ms">
+                <span class="ml">目录</span>
+                <span class="toc2" onclick="toast('跳转至此处','info')">什么是原型链？</span>
+                <span class="toc2 toc2-h2" onclick="toast('跳转至此处','info')">构造函数与 prototype</span>
+                <span class="toc2 toc2-h2" onclick="toast('跳转至此处','info')">ES6 Class 继承</span>
+                <span class="toc2 toc2-h2" onclick="toast('跳转至此处','info')">最佳实践</span>
+              </div>
+              <div class="ms"><span class="ml">字数</span><div class="mv" id="wc" style="font-family:var(--fm);font-size:12px">1,247 字</div></div>
+              <div class="ms"><span class="ml">阅读时间</span><div class="mv" style="font-family:var(--fm);font-size:12px">约 6 分钟</div></div>
+              <div class="ms">
+                <span class="ml">操作</span>
+                <div style="display:flex;flex-direction:column;gap:4px">
+                  <button class="btn btn-ghost btn-sm" style="justify-content:flex-start;font-size:11px" onclick="openModal('moveModal')">📦 移动文章</button>
+                  <button class="btn btn-ghost btn-sm" style="justify-content:flex-start;font-size:11px" onclick="toast('链接已复制','success')">🔗 复制链接</button>
+                  <button class="btn btn-ghost btn-sm" style="justify-content:flex-start;font-size:11px;color:var(--red)" onclick="openModal('deleteModal')">🗑 删除文章</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+

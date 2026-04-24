@@ -112,7 +112,7 @@ articlesApp.get('/new', async (c) => {
 
   return c.html(
     <Layout title={article.title} current="editor">
-      <div id="pg-edit" class="page" style={{ height: 'calc(100vh - var(--th))', overflow: 'hidden' }}>
+      <div id="pg-edit" style={{ height: 'calc(100vh - var(--th))', overflow: 'hidden' }}>
         <div class="editor-wrap" style={{ height: '100%' }}>
           {/* Left tree */}
           <div class="etree">
@@ -256,7 +256,7 @@ articlesApp.get('/:id', async (c) => {
 
   return c.html(
     <Layout title={article.title} current="reader">
-      <div id="pg-read" class="page" style={{ height: 'calc(100vh - var(--th))', overflow: 'hidden' }}>
+      <div id="pg-read" style={{ height: 'calc(100vh - var(--th))', overflow: 'hidden' }}>
         <div class="read-page">
           <div class="read-topbar">
             <div class="read-breadcrumb">
@@ -356,7 +356,7 @@ articlesApp.get('/edit/:id', async (c) => {
 
   return c.html(
     <Layout title={article.title} current="editor">
-      <div id="pg-edit" class="page" style={{ height: 'calc(100vh - var(--th))', overflow: 'hidden' }}>
+      <div id="pg-edit" style={{ height: 'calc(100vh - var(--th))', overflow: 'hidden' }}>
         <div class="editor-wrap" style={{ height: '100%' }}>
           {/* Left tree */}
           <div class="etree">

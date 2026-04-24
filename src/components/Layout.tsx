@@ -2,7 +2,7 @@ import { html } from 'hono/html';
 import Sidebar from './Sidebar';
 import { Modals } from './Modals';
 
-export const Layout = (props: { children: any; title?: string; current?: string }) => {
+export const Layout = (props: { children: any; title?: string; current?: string; hideTopbar?: boolean }) => {
   return html`
 <!DOCTYPE html>
 <html lang="zh-CN">
@@ -19,8 +19,9 @@ export const Layout = (props: { children: any; title?: string; current?: string 
 </head>
 <body>
   <div class="shell">
-    ${<Sidebar current={props.current} />}
+    ${Sidebar({ current: props.current })}
     <div class="main">
+      ${!props.hideTopbar ? html`
       <header class="topbar">
         <div class="topbar-bc">
           <span>fkcoding-note</span>
@@ -44,7 +45,7 @@ export const Layout = (props: { children: any; title?: string; current?: string 
             新建
           </button>
         </div>
-      </header>
+      </header>` : ''}
       <div class="page-body">
         ${props.children}
       </div>
