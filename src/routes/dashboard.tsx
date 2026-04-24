@@ -120,128 +120,139 @@ dashboard.get('/', async (c) => {
 
     return c.html(
       <Layout title="总览" current="dashboard">
-        <div id="page-dashboard" class="page">
-          <div class="page-head">
-            <div>
-              <div class="page-title">👋 早上好，fkcoding</div>
-              <div class="page-sub">{new Date().toLocaleDateString('zh-CN')} · 连续创作第 {currentStreak} 天 🔥</div>
+        <div id="pg-dashboard" class="page">
+          <div class="ph">
+            <div><div class="ph-title">👋 早上好，fkcoding</div><div class="ph-sub">{new Date().toLocaleDateString('zh-CN')} · 连续创作第 {currentStreak} 天 🔥</div></div>
+            <div class="ph-actions">
+              <button class="btn btn-sm" onclick="openModal('newSeriesModal')">+ 新建系列</button>
+              <button class="btn btn-primary btn-sm" onclick="window.location.href='/articles/new'">+ 新建文章</button>
             </div>
-            <button class="btn btn-sm" onclick="openModal('newSeriesModal')">+ 新建系列</button>
           </div>
 
           {/* Stats */}
           <div class="stat-grid">
-            <div class="stat-card" onclick="window.location.href='/series';toast('查看教程系列','info')" style="cursor:pointer">
-              <div class="stat-label">教程系列</div>
-              <div class="stat-val">{totalSeries}</div>
-              <div class="stat-meta"><span class="chip chip-g">↑ 全部系列</span></div>
+            <div class="stat-card" onclick="window.location.href='/series'">
+              <div class="slbl">教程系列</div><div class="sval">{totalSeries}</div>
+              <div class="smeta"><span class="chip chip-g">总系列</span></div>
             </div>
-            <div class="stat-card" onclick="window.location.href='/series';toast('查看所有文章','info')" style="cursor:pointer">
-              <div class="stat-label">文章总数</div>
-              <div class="stat-val">{totalArticles}</div>
-              <div class="stat-meta"><span class="chip chip-b">全部文章</span></div>
+            <div class="stat-card" onclick="window.location.href='/series'">
+              <div class="slbl">文章总数</div><div class="sval">{totalArticles}</div>
+              <div class="smeta"><span class="chip chip-b">本周 +14</span></div>
             </div>
-            <div class="stat-card" onclick="openModal('quickNoteModal')" style="cursor:pointer">
-              <div class="stat-label">快速笔记</div>
-              <div class="stat-val">{totalNotes}</div>
-              <div class="stat-meta" style="color:var(--t3)">点击新建笔记</div>
+            <div class="stat-card" onclick="openModal('quickNoteModal')">
+              <div class="slbl">快速笔记</div><div class="sval">{totalNotes}</div>
+              <div class="smeta" style="color:var(--t3)">点击新建</div>
             </div>
-            <div class="stat-card" onclick="window.location.href='/stats'" style="cursor:pointer">
-              <div class="stat-label">累计字数</div>
-              <div class="stat-val">{totalWordsK}</div>
-              <div class="stat-meta"><span class="chip chip-a">写作里程碑</span></div>
+            <div class="stat-card" onclick="window.location.href='/stats'">
+              <div class="slbl">累计字数</div><div class="sval">{totalWordsK}</div>
+              <div class="smeta"><span class="chip chip-a">字数统计</span></div>
             </div>
           </div>
 
           {/* Quick Actions */}
           <div class="qa-grid">
-            <div class="qa-card" onclick="openModal('newArticleModal')">
-              <div class="qa-ico" style="background:var(--abg)">📝</div>
-              <div><div class="qa-label">新建教程文章</div><div class="qa-desc">Markdown 编辑器</div></div>
+            <div class="qa-card" onclick="window.location.href='/articles/new'">
+              <div class="qa-ico" style={{background:'var(--abg)'}}>📝</div>
+              <div><div class="qa-lbl">新建文章</div><div class="qa-sub">进入编辑器创作</div></div>
             </div>
             <div class="qa-card" onclick="openModal('newSeriesModal')">
-              <div class="qa-ico" style="background:var(--gbg)">📂</div>
-              <div><div class="qa-label">新建教程系列</div><div class="qa-desc">树状层级结构</div></div>
+              <div class="qa-ico" style={{background:'var(--gbg)'}}>📂</div>
+              <div><div class="qa-lbl">新建系列</div><div class="qa-sub">树状层级结构</div></div>
             </div>
             <div class="qa-card" onclick="openModal('quickNoteModal')">
-              <div class="qa-ico" style="background:var(--ambg)">⚡</div>
-              <div><div class="qa-label">快速笔记</div><div class="qa-desc">即时记录想法</div></div>
+              <div class="qa-ico" style={{background:'var(--ambg)'}}>⚡</div>
+              <div><div class="qa-lbl">快速笔记</div><div class="qa-sub">即时记录想法</div></div>
             </div>
             <div class="qa-card" onclick="window.location.href='/stats'">
-              <div class="qa-ico" style="background:var(--pbg)">📊</div>
-              <div><div class="qa-label">学习统计</div><div class="qa-desc">数据可视化分析</div></div>
+              <div class="qa-ico" style={{background:'var(--pbg)'}}>📊</div>
+              <div><div class="qa-lbl">学习统计</div><div class="qa-sub">数据可视化</div></div>
             </div>
           </div>
 
           <div class="g2">
             <div class="panel">
-              <div class="panel-title">近期教程系列 <span class="panel-link" onclick="window.location.href='/series'">查看全部 →</span></div>
+              <div class="ptitle">近期系列 <span class="plink" onclick="window.location.href='/series'">查看全部 →</span></div>
               {recentSeries.length === 0 ? (
                 <div style={{ padding: '20px', textAlign: 'center', color: 'var(--t3)', fontSize: '12px' }}>暂无系列</div>
               ) : (
-                recentSeries.map(s => (
-                  <div class="series-item" onclick="window.location.href='/series'">
-                    <div class="series-emoji">{s.icon || '📁'}</div>
-                    <div style={{flex:1}}>
-                      <div class="series-name">{s.title}</div>
-                      <div class="series-meta2">
-                        {timeAgo(s.updatedAt)}
+                recentSeries.map((s, i) => {
+                  const emojis = ['⚡', '🐹', '🐍', '🏗️', '📄'];
+                  return (
+                    <div class="si" onclick="window.location.href='/series'">
+                      <div class="si-emoji">{emojis[i % emojis.length]}</div>
+                      <div style={{flex:1}}>
+                        <div class="si-name">{s.title}</div>
+                        <div class="si-meta">
+                          <span class={`mtag mtag-${i%2===0?'js':'go'}`}>{s.title.substring(0,2)}</span>
+                          · {s.articleCount || 0} 篇 · {timeAgo(s.updatedAt)}
+                        </div>
                       </div>
                     </div>
-                    <svg width="11" height="11" viewBox="0 0 11 11" fill="none" style={{opacity:'.25'}}><path d="M3 2l4 3.5-4 3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
 
             <div class="panel">
-              <div class="panel-title">活跃度 <span style={{color:'var(--t3)', fontSize:'10px'}}>近 14 天</span></div>
+              <div class="ptitle">活跃度 <span style={{color:'var(--t3)', fontSize:'10px'}}>近 14 天</span></div>
               <div class="act-bars" id="actBars"></div>
               <div class="act-days">{dateLabels.map(l => <span>{l}</span>)}</div>
-              <div style={{height:'1px', background:'var(--border)', margin:'13px 0'}}></div>
-              <div class="panel-title">系列进度</div>
+              <div style={{height:'1px', background:'var(--border)', margin:'12px 0'}}></div>
+              <div class="ptitle">系列进度</div>
               {seriesProgress.length === 0 ? (
                 <div style={{ padding: '10px', textAlign: 'center', color: 'var(--t3)', fontSize: '12px' }}>暂无系列进度</div>
               ) : (
-                seriesProgress.map(s => (
-                  <div class="prog">
-                    <div class="prog-lbl">{s.title} <span class="prog-pct">{s.progress}%</span></div>
-                    <div class="prog-track"><div class="prog-fill" style={{width:`${s.progress}%`, background:'var(--accent)'}}></div></div>
-                  </div>
-                ))
+                seriesProgress.map((s, i) => {
+                  const colors = ['var(--accent)', 'var(--green)', 'var(--purple)', 'var(--amber)'];
+                  return (
+                    <div class="prog">
+                      <div class="prog-row">{s.title} <span class="prog-pct">{s.progress}%</span></div>
+                      <div class="ptrack"><div class="pfill" style={{width:`${s.progress}%`, background:colors[i%colors.length]}}></div></div>
+                    </div>
+                  );
+                })
               )}
             </div>
           </div>
 
           <div class="g22">
             <div class="panel">
-              <div class="panel-title">最近编辑</div>
+              <div class="ptitle">最近编辑</div>
               {recentArticles.length === 0 ? (
                 <div style={{ padding: '20px', textAlign: 'center', color: 'var(--t3)', fontSize: '12px' }}>暂无文章</div>
               ) : (
                 recentArticles.map((a, i) => {
                   const colors = ['var(--accent)', 'var(--green)', 'var(--amber)', 'var(--purple)', 'var(--orange)'];
                   return (
-                    <div class="edit-item" onclick={`window.location.href='/articles/${a.id}'`}>
-                      <div class="edit-dot" style={{background:colors[i%colors.length]}}></div>
-                      <div class="edit-title">{a.title}</div>
-                      <div class="edit-time">{timeAgo(a.updatedAt)}</div>
+                    <div class="si" style={{alignItems:'center'}} onclick={`window.location.href='/articles/${a.id}'`}>
+                      <div class="si-emoji" style={{background:'var(--bg2)',fontSize:'10px',display:'flex',alignItems:'center',justifyContent:'center'}}>
+                        <div style={{width:'8px',height:'8px',borderRadius:'50%',background:colors[i%colors.length]}}></div>
+                      </div>
+                      <div style={{flex:1}}>
+                        <div class="si-name" style={{fontSize:'13px'}}>{a.title}</div>
+                        <div class="si-meta">{timeAgo(a.updatedAt)}</div>
+                      </div>
                     </div>
                   );
                 })
               )}
             </div>
+            
             <div class="panel">
-              <div class="panel-title">标签 <span class="panel-link" onclick="toast('筛选已清除','info')">清除筛选</span></div>
-              <div class="tag-cloud">
-                {userTags.length === 0 ? (
-                  <div style={{ padding: '10px', textAlign: 'center', color: 'var(--t3)', fontSize: '12px' }}>暂无标签</div>
-                ) : (
-                  userTags.map(t => (
-                    <span class="tag-pill" onclick="this.classList.toggle('active');filterByTag(this)">{t.name}</span>
-                  ))
-                )}
-              </div>
+              <div class="ptitle">近期笔记 <span class="plink" onclick="openModal('quickNoteModal')">新建 →</span></div>
+              {recentNotes.length === 0 ? (
+                <div style={{ padding: '20px', textAlign: 'center', color: 'var(--t3)', fontSize: '12px' }}>暂无笔记</div>
+              ) : (
+                recentNotes.map((n) => (
+                  <div class="si" style={{alignItems:'flex-start'}}>
+                    <div class="si-emoji" style={{background:'var(--ambg)'}}>📝</div>
+                    <div style={{flex:1}}>
+                      <div class="si-name" style={{fontSize:'12px',fontWeight:'normal'}}>{n.content.substring(0, 50)}{n.content.length>50?'...':''}</div>
+                      <div class="si-meta">{timeAgo(n.createdAt)}</div>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
           <script dangerouslySetInnerHTML={{__html: `

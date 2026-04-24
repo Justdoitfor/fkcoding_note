@@ -1,0 +1,122 @@
+  <nav class="sidebar" id="sidebar">
+    <div class="logo" onclick="showPage('dashboard')">
+      <div class="logo-mark">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="white"><rect x="1" y="1" width="5" height="5" rx="1"/><rect x="8" y="1" width="5" height="5" rx="1"/><rect x="1" y="8" width="5" height="5" rx="1"/><path d="M8 10.5h5M10.5 8v5" stroke="white" stroke-width="1.2" stroke-linecap="round"/></svg>
+      </div>
+      <div>
+        <div class="logo-name">fkcoding-note</div>
+        <div class="logo-tag">Knowledge Base</div>
+      </div>
+    </div>
+
+    <div class="nav-label">主菜单</div>
+    <div class="nav-item active" id="nav-dashboard" onclick="showPage('dashboard')">
+      <svg class="ni" viewBox="0 0 15 15" fill="currentColor"><rect x="1" y="1" width="6" height="6" rx="1.5"/><rect x="8" y="1" width="6" height="6" rx="1.5"/><rect x="1" y="8" width="6" height="6" rx="1.5"/><rect x="8" y="8" width="6" height="6" rx="1.5"/></svg>
+      总览
+    </div>
+    <div class="nav-item" id="nav-series" onclick="showPage('series')">
+      <svg class="ni" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="1.5" y="1.5" width="12" height="12" rx="2"/><path d="M4 5h7M4 7.5h5M4 10h7" stroke-linecap="round"/></svg>
+      教程系列 <span class="nbadge">12</span>
+    </div>
+    <div class="nav-item" id="nav-stats" onclick="showPage('stats')">
+      <svg class="ni" viewBox="0 0 15 15" fill="currentColor"><rect x="1" y="8" width="3" height="6" rx="1"/><rect x="6" y="5" width="3" height="9" rx="1"/><rect x="11" y="2" width="3" height="12" rx="1"/></svg>
+      统计
+    </div>
+    <div class="nav-item" id="nav-notes" onclick="openModal('quickNoteModal')">
+      <svg class="ni" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="1.5" y="1.5" width="12" height="12" rx="2"/><path d="M4 5h7M4 7.5h7M4 10h4" stroke-linecap="round"/></svg>
+      快速笔记 <span class="nbadge">34</span>
+    </div>
+
+    <!-- Tree -->
+    <div class="nav-label" style="margin-top:5px">教程树</div>
+    <div class="tree-scroll">
+      <!-- JS Series -->
+      <div class="tree-item depth1" onclick="togTree('tj')" oncontextmenu="showCtx(event)">
+        <svg class="tchev open" id="tj-c" viewBox="0 0 10 10" fill="none"><path d="M3 2l4 3-4 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        ⚡ JavaScript 全栈
+        <div class="tree-acts">
+          <button class="tact" onclick="event.stopPropagation();openModal('newArticleModal')" title="新建">+</button>
+          <button class="tact" onclick="event.stopPropagation();toast('重命名系列','info')" title="重命名">✎</button>
+        </div>
+      </div>
+      <div id="tj" class="collap" style="max-height:300px">
+        <div class="tree-item depth2" onclick="togTree('tj1')" oncontextmenu="showCtx(event)">
+          <svg class="tchev open" id="tj1-c" viewBox="0 0 10 10" fill="none"><path d="M3 2l4 3-4 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          基础入门
+          <div class="tree-acts">
+            <button class="tact" onclick="event.stopPropagation();openModal('newArticleModal')">+</button>
+          </div>
+        </div>
+        <div id="tj1" class="collap" style="max-height:200px">
+          <div class="tree-item depth3" oncontextmenu="showCtx(event)" onclick="openArticle('vars')">
+            <div class="tdot"></div>变量与类型
+          </div>
+          <div class="tree-item depth3 active" id="tree-proto" oncontextmenu="showCtx(event)" onclick="openArticle('proto')">
+            <div class="tdot"></div>原型链机制
+          </div>
+          <div class="tree-item depth3" oncontextmenu="showCtx(event)" onclick="openArticle('closure')">
+            <div class="tdot"></div>闭包详解
+          </div>
+          <div class="tree-item depth3" oncontextmenu="showCtx(event)" onclick="openArticle('async')">
+            <div class="tdot"></div>异步编程
+          </div>
+        </div>
+        <div class="tree-item depth2" onclick="togTree('tj2')" oncontextmenu="showCtx(event)">
+          <svg class="tchev" id="tj2-c" viewBox="0 0 10 10" fill="none"><path d="M3 2l4 3-4 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          React 进阶
+        </div>
+        <div id="tj2" class="collap shut" style="max-height:200px">
+          <div class="tree-item depth3" onclick="openArticle('hooks')"><div class="tdot"></div>Hooks 解析</div>
+          <div class="tree-item depth3" onclick="openArticle('hooks')"><div class="tdot"></div>状态管理对比</div>
+        </div>
+        <div class="tree-item depth2" oncontextmenu="showCtx(event)">
+          <svg class="tchev" viewBox="0 0 10 10" fill="none"><path d="M3 2l4 3-4 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          Node.js 后端
+        </div>
+        <!-- New article button in tree -->
+        <div class="tree-new-btn depth2" onclick="openModal('newArticleModal')" style="padding-left:30px">
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M5 1v8M1 5h8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          新建文章
+        </div>
+      </div>
+      <!-- Go Series -->
+      <div class="tree-item depth1" onclick="togTree('tgo')" oncontextmenu="showCtx(event)">
+        <svg class="tchev" id="tgo-c" viewBox="0 0 10 10" fill="none"><path d="M3 2l4 3-4 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        🐹 Go 并发编程
+        <div class="tree-acts">
+          <button class="tact" onclick="event.stopPropagation();openModal('newArticleModal')">+</button>
+        </div>
+      </div>
+      <div id="tgo" class="collap shut" style="max-height:200px">
+        <div class="tree-item depth2" onclick="openArticle('goroutine')"><div class="tdot"></div>Goroutine 原理</div>
+        <div class="tree-item depth2" onclick="openArticle('goroutine')"><div class="tdot"></div>Channel 模式</div>
+      </div>
+      <div class="tree-item depth1" oncontextmenu="showCtx(event)">
+        <svg class="tchev" viewBox="0 0 10 10" fill="none"><path d="M3 2l4 3-4 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        🏗️ 系统设计精讲
+      </div>
+      <div class="tree-item depth1" oncontextmenu="showCtx(event)">
+        <svg class="tchev" viewBox="0 0 10 10" fill="none"><path d="M3 2l4 3-4 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        🐍 Python 数据处理
+      </div>
+      <!-- Add series -->
+      <div class="tree-new-btn" style="margin:6px 4px 0" onclick="openModal('newSeriesModal')">
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M5 1v8M1 5h8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        新建系列
+      </div>
+    </div>
+
+    <!-- User -->
+    <div class="sidebar-bottom">
+      <div class="user-row" id="userRow" onclick="togglePopover()">
+        <div class="avatar">FK</div>
+        <div style="flex:1;min-width:0">
+          <div class="uname">fkcoding</div>
+          <div class="uplan">Free · Cloudflare</div>
+        </div>
+        <svg style="width:11px;height:11px;opacity:.3;flex-shrink:0" viewBox="0 0 11 11" fill="none"><path d="M2 4l3.5 3.5L9 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->

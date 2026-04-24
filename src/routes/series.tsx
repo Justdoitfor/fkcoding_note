@@ -9,30 +9,28 @@ import { nanoid } from 'nanoid';
 const seriesApp = new Hono<{ Bindings: { DB: D1Database }; Variables: { userId: string } }>();
 
 // 递归组件：渲染树状节点
-const SeriesNode = (props: { node: any; depth: number }) => {
-  const { node, depth } = props;
-  const isFolder = node.children && node.children.length > 0;
-  const icon = node.icon || (isFolder ? '📁' : '📄');
-  const indentClass = depth === 0 ? 'root-row' : `ind${depth}`;
-  const rowId = `s-${node.id}`;
-  
+const SeriesNode = ({ node, depth }: { node: any; depth: number }) => {
+  const indent = depth === 0 ? '' : ` ind${depth}`;
+  const icon = node.icon || (depth === 0 ? '⚡' : '📁');
+
   return html`
-    <div class="stree-row ${indentClass}" onclick="toggleStree('${rowId}')" oncontextmenu="showCtx(event)">
-      ${depth > 0 ? html`<span class="drag-handle">⠿</span>` : ''}
-      ${isFolder || depth === 0 ? html`<svg class="strow-chev open" id="${rowId}-chev" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>` : ''}
-      <span class="strow-emoji" style="${depth > 0 ? 'font-size: 13px;' : ''}">${icon}</span>
-      <div style="flex: 1">
-        <div class="strow-title">${node.title}</div>
-        ${node.description && depth === 0 ? html`<div class="strow-desc">${node.description}</div>` : ''}
+    <div class="stblock">
+      <div class="strow series-root${indent}" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'">
+        <svg class="st-chev open" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        <span class="st-emoji">${icon}</span>
+        <div style="flex:1"><div class="st-title">${node.title}</div>${depth === 0 ? '<div class="st-sub">系列描述...</div>' : ''}</div>
+        <span class="st-count">${node.children ? node.children.length : 0} 项</span>
+        <span class="st-status st-prog">进行中</span>
+        <div class="st-acts">
+          <button class="st-act" onclick="event.stopPropagation();const title = prompt('请输入新子章节名称'); if(title) { htmx.ajax('POST', '/series/${node.id}/child', {headers:{'HX-Prompt':title}, target:'#series-tree-root', swap:'outerHTML'}); }" title="新建子章节">+</button>
+          <button class="st-act" onclick="event.stopPropagation();toast('编辑功能开发中','info')" title="编辑">✎</button>
+          <button class="st-act danger" onclick="event.stopPropagation();openModal('deleteModal')" title="删除">✕</button>
+        </div>
       </div>
-      <span class="strow-count">${isFolder ? node.children.length + ' 篇' : ''}</span>
-      <div class="strow-acts">
-        <button class="strow-act" title="新建子章节" onclick="event.stopPropagation();" hx-post="/series/${node.id}/child" hx-prompt="请输入子章节名称" hx-target="closest .stree-row" hx-swap="afterend">+</button>
-        <button class="strow-act" title="编辑" onclick="event.stopPropagation();toast('编辑功能开发中','info')">✎</button>
-        <button class="strow-act danger" title="删除" onclick="event.stopPropagation();openModal('deleteModal')">✕</button>
+      <div>
+        ${node.children ? node.children.map((child: any) => SeriesNode({ node: child, depth: depth + 1 })).join('') : ''}
       </div>
     </div>
-    ${isFolder ? html`<div id="${rowId}">${node.children.map((child: any) => SeriesNode({ node: child, depth: depth + 1 }))}</div>` : ''}
   `;
 };
 
@@ -62,22 +60,17 @@ seriesApp.get('/', async (c) => {
 
   return c.html(
     <Layout title="教程系列" current="series">
-      <div id="page-series" class="page">
-        <div class="page-head" style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-          <div>
-            <div class="page-title">教程系列</div>
-            <div class="page-sub">{tree.length} 个顶级系列 · 树状层级管理</div>
-          </div>
-          <form hx-post="/series" hx-target="#series-tree-root" hx-swap="beforeend">
-            <button class="btn btn-primary" type="button" onclick="const title = prompt('请输入新系列名称'); if(title) { const f = this.closest('form'); const i = document.createElement('input'); i.type='hidden'; i.name='title'; i.value=title; f.appendChild(i); f.requestSubmit(); }">
-              <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M6 1v10M1 6h10" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
-              新建系列
-            </button>
+      <div id="pg-series" class="page">
+        <div class="ph">
+          <div><div class="ph-title">教程系列</div><div class="ph-sub">{tree.length} 个系列 · 树状层级管理</div></div>
+          <form class="ph-actions" hx-post="/series" hx-target="#series-tree-root" hx-swap="beforeend">
+            <button class="btn btn-sm" type="button" onclick="const title = prompt('请输入新系列名称'); if(title) { const f = this.closest('form'); const i = document.createElement('input'); i.type='hidden'; i.name='title'; i.value=title; f.appendChild(i); f.requestSubmit(); }">+ 新建系列</button>
+            <button class="btn btn-primary btn-sm" type="button" onclick="window.location.href='/articles/new'">+ 新建文章</button>
           </form>
         </div>
 
         <div class="series-tree-wrap">
-          <div class="stree-block" id="series-tree-root">
+          <div class="series-tree" id="series-tree-root">
             {tree.length === 0 ? <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text3)', fontSize: '13px' }}>还没有创建任何系列，点击右上角新建一个吧！</div> : null}
             {tree.map(node => SeriesNode({ node, depth: 0 }))}
           </div>
