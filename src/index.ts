@@ -29,6 +29,29 @@ app.route('/', auth);
 // Redirect root to dashboard
 app.get('/', (c) => c.redirect('/dashboard'));
 
+// Emergency Database Init Route
+app.get('/init', async (c) => {
+  const statements = [
+    `CREATE TABLE IF NOT EXISTS \`article_history\` (\`id\` text PRIMARY KEY NOT NULL, \`article_id\` text, \`content\` text NOT NULL, \`saved_at\` integer NOT NULL);`,
+    `CREATE TABLE IF NOT EXISTS \`article_tags\` (\`article_id\` text, \`tag_id\` text);`,
+    `CREATE TABLE IF NOT EXISTS \`articles\` (\`id\` text PRIMARY KEY NOT NULL, \`user_id\` text NOT NULL, \`series_id\` text, \`title\` text NOT NULL, \`content\` text DEFAULT '' NOT NULL, \`summary\` text, \`status\` text DEFAULT 'draft' NOT NULL, \`sort_order\` integer DEFAULT 0, \`word_count\` integer DEFAULT 0, \`reading_minutes\` integer DEFAULT 0, \`created_at\` integer NOT NULL, \`updated_at\` integer NOT NULL, \`published_at\` integer);`,
+    `CREATE TABLE IF NOT EXISTS \`notes\` (\`id\` text PRIMARY KEY NOT NULL, \`user_id\` text NOT NULL, \`content\` text NOT NULL, \`created_at\` integer NOT NULL, \`updated_at\` integer NOT NULL);`,
+    `CREATE TABLE IF NOT EXISTS \`series\` (\`id\` text PRIMARY KEY NOT NULL, \`user_id\` text NOT NULL, \`parent_id\` text, \`title\` text NOT NULL, \`description\` text, \`icon\` text, \`sort_order\` integer DEFAULT 0, \`created_at\` integer NOT NULL, \`updated_at\` integer NOT NULL);`,
+    `CREATE TABLE IF NOT EXISTS \`tags\` (\`id\` text PRIMARY KEY NOT NULL, \`user_id\` text NOT NULL, \`name\` text NOT NULL, \`color\` text DEFAULT 'gray');`,
+    `CREATE TABLE IF NOT EXISTS \`users\` (\`id\` text PRIMARY KEY NOT NULL, \`username\` text NOT NULL, \`password_hash\` text NOT NULL, \`created_at\` integer NOT NULL);`,
+    `CREATE TABLE IF NOT EXISTS \`writing_logs\` (\`id\` text PRIMARY KEY NOT NULL, \`user_id\` text NOT NULL, \`date\` text NOT NULL, \`article_count\` integer DEFAULT 0, \`word_count\` integer DEFAULT 0);`
+  ];
+  
+  try {
+    for (const stmt of statements) {
+      await c.env.DB.prepare(stmt).run();
+    }
+    return c.text('Database tables initialized successfully!');
+  } catch (err: any) {
+    return c.text('Init failed: ' + err.message, 500);
+  }
+});
+
 app.use('/dashboard/*', authMiddleware);
 app.use('/series/*', authMiddleware);
 app.use('/articles/*', authMiddleware);
