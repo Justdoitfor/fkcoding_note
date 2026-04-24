@@ -4,20 +4,21 @@
   "main": "src/index.ts",
   "scripts": {
     "dev": "wrangler pages dev src/index.ts",
-    "build": "mkdir -p dist/assets && cp -r src/assets/* dist/assets/ && echo \"export default { fetch: async (request, env, ctx) => { const url = new URL(request.url); if (url.pathname.startsWith('/assets/')) { return env.ASSETS.fetch(request); } const { default: app } = await import('../src/index.ts'); return app.fetch(request, env, ctx); } };\" > dist/_worker.js",
+    "build": "mkdir -p dist/assets && cp -r src/assets/* dist/assets/ && npx esbuild src/index.ts --bundle --outfile=dist/_worker.js --format=esm --target=es2022 --minify --external:cloudflare:*",
     "deploy": "wrangler pages deploy dist",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "wrangler d1 migrations apply fkcoding-note --remote"
   },
   "dependencies": {
-    "hono": "^4.4.0",
     "drizzle-orm": "^0.31.0",
+    "hono": "^4.4.0",
     "nanoid": "^5.0.0"
   },
   "devDependencies": {
-    "wrangler": "^3.60.0",
-    "drizzle-kit": "^0.22.0",
     "@cloudflare/workers-types": "^4.0.0",
-    "typescript": "^5.4.0"
+    "drizzle-kit": "^0.22.0",
+    "esbuild": "^0.28.0",
+    "typescript": "^5.4.0",
+    "wrangler": "^3.60.0"
   }
 }
