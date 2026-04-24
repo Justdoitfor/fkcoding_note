@@ -821,16 +821,16 @@ body{font-family:var(--f);background:var(--bg);color:var(--text);-webkit-font-sm
           基础入门
         </div>
         <div id="tj1" class="collapsible" style="max-height:200px">
-          <div class="tree-row depth3" oncontextmenu="showCtx(event)" onclick="showPage('editor')">
+          <div class="tree-row depth3" oncontextmenu="showCtx(event)" onclick="showPage('reader')">
             <div class="tree-dot"></div> 变量与类型
           </div>
-          <div class="tree-row depth3 active" oncontextmenu="showCtx(event)" onclick="showPage('editor')">
+          <div class="tree-row depth3 active" oncontextmenu="showCtx(event)" onclick="showPage('reader')">
             <div class="tree-dot"></div> 原型链机制
           </div>
-          <div class="tree-row depth3" oncontextmenu="showCtx(event)" onclick="showPage('editor')">
+          <div class="tree-row depth3" oncontextmenu="showCtx(event)" onclick="showPage('reader')">
             <div class="tree-dot"></div> 闭包详解
           </div>
-          <div class="tree-row depth3" oncontextmenu="showCtx(event)" onclick="showPage('editor')">
+          <div class="tree-row depth3" oncontextmenu="showCtx(event)" onclick="showPage('reader')">
             <div class="tree-dot"></div> 异步编程
           </div>
         </div>
@@ -839,8 +839,8 @@ body{font-family:var(--f);background:var(--bg);color:var(--text);-webkit-font-sm
           React 进阶
         </div>
         <div id="tj2" class="collapsible collapsed" style="max-height:200px">
-          <div class="tree-row depth3" onclick="showPage('editor')"><div class="tree-dot"></div> Hooks 深度解析</div>
-          <div class="tree-row depth3" onclick="showPage('editor')"><div class="tree-dot"></div> 状态管理方案对比</div>
+          <div class="tree-row depth3" onclick="showPage('reader')"><div class="tree-dot"></div> Hooks 深度解析</div>
+          <div class="tree-row depth3" onclick="showPage('reader')"><div class="tree-dot"></div> 状态管理方案对比</div>
         </div>
         <div class="tree-row depth2" oncontextmenu="showCtx(event)">
           <svg class="tree-chev" viewBox="0 0 10 10" fill="none"><path d="M3 2l4 3-4 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
@@ -853,21 +853,21 @@ body{font-family:var(--f);background:var(--bg);color:var(--text);-webkit-font-sm
         🐹 Go 并发编程
       </div>
       <div id="tgo" class="collapsible collapsed" style="max-height:200px">
-        <div class="tree-row depth2" onclick="showPage('editor')"><div class="tree-dot"></div> Goroutine 原理</div>
+        <div class="tree-row depth2" onclick="showPage('reader')"><div class="tree-dot"></div> Goroutine 原理</div>
       </div>
       <div class="tree-row depth1" onclick="toggleTree('talg')" oncontextmenu="showCtx(event)">
         <svg class="tree-chev" id="talg-chev" viewBox="0 0 10 10" fill="none"><path d="M3 2l4 3-4 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
         🧮 算法数据结构
       </div>
       <div id="talg" class="collapsible collapsed" style="max-height:200px">
-        <div class="tree-row depth2" onclick="showPage('editor')"><div class="tree-dot"></div> 排序算法全解</div>
+        <div class="tree-row depth2" onclick="showPage('reader')"><div class="tree-dot"></div> 排序算法全解</div>
       </div>
       <div class="tree-row depth1" onclick="toggleTree('tsd')" oncontextmenu="showCtx(event)">
         <svg class="tree-chev" id="tsd-chev" viewBox="0 0 10 10" fill="none"><path d="M3 2l4 3-4 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
         🏗️ 系统设计精讲
       </div>
       <div id="tsd" class="collapsible collapsed" style="max-height:200px">
-        <div class="tree-row depth2" onclick="showPage('editor')"><div class="tree-dot"></div> CAP 定理详解</div>
+        <div class="tree-row depth2" onclick="showPage('reader')"><div class="tree-dot"></div> CAP 定理详解</div>
       </div>
     </div>
 
@@ -1011,27 +1011,27 @@ body{font-family:var(--f);background:var(--bg);color:var(--text);-webkit-font-sm
         <div class="g22">
           <div class="panel">
             <div class="panel-title">最近编辑</div>
-            <div class="edit-item" onclick="showPage('editor')">
+            <div class="edit-item" onclick="showPage('reader')">
               <div class="edit-dot" style="background:var(--accent)"></div>
               <div class="edit-title">原型链与继承机制详解</div>
               <div class="edit-time">刚刚</div>
             </div>
-            <div class="edit-item" onclick="showPage('editor')">
+            <div class="edit-item" onclick="showPage('reader')">
               <div class="edit-dot" style="background:var(--green)"></div>
               <div class="edit-title">Goroutine 调度器原理分析</div>
               <div class="edit-time">2h</div>
             </div>
-            <div class="edit-item" onclick="showPage('editor')">
+            <div class="edit-item" onclick="showPage('reader')">
               <div class="edit-dot" style="background:var(--amber)"></div>
               <div class="edit-title">Promise 与 async/await 对比</div>
               <div class="edit-time">昨天</div>
             </div>
-            <div class="edit-item" onclick="showPage('editor')">
+            <div class="edit-item" onclick="showPage('reader')">
               <div class="edit-dot" style="background:var(--purple)"></div>
               <div class="edit-title">分布式系统 CAP 定理实战</div>
               <div class="edit-time">3天前</div>
             </div>
-            <div class="edit-item" onclick="showPage('editor')">
+            <div class="edit-item" onclick="showPage('reader')">
               <div class="edit-dot" style="background:var(--orange)"></div>
               <div class="edit-title">Redis 缓存设计模式</div>
               <div class="edit-time">3天前</div>
@@ -1052,6 +1052,121 @@ body{font-family:var(--f);background:var(--bg);color:var(--text);-webkit-font-sm
               <span class="tag-pill" onclick="this.classList.toggle('active');filterByTag(this)">Docker</span>
               <span class="tag-pill" onclick="this.classList.toggle('active');filterByTag(this)">TypeScript</span>
               <span class="tag-pill" onclick="this.classList.toggle('active');filterByTag(this)">性能优化</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="pg-reader" style="display:none;height:calc(100vh - var(--th))">
+        <div class="editor-wrap" style="height:100%">
+          <div class="etree">
+            <div class="etree-head">
+              <div class="etree-series" onclick="showPage('series')" title="返回系列列表">⚡ JavaScript 全栈</div>
+              <button class="btn btn-icon" style="width:24px;height:24px" onclick="openModal('newArticleModal')" title="新建文章">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+              </button>
+            </div>
+            <div class="etree-body">
+              <div class="et-item et-ch">
+                <svg class="et-icon" viewBox="0 0 10 10" fill="none" style="transform: rotate(90deg);"><path d="M2 4l3 3 3-3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+                基础入门
+              </div>
+              <div>
+                <div class="et-item et-gc" onclick="showPage('reader')"><div class="et-dot"></div>变量、类型与作用域</div>
+                <div class="et-item et-gc active" onclick="showPage('reader')"><div class="et-dot"></div>原型链与继承机制详解</div>
+                <div class="et-item et-gc" onclick="showPage('reader')"><div class="et-dot"></div>异步编程：回调、Promise、async</div>
+              </div>
+              <div class="et-item et-ch" style="margin-top:10px">
+                <svg class="et-icon" viewBox="0 0 10 10" fill="none"><path d="M2 4l3 3 3-3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+                React 进阶
+              </div>
+              <div class="et-item et-ch" style="margin-top:10px">
+                <svg class="et-icon" viewBox="0 0 10 10" fill="none"><path d="M2 4l3 3 3-3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+                Node.js 后端
+              </div>
+            </div>
+          </div>
+
+          <div class="ed-main">
+            <div class="ed-topbar">
+              <div class="ed-title">原型链与继承机制详解</div>
+              <div class="saved-state" style="color:var(--text3)"><div class="saved-dot" style="background:var(--text3)"></div>最后更新：刚刚</div>
+              <button class="btn btn-sm btn-primary" onclick="showPage('reader')">进入编辑模式</button>
+              <button class="btn btn-sm" onclick="toggleFullscreen()">全屏</button>
+            </div>
+
+            <div class="ed-split">
+              <div class="ed-prev" style="flex:1;display:flex;border-left:none;max-width:800px;margin:0 auto;background:transparent">
+                <div class="prev-body" style="padding:40px;width:100%">
+                  <div style="margin-bottom:20px;display:flex;gap:8px">
+                    <span class="pbadge" style="background:var(--abg);color:var(--accent)">基础</span>
+                    <span class="pbadge" style="background:var(--pbg);color:var(--purple)">原型链</span>
+                  </div>
+                  <h1>原型链与继承机制详解</h1>
+                  <blockquote><p>🎯 本文目标：深入理解 JavaScript 原型链的工作原理</p></blockquote>
+                  <h2>什么是原型链？</h2>
+                  <p>在 JavaScript 中，每个对象都有一个内部属性 <code>[[Prototype]]</code>，它指向该对象的<strong>原型对象</strong>。</p>
+                  <pre><code>const obj = {}
+console.log(Object.getPrototypeOf(obj)) // Object.prototype</code></pre>
+                  <p>当我们试图访问一个对象的属性时，如果对象本身没有这个属性，JavaScript 引擎会去它的原型对象中查找。</p>
+                  <h3>原型链的尽头</h3>
+                  <p>所有普通对象的原型链最终都会指向 <code>Object.prototype</code>，而 <code>Object.prototype</code> 的原型是 <code>null</code>。</p>
+                  <h2>实现继承的几种方式</h2>
+                  <ul>
+                    <li><strong>原型链继承</strong>：直接修改原型指向</li>
+                    <li><strong>构造函数继承</strong>：使用 <code>call</code> 或 <code>apply</code></li>
+                    <li><strong>组合继承</strong>：结合前两者</li>
+                    <li><strong>ES6 Class</strong>：语法糖，本质仍是原型链</li>
+                  </ul>
+                  <p>在现代开发中，我们通常推荐使用 ES6 的 <code>class</code> 关键字来处理面向对象编程，因为它更加直观且易于维护。</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="meta-pane">
+            <div class="meta-s">
+              <div class="meta-l">目录</div>
+              <div class="toc-item">什么是原型链？</div>
+              <div class="toc-item toc-h3">原型链的尽头</div>
+              <div class="toc-item">实现继承的几种方式</div>
+            </div>
+            <div class="meta-s">
+              <div class="meta-l">状态</div>
+              <div class="meta-v" style="display:flex;align-items:center;gap:8px">
+                <div class="status-dot" style="background:var(--green)"></div>已发布
+              </div>
+            </div>
+            <div class="meta-s">
+              <div class="meta-l">所属系列</div>
+              <div class="meta-link" onclick="showPage('series')">JS 全栈 / 基础入门</div>
+            </div>
+            <div class="meta-s">
+              <div class="meta-l">标签</div>
+              <div>
+                <span class="meta-tag" onclick="toast('点击查看该标签所有文章','info')">JavaScript</span>
+                <span class="meta-tag meta-add-tag" onclick="toast('添加新标签','info')">+ 添加</span>
+              </div>
+            </div>
+            <div class="meta-s">
+              <div class="meta-l">字数</div>
+              <div class="meta-num" id="wordCount">1,247</div>
+            </div>
+            <div class="meta-s">
+              <div class="meta-l">阅读时间</div>
+              <div class="meta-num">约 4 分钟</div>
+            </div>
+            <div class="meta-s">
+              <div class="meta-l">修改时间</div>
+              <div class="meta-v" style="font-size:11px;font-family:var(--fm)">2026-04-24 14:28</div>
+            </div>
+            <div class="meta-s">
+              <div class="meta-l">操作</div>
+              <div style="display:flex;flex-direction:column;gap:4px">
+                <button class="btn btn-sm btn-ghost" style="justify-content:flex-start;font-size:11px" onclick="openModal('moveModal')">📦 移动文章…</button>
+                <button class="btn btn-sm btn-ghost" style="justify-content:flex-start;font-size:11px" onclick="toast('链接已复制','success')">🔗 复制链接</button>
+                <button class="btn btn-sm btn-ghost" style="justify-content:flex-start;font-size:11px;color:var(--red)" onclick="openModal('deleteModal')">🗑 删除文章</button>
+              </div>
             </div>
           </div>
         </div>
@@ -1286,7 +1401,7 @@ console.<span class="fn">log</span>(dog.<span class="fn">describe</span>()); <sp
                 </div>
               </div>
               <div id="s1c1">
-                <div class="stree-row ind2" oncontextmenu="showCtx(event)" onclick="showPage('editor')">
+                <div class="stree-row ind2" oncontextmenu="showCtx(event)" onclick="showPage('reader')">
                   <span class="drag-handle">⠿</span>
                   <span class="strow-emoji" style="font-size:12px">📄</span>
                   <div class="strow-title">变量、类型与作用域</div>
@@ -1296,7 +1411,7 @@ console.<span class="fn">log</span>(dog.<span class="fn">describe</span>()); <sp
                     <button class="strow-act danger" onclick="event.stopPropagation();openModal('deleteModal')">✕</button>
                   </div>
                 </div>
-                <div class="stree-row ind2" oncontextmenu="showCtx(event)" onclick="showPage('editor')">
+                <div class="stree-row ind2" oncontextmenu="showCtx(event)" onclick="showPage('reader')">
                   <span class="drag-handle">⠿</span>
                   <span class="strow-emoji" style="font-size:12px">📄</span>
                   <div class="strow-title">原型链与继承机制详解</div>
@@ -1306,7 +1421,7 @@ console.<span class="fn">log</span>(dog.<span class="fn">describe</span>()); <sp
                     <button class="strow-act danger" onclick="event.stopPropagation();openModal('deleteModal')">✕</button>
                   </div>
                 </div>
-                <div class="stree-row ind2" oncontextmenu="showCtx(event)" onclick="showPage('editor')">
+                <div class="stree-row ind2" oncontextmenu="showCtx(event)" onclick="showPage('reader')">
                   <span class="drag-handle">⠿</span>
                   <span class="strow-emoji" style="font-size:12px">📝</span>
                   <div class="strow-title">异步编程：回调、Promise、async</div>
@@ -1454,21 +1569,22 @@ console.<span class="fn">log</span>(dog.<span class="fn">describe</span>()); <sp
   <div class="sw-label">PAGES</div>
   <button class="sw-btn active" onclick="showPage('dashboard')">总览仪表盘</button>
   <button class="sw-btn" onclick="showPage('editor')">Markdown 编辑器</button>
+  <button class="sw-btn" onclick="showPage('reader')">文章阅读器</button>
   <button class="sw-btn" onclick="showPage('series')">教程系列</button>
   <button class="sw-btn" onclick="showPage('stats')">统计分析</button>
 </div>
 
 <script>
 // ═══════════ PAGE ROUTING ═══════════
-const pages = ['dashboard','editor','series','stats'];
+const pages = ['dashboard','editor','reader','series','stats'];
 const navIds = {dashboard:'nav-dashboard',series:'nav-series',editor:'nav-editor',stats:'nav-stats'};
-const topbarLabels = {dashboard:'总览',editor:'编辑器',series:'教程系列',stats:'统计分析'};
+const topbarLabels = {dashboard:'总览',editor:'编辑器',reader:'阅读文章',series:'教程系列',stats:'统计分析'};
 
 function showPage(name) {
   pages.forEach(p => {
     const el = document.getElementById('pg-' + p);
     if (!el) return;
-    el.style.display = p === name ? (p === 'editor' ? 'block' : 'block') : 'none';
+    el.style.display = p === name ? 'block' : 'none';
   });
   Object.entries(navIds).forEach(([k, id]) => {
     const el = document.getElementById(id);
