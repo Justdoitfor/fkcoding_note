@@ -57,7 +57,7 @@ articlesApp.post('/', async (c) => {
     updatedAt: now
   });
   
-  c.header('HX-Redirect', `/articles/edit/${articleId}`);
+  c.header('HX-Redirect', `/articles/${articleId}`);
   return c.text('Created');
 });
 
@@ -255,10 +255,13 @@ articlesApp.get('/edit/:id', async (c) => {
           {/* Left tree */}
           <div class="etree">
             <div class="etree-head">
-              <div class="etree-series-name">全部内容</div>
+              <div class="etree-series" onclick="window.location.href='/series'" title="返回系列列表" style={{ flex: 1, cursor: 'pointer' }}>⚡ 全部内容</div>
+              <button class="btn btn-icon" style={{ width: '24px', height: '24px' }} onclick="window.location.href='/articles/new'" title="新建文章">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+              </button>
             </div>
             <div class="etree-body">
-              {EditorTree({ allSeries, allArticles, parentId: null, depth: 0, activeArticleId: articleId })}
+              {EditorTree({ allSeries, allArticles, parentId: null, depth: 0, activeArticleId: articleId, isViewMode: true })}
               
               <div class="et-item et-ch" style={{marginTop:'10px'}}>
                 <svg class="et-icon" viewBox="0 0 10 10" fill="none"><path d="M2 4l3 3 3-3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
@@ -266,7 +269,7 @@ articlesApp.get('/edit/:id', async (c) => {
               </div>
               <div>
                 {draftArticles.map(a => (
-                  <a href={`/articles/edit/${a.id}`} style={{textDecoration:'none'}}>
+                  <a href={`/articles/${a.id}`} style={{textDecoration:'none'}}>
                     <div class={`et-item et-gc ${a.id === articleId ? 'active' : ''}`}>
                       <div class="et-dot"></div>
                       {a.title}
