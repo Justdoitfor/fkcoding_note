@@ -44,6 +44,14 @@ dashboard.get('/', async (c) => {
     const totalNotes = notesCountResult?.count || 0;
     const showSeed = totalSeries === 0 && totalArticles === 0;
 
+    // Fetch recent notes
+    const recentNotes = await db
+      .select()
+      .from(notes)
+      .where(eq(notes.userId, userId))
+      .orderBy(desc(notes.createdAt))
+      .limit(5);
+
     // Fetch recent series
     const recentSeries = await db
       .select()
@@ -285,9 +293,9 @@ dashboard.get('/', async (c) => {
         </div>
       </Layout>
     );
-  } catch (err) {
-    console.error("Dashboard DB error:", err);
-    return c.text("Server Error: Could not execute database query. Please ensure your D1 database is properly bound as 'DB' in Cloudflare Pages Settings -> Functions -> D1 database bindings, and that you have deployed the migrations.", 500);
+  } catch (err: any) {
+    console.error("Dashboard error:", err);
+    return c.text(`Server Error: Could not execute database query. Detail: ${err.message || err}`, 500);
   }
 });
 
